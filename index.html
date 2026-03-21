@@ -27,8 +27,8 @@
   --font-mono:'IBM Plex Mono',monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:#B8B2A4;font-family:var(--font-ui);min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:0;}
-.chassis{width:100%;background:var(--body-bg);border-radius:0;box-shadow:0 20px 60px rgba(0,0,0,0.45);overflow:hidden;}
+body{background:#B8B2A4;font-family:var(--font-ui);min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:20px 0;}
+.chassis{width:100%;max-width:1400px;background:var(--body-bg);border-radius:0;box-shadow:0 20px 60px rgba(0,0,0,0.45);overflow:hidden;}
 
 /* COLOR STRIPES */
 .stripe{display:flex;height:5px;}
@@ -44,7 +44,7 @@ body{background:#B8B2A4;font-family:var(--font-ui);min-height:100vh;display:flex
 .port-status span{color:var(--green);}
 
 /* HEADER */
-.faceplate-top{padding:0;display:flex;align-items:stretch;justify-content:space-between;border-bottom:1px solid var(--rule);overflow:hidden;}
+.faceplate-top{padding:0;display:flex;align-items:stretch;border-bottom:1px solid var(--rule);overflow:hidden;}
 .brand-block{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2px;flex-shrink:0;padding:20px 32px;background:var(--body-bg);}
 .globe-wrap{position:relative;display:flex;align-items:center;justify-content:center;}
 .globe-svg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:0;}
@@ -149,7 +149,7 @@ input[type="text"]:focus{border-color:var(--orange);}
 .rv-green{color:var(--green);}
 
 /* CONTROL SECTION */
-.control-section{display:grid;grid-template-columns:260px 1fr 200px;border-top:1px solid var(--rule);}
+.control-section{display:grid;grid-template-columns:220px 1fr 200px;border-top:1px solid var(--rule);}
 .ctrl-panel{padding:18px 18px 16px;border-right:1px solid var(--rule);}
 .ctrl-panel:last-child{border-right:none;}
 .ctrl-label{font-size:8px;font-weight:800;letter-spacing:0.22em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
@@ -185,11 +185,11 @@ input[type="range"]::-moz-range-thumb{width:14px;height:26px;background:linear-g
 .dc-sub{font-size:8px;color:var(--ink-faint);font-family:var(--font-mono);margin-top:1px;}
 
 /* MIXER */
-.mixer-section{display:flex;border-top:1px solid var(--rule);}
-.mixer-channels{flex:1;padding:14px 20px 12px;display:flex;flex-direction:column;gap:0;overflow:hidden;}
-.mixer-strips{display:flex;gap:0;align-items:stretch;flex:1;}
-.mix-ch{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;padding:8px 8px;border-right:1px solid var(--rule);}
-.mix-ch.master{border-left:2px solid var(--ink);border-right:none;background:rgba(0,0,0,0.03);flex:0 0 80px;}
+.mixer-section{display:flex;border-top:1px solid var(--rule);min-height:0;}
+.mixer-channels{flex:1;min-width:0;padding:12px 16px 12px;display:flex;flex-direction:column;gap:8px;overflow-x:auto;}
+.mixer-strips{display:flex;gap:0;align-items:stretch;min-width:max-content;}
+.mix-ch{display:flex;flex-direction:column;align-items:center;gap:5px;padding:6px 14px;border-right:1px solid var(--rule);min-width:72px;}
+.mix-ch.master{border-left:2px solid var(--ink);border-right:none;background:rgba(0,0,0,0.03);min-width:72px;}
 .mix-ch-label{font-size:8px;font-weight:800;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-mid);}
 .mix-ch-label.master{color:var(--orange);}
 .mix-track{width:10px;height:90px;background:#0A0907;border:1px solid #2A2820;border-radius:5px;position:relative;cursor:pointer;box-shadow:inset 0 2px 4px rgba(0,0,0,0.6);}
@@ -201,7 +201,7 @@ input[type="range"]::-moz-range-thumb{width:14px;height:26px;background:linear-g
 .mix-btn{font-size:7px;font-weight:800;letter-spacing:0.1em;padding:3px 10px;border:1px solid var(--rule);background:var(--panel-bg);color:var(--ink-mid);cursor:pointer;border-radius:2px;white-space:nowrap;}
 .mix-btn.active{background:var(--ink);color:var(--body-bg);border-color:var(--ink);}
 .mix-btn.active.hi{background:var(--orange);border-color:var(--orange);color:#fff;}
-.mixer-fx{flex:0 0 320px;padding:14px 24px 12px;border-left:2px solid var(--rule);display:flex;flex-direction:column;gap:0;}
+.mixer-fx{flex:0 0 280px;padding:12px 20px 12px;border-left:2px solid var(--rule);display:flex;flex-direction:column;gap:0;}
 
 /* STATUS STRIP */
 .status-strip{background:var(--dark-bg);border-top:2px solid #000;padding:8px 20px;min-height:48px;display:flex;align-items:center;flex-wrap:wrap;gap:0;}
@@ -253,6 +253,47 @@ input[type="range"]::-moz-range-thumb{width:14px;height:26px;background:linear-g
   .ss-block{padding:4px 10px;border-right:none;border-bottom:1px solid rgba(255,255,255,0.06);width:50%;}
   .ss-bpm{margin-left:0;width:100%;justify-content:center;padding:6px 0;}
   .fx-grid{grid-template-columns:1fr 1fr;}
+
+  /* MIXER — own full-width section on mobile */
+  .mixer-section{flex-direction:column;}
+  .mixer-channels{padding:14px 12px 10px;overflow-x:visible;}
+  .mixer-strips{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    min-width:unset;
+    width:100%;
+    gap:0;
+    border:1px solid var(--rule);
+    border-radius:4px;
+    overflow:hidden;
+  }
+  .mix-ch{
+    min-width:unset;
+    padding:10px 6px;
+    border-right:1px solid var(--rule);
+    border-bottom:1px solid var(--rule);
+  }
+  .mix-ch:nth-child(3n){border-right:none;}
+  .mix-ch:nth-last-child(-n+3){border-bottom:none;}
+  .mix-ch.master{
+    border-left:none;
+    border-top:2px solid var(--ink);
+    background:rgba(0,0,0,0.03);
+    grid-column:1/-1;
+    flex-direction:row;
+    justify-content:space-between;
+    align-items:center;
+    padding:8px 14px;
+    min-width:unset;
+  }
+  .mix-ch.master .mix-level-btn{flex-direction:row;gap:6px;}
+  .mix-ch.master .mix-btn{padding:4px 12px;}
+  .mixer-fx{
+    flex:unset;
+    border-left:none;
+    border-top:2px solid var(--rule);
+    padding:14px 12px 12px;
+  }
 }
 </style>
 </head>
@@ -506,12 +547,9 @@ input[type="range"]::-moz-range-thumb{width:14px;height:26px;background:linear-g
       <div style="display:flex;flex-direction:column;gap:10px;">
         <div class="sl-row"><span class="sl-key" style="width:72px;">Reverb</span><input id="fxReverb" type="range" min="0" max="1" step="0.01" value="0.65"/><span class="sl-val" id="fxReverbVal">0.65</span></div>
         <div class="sl-row"><span class="sl-key" style="width:72px;">Delay</span><input id="fxDelay" type="range" min="0" max="1" step="0.01" value="0.4"/><span class="sl-val" id="fxDelayVal">0.40</span></div>
-        <div class="sl-row"><span class="sl-key" style="width:72px;">Filter</span><input id="fxFilter" type="range" min="0" max="1" step="0.01" value="0.6"/><span class="sl-val" id="fxFilterVal">0.60</span></div>
-        <div class="sl-row"><span class="sl-key" style="width:72px;">Complexity</span><input id="fxComplexity" type="range" min="0" max="1" step="0.01" value="0.6"/><span class="sl-val" id="fxComplexityVal">0.60</span></div>
-      </div>
     </div>
   </div>
-</div>
+</div><!-- end mixer-section -->
 
 <div class="status-strip">
   <div class="ss-block"><span class="ss-key">Harmony</span><span class="ss-val teal" id="harmonyValue">—</span></div>
