@@ -1,1225 +1,1263 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>WEATHERMAN — WOOF.</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Sniglet:wght@400;800&family=IBM+Plex+Mono:wght@400;500;600&family=Barlow+Condensed:wght@500;700;800;900&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --body-bg:   #D6D0C4;   /* warm aluminum / Riddim cream */
-      --panel-bg:  #C8C2B4;
-      --dark-bg:   #1E1C18;
-      --screen-bg: #0A0907;
-      --ink:       #1A1814;
-      --ink-mid:   #5A5248;
-      --ink-faint: #9A9088;
-      --rule:      #B0A898;
-
-      /* accent palette — KO II / Riddim energy */
-      --orange:  #E8460A;
-      --yellow:  #F0BC00;
-      --green:   #2AAA50;
-      --teal:    #00909E;
-      --purple:  #7048D0;
-      --red:     #CC2020;
-      --cream:   #F0EBE0;
-
-      /* button 3D colors */
-      --btn-top:    #3A3630;
-      --btn-face:   #2A2820;
-      --btn-shadow: #0E0D0A;
-      --btn-light:  #5A5448;
-
-      --btn-orange-top:   #F05A1A;
-      --btn-orange-face:  #D03800;
-      --btn-orange-sh:    #801A00;
-
-      --btn-green-top:    #34BB5A;
-      --btn-green-face:   #1E9040;
-      --btn-green-sh:     #0A5020;
-
-      --btn-gray-top:     #B0A898;
-      --btn-gray-face:    #908880;
-      --btn-gray-sh:      #605850;
-
-      --font-logo: 'Sniglet', cursive;
-      --font-ui:   'Barlow Condensed', sans-serif;
-      --font-mono: 'IBM Plex Mono', monospace;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      background: #B8B2A4;
-      font-family: var(--font-ui);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 24px 12px;
-    }
-
-    /* ═══════════════════════════════════════
-       INSTRUMENT CHASSIS
-    ═══════════════════════════════════════ */
-    .chassis {
-      width: 100%;
-      max-width: 1180px;
-      background: var(--body-bg);
-      border-radius: 16px;
-      box-shadow:
-        0 2px 0 #E8E2D6 inset,        /* top highlight */
-        0 -2px 0 #A09888 inset,        /* bottom shadow */
-        0 20px 60px rgba(0,0,0,0.45),
-        0 4px 12px rgba(0,0,0,0.3);
-      overflow: hidden;
-    }
-
-    /* ═══════════════════════════════════════
-       TOP PORT STRIP (like TE connector strip)
-    ═══════════════════════════════════════ */
-    .port-strip {
-      background: var(--dark-bg);
-      height: 32px;
-      display: flex;
-      align-items: center;
-      padding: 0 20px;
-      gap: 10px;
-      border-bottom: 2px solid #000;
-    }
-
-    .port-tag {
-      font-family: var(--font-ui);
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      padding: 3px 9px;
-      border-radius: 3px;
-      cursor: default;
-    }
-
-    .port-tag.orange { background: var(--orange); color: #fff; }
-    .port-tag.dark   { background: #3A3630; color: #9A9088; border: 1px solid #555; }
-    .port-tag.green  { background: var(--green); color: #fff; }
-
-    .port-status {
-      margin-left: auto;
-      font-family: var(--font-mono);
-      font-size: 9px;
-      color: #4A4840;
-      letter-spacing: 0.06em;
-    }
-    .port-status span { color: var(--green); }
-
-    /* ═══════════════════════════════════════
-       FACEPLATE HEADER
-    ═══════════════════════════════════════ */
-    .faceplate-top {
-      padding: 16px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-      border-bottom: 1px solid var(--rule);
-    }
-
-    .brand-block {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      flex-shrink: 0;
-    }
-
-    .woof-logo {
-      font-family: var(--font-logo);
-      font-size: 56px;
-      font-weight: 800;
-      line-height: 1;
-      letter-spacing: 0.02em;
-      background-color: #2479B5;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='56'%3E%3Cg opacity='0.9'%3E%3Cellipse cx='18' cy='13' rx='9' ry='6' fill='white'/%3E%3Cellipse cx='26' cy='9' rx='7' ry='5.5' fill='white'/%3E%3Cellipse cx='33' cy='12' rx='6' ry='4.5' fill='white'/%3E%3Cellipse cx='12' cy='15' rx='6' ry='4' fill='white'/%3E%3C/g%3E%3Cg opacity='0.72'%3E%3Cellipse cx='70' cy='35' rx='7' ry='5' fill='white'/%3E%3Cellipse cx='78' cy='30' rx='6' ry='5' fill='white'/%3E%3Cellipse cx='85' cy='33' rx='5' ry='3.5' fill='white'/%3E%3Cellipse cx='64' cy='36' rx='5' ry='3.5' fill='white'/%3E%3C/g%3E%3Cg opacity='0.6'%3E%3Cellipse cx='48' cy='21' rx='5.5' ry='3.5' fill='white'/%3E%3Cellipse cx='55' cy='17' rx='5' ry='3.5' fill='white'/%3E%3Cellipse cx='61' cy='20' rx='4' ry='3' fill='white'/%3E%3C/g%3E%3C/svg%3E");
-      background-size: 100px 56px;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .brand-sub {
-      font-family: var(--font-logo);
-      font-size: 17px;
-      font-weight: 400;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #2479B5;
-    }
-
-    .product-block {
-      flex: 1;
-      padding-left: 24px;
-      border-left: 2px solid var(--rule);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 5px;
-    }
-
-    .product-name {
-      font-family: var(--font-ui);
-      font-size: 36px;
-      font-weight: 900;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--ink);
-      line-height: 1;
-    }
-
-    .product-tagline {
-      font-family: var(--font-mono);
-      font-size: 9px;
-      color: var(--ink-faint);
-      letter-spacing: 0.05em;
-    }
-
-    .header-meters {
-      display: flex;
-      gap: 10px;
-      align-items: flex-end;
-    }
-
-    /* ═══════════════════════════════════════
-       SCREEN AREA
-    ═══════════════════════════════════════ */
-    .screen-row {
-      display: grid;
-      grid-template-columns: 1fr 240px;
-      border-top: 2px solid #A09888;
-      border-bottom: 2px solid #A09888;
-    }
-
-    .screen-outer {
-      background: #181614;
-      padding: 6px;
-      border-right: 2px solid #A09888;
-    }
-
-    .screen {
-      position: relative;
-      min-height: 260px;
-      background: var(--screen-bg);
-      overflow: hidden;
-      /* inset screen bevel */
-      box-shadow:
-        inset 0 2px 8px rgba(0,0,0,0.8),
-        inset 0 0 0 1px rgba(255,255,255,0.04);
-    }
-
-    /* scan lines */
-    .screen::after {
-      content: '';
-      position: absolute; inset: 0;
-      background: repeating-linear-gradient(
-        0deg, transparent, transparent 3px,
-        rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px
-      );
-      pointer-events: none; z-index: 10;
-    }
-
-    /* dot grid */
-    .screen::before {
-      content: '';
-      position: absolute; inset: 0;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px);
-      background-size: 20px 20px;
-      pointer-events: none; z-index: 2;
-    }
-
-    .sky-glow {
-      position: absolute; border-radius: 50%;
-      left: 50%; top: 40px;
-      transform: translateX(-50%);
-      filter: blur(30px);
-      pointer-events: none; z-index: 1;
-      transition: all 1s ease;
-    }
-
-    .ground-line {
-      position: absolute; left: 0; right: 0; bottom: 48px;
-      height: 1px; background: rgba(255,255,255,0.07); z-index: 4;
-    }
-
-    .cloud-layer,.wind-layer,.precip-layer {
-      position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 1;
-    }
-
-    .drop {
-      position: absolute; width: 1px; border-radius: 1px;
-      background: rgba(140,200,255,0.6);
-      animation: fall linear infinite;
-    }
-    .snow {
-      position: absolute; width: 4px; height: 4px; border-radius: 50%;
-      background: rgba(255,255,255,0.8);
-      animation: snowFall linear infinite;
-    }
-    .cloud {
-      position: absolute; border-radius: 999px;
-      background: rgba(255,255,255,0.05);
-      filter: blur(4px); animation: drift linear infinite;
-    }
-    .wind-line {
-      position: absolute; height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.14), transparent);
-      animation: gust linear infinite;
-    }
-
-    @keyframes fall {
-      from { transform: translateY(-30px); opacity: 0.8; }
-      to   { transform: translateY(310px) translateX(-8px); opacity: 0.1; }
-    }
-    @keyframes snowFall {
-      from { transform: translateY(-20px); opacity: 0.9; }
-      to   { transform: translateY(310px) translateX(14px); opacity: 0.1; }
-    }
-    @keyframes drift {
-      from { transform: translateX(-150px); }
-      to   { transform: translateX(800px); }
-    }
-    @keyframes gust {
-      from { transform: translateX(-140px); opacity: 0; }
-      20%  { opacity: 1; }
-      100% { transform: translateX(700px); opacity: 0; }
-    }
-
-    /* ghost condition label */
-    .screen-ghost {
-      position: absolute; top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      font-family: var(--font-ui); font-weight: 900;
-      font-size: clamp(28px, 5vw, 60px);
-      letter-spacing: 0.1em; text-transform: uppercase;
-      color: rgba(255,255,255,0.055);
-      white-space: nowrap; pointer-events: none; z-index: 2; user-select: none;
-    }
-
-    .screen-hud {
-      position: absolute; inset: 0; padding: 10px 12px;
-      display: flex; flex-direction: column; justify-content: space-between;
-      z-index: 5; pointer-events: none;
-    }
-
-    .hud-top { display: flex; justify-content: space-between; align-items: flex-start; }
-    .hud-coords {
-      font-family: var(--font-mono); font-size: 8px;
-      color: rgba(255,255,255,0.18); letter-spacing: 0.06em;
-    }
-
-    .hud-badge {
-      font-family: var(--font-ui); font-size: 9px; font-weight: 800;
-      letter-spacing: 0.16em; text-transform: uppercase;
-      padding: 2px 8px; border: 1px solid;
-    }
-    .hud-badge.major    { color: var(--yellow); border-color: rgba(240,188,0,0.5); background: rgba(240,188,0,0.1); }
-    .hud-badge.minor    { color: var(--teal);   border-color: rgba(0,144,158,0.5); background: rgba(0,144,158,0.1); }
-    .hud-badge.suspended{ color: rgba(255,255,255,0.4); border-color: rgba(255,255,255,0.15); background: rgba(0,0,0,0.2); }
-
-    .hud-bottom { display: flex; justify-content: space-between; align-items: flex-end; }
-    .hud-condition {
-      font-family: var(--font-ui); font-size: 11px; font-weight: 800;
-      letter-spacing: 0.12em; text-transform: uppercase;
-      color: rgba(240,235,225,0.8);
-    }
-    .hud-bpm {
-      font-family: var(--font-mono); font-size: 11px; font-weight: 600;
-      color: var(--orange); letter-spacing: 0.05em;
-    }
-
-    /* ═══ SCREEN SIDEBAR ═══ */
-    .screen-sidebar {
-      background: var(--dark-bg);
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .sidebar-label {
-      font-family: var(--font-ui);
-      font-size: 8px; font-weight: 800;
-      letter-spacing: 0.2em; text-transform: uppercase;
-      color: #3A3630;
-    }
-
-    /* bar meters in sidebar */
-    .bar-meters {
-      display: flex;
-      gap: 6px;
-      align-items: flex-end;
-      flex: 1;
-    }
-
-    .bm-col {
-      flex: 1;
-      display: flex; flex-direction: column;
-      align-items: center; gap: 4px;
-    }
-
-    .bm-track {
-      width: 100%;
-      max-width: 22px;
-      height: 80px;
-      background: #0E0C08;
-      position: relative; overflow: hidden;
-      border: 1px solid #2A2820;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);
-    }
-
-    .bm-fill {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      height: 0%; transition: height 0.35s ease;
-    }
-
-    .bm-label {
-      font-family: var(--font-mono);
-      font-size: 7px; letter-spacing: 0.08em;
-      text-transform: uppercase; color: #4A4840;
-      white-space: nowrap;
-    }
-
-    /* TE-style readout */
-    .readout-block {
-      background: #080706;
-      border: 1px solid #1A1814;
-      padding: 8px 10px;
-      box-shadow: inset 0 1px 3px rgba(0,0,0,0.7);
-    }
-
-    .readout-row {
-      display: flex; justify-content: space-between;
-      align-items: baseline; margin-bottom: 5px;
-    }
-    .readout-row:last-child { margin-bottom: 0; }
-
-    .readout-key {
-      font-size: 8px; font-weight: 700;
-      letter-spacing: 0.16em; text-transform: uppercase;
-      color: #3A3630;
-    }
-
-    .readout-val {
-      font-family: var(--font-mono);
-      font-size: 13px; font-weight: 600;
-      letter-spacing: 0.04em;
-    }
-    .rv-orange { color: var(--orange); }
-    .rv-teal   { color: var(--teal); }
-    .rv-yellow { color: var(--yellow); }
-    .rv-green  { color: var(--green); }
-    .rv-dim    { color: #3A3630; }
-
-    /* ═══════════════════════════════════════
-       CONTROL SECTION
-    ═══════════════════════════════════════ */
-    .control-section {
-      display: grid;
-      grid-template-columns: 260px 1fr 200px;
-      border-top: 1px solid var(--rule);
-    }
-
-    @media (max-width: 900px) {
-      .control-section { grid-template-columns: 1fr 1fr; }
-      .control-section > :last-child { grid-column: 1 / -1; }
-      .screen-row { grid-template-columns: 1fr; }
-      .screen-sidebar { border-top: 2px solid #A09888; }
-    }
-
-    .ctrl-panel {
-      padding: 18px 18px 16px;
-      border-right: 1px solid var(--rule);
-    }
-    .ctrl-panel:last-child { border-right: none; }
-
-    .ctrl-label {
-      font-size: 8px; font-weight: 800;
-      letter-spacing: 0.22em; text-transform: uppercase;
-      color: var(--ink-faint);
-      margin-bottom: 14px;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .ctrl-label::after {
-      content: ''; flex: 1; height: 1px; background: var(--rule);
-    }
-
-    /* ═══════════════════════════════════════
-       BUTTONS — clean flat 2D, TE style
-    ═══════════════════════════════════════ */
-    .btn3d {
-      font-family: var(--font-ui);
-      font-size: 10px; font-weight: 800;
-      letter-spacing: 0.12em; text-transform: uppercase;
-      padding: 8px 14px;
-      border: none;
-      cursor: pointer;
-      outline: none;
-      display: inline-flex; align-items: center; justify-content: center;
-      user-select: none;
-      border-radius: 4px;
-      transition: filter 0.08s ease, transform 0.06s ease;
-      white-space: nowrap;
-    }
-    .btn3d:active { transform: scale(0.96); filter: brightness(0.88); }
-
-    .btn3d-inner { display: contents; }
-
-    .btn3d.dark {
-      background: #2A2820;
-      color: #C8C0B0;
-    }
-    .btn3d.dark:hover { background: #3A3830; }
-
-    .btn3d.orange {
-      background: var(--orange);
-      color: #fff;
-    }
-    .btn3d.orange:hover { background: #F05A1A; }
-
-    .btn3d.green {
-      background: var(--green);
-      color: #fff;
-    }
-    .btn3d.green:hover { background: #34BB5A; }
-
-    .btn3d.gray {
-      background: var(--panel-bg);
-      color: var(--ink);
-      border: 1px solid var(--rule);
-    }
-    .btn3d.gray:hover { background: var(--body-bg); }
-
-    .btn3d.wide { padding: 8px 20px; }
-    .btn3d.full { width: 100%; }
-
-    .input-row {
-      display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
-    }
-
-    .zip-input {
-      font-family: var(--font-mono); font-size: 16px; font-weight: 600;
-      width: 88px; padding: 6px 10px;
-      background: #0A0907; color: #E0D8C8;
-      border: 1px solid #2A2820;
-      outline: none; letter-spacing: 0.1em;
-      box-shadow: inset 0 2px 6px rgba(0,0,0,0.7);
-    }
-    .zip-input:focus { border-color: var(--orange); }
-
-    .btn-row {
-      display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;
-    }
-
-    /* ═══════════════════════════════════════
-       SLIDERS (instrument-style)
-    ═══════════════════════════════════════ */
-    .slider-list { display: flex; flex-direction: column; gap: 11px; }
-
-    .sl-row {
-      display: flex; align-items: center; gap: 10px;
-    }
-
-    .sl-pip {
-      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
-    }
-
-    .sl-key {
-      font-size: 9px; font-weight: 800; letter-spacing: 0.14em;
-      text-transform: uppercase; color: var(--ink-mid);
-      width: 58px; flex-shrink: 0;
-    }
-
-    input[type="range"] {
-      flex: 1; -webkit-appearance: none; appearance: none;
-      height: 6px;
-      background: #0A0907;
-      border: 1px solid #2A2820;
-      border-radius: 3px;
-      outline: none; cursor: pointer;
-      box-shadow: inset 0 1px 3px rgba(0,0,0,0.6);
-    }
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 16px; height: 28px;
-      background: linear-gradient(180deg, #C0B8A8 0%, #807870 40%, #706860 100%);
-      border-radius: 3px;
-      cursor: pointer;
-      box-shadow:
-        0 1px 0 rgba(255,255,255,0.3) inset,
-        0 2px 4px rgba(0,0,0,0.5),
-        0 1px 0 #A09888;
-    }
-    input[type="range"]::-moz-range-thumb {
-      width: 16px; height: 28px;
-      background: linear-gradient(180deg, #C0B8A8, #706860);
-      border-radius: 3px; border: none;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
-    }
-
-    .sl-val {
-      font-family: var(--font-mono); font-size: 10px; font-weight: 600;
-      color: var(--ink-mid); width: 28px; text-align: right;
-    }
-
-    /* ═══════════════════════════════════════
-       WEATHER DATA PANEL
-    ═══════════════════════════════════════ */
-    .data-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0;
-    }
-
-    .data-cell {
-      padding: 8px 10px;
-      border-bottom: 1px solid var(--rule);
-      border-right: 1px solid var(--rule);
-    }
-    .data-cell:nth-child(2n) { border-right: none; }
-    .data-cell:nth-last-child(-n+2) { border-bottom: none; }
-
-    .dc-key {
-      font-size: 8px; font-weight: 800; letter-spacing: 0.16em;
-      text-transform: uppercase; color: var(--ink-faint);
-      margin-bottom: 3px;
-    }
-    .dc-val {
-      font-family: var(--font-mono); font-size: 14px; font-weight: 600;
-      color: var(--ink); letter-spacing: 0.02em;
-    }
-    .dc-val.c-orange { color: var(--orange); }
-    .dc-val.c-teal   { color: var(--teal); }
-    .dc-val.c-yellow { color: #806400; }
-    .dc-val.c-purple { color: var(--purple); }
-    .dc-sub { font-size: 8px; color: var(--ink-faint); font-family: var(--font-mono); margin-top: 1px; }
-
-    /* ═══════════════════════════════════════
-       BOTTOM STATUS STRIP
-    ═══════════════════════════════════════ */
-    .status-strip {
-      background: var(--dark-bg);
-      border-top: 2px solid #000;
-      padding: 0 20px;
-      height: 48px;
-      display: flex; align-items: center; gap: 0;
-      overflow: hidden;
-    }
-
-    .ss-block {
-      display: flex; align-items: center; gap: 8px;
-      padding: 0 18px; height: 100%;
-      border-right: 1px solid rgba(255,255,255,0.06);
-    }
-    .ss-block:first-child { padding-left: 0; }
-    .ss-block:last-child { border-right: none; }
-
-    .ss-key {
-      font-family: var(--font-ui); font-size: 8px; font-weight: 700;
-      letter-spacing: 0.2em; text-transform: uppercase;
-      color: rgba(255,255,255,0.2);
-    }
-    .ss-val {
-      font-family: var(--font-mono); font-size: 13px; font-weight: 600;
-      letter-spacing: 0.04em;
-    }
-    .ss-val.orange { color: var(--orange); }
-    .ss-val.teal   { color: var(--teal); }
-    .ss-val.yellow { color: var(--yellow); }
-    .ss-val.green  { color: var(--green); }
-    .ss-val.dim    { color: rgba(255,255,255,0.18); }
-
-    .ss-bpm {
-      margin-left: auto;
-      display: flex; align-items: baseline; gap: 5px;
-      padding-left: 20px;
-    }
-    .ss-bpm-num {
-      font-family: var(--font-ui); font-size: 36px; font-weight: 900;
-      line-height: 1; color: var(--orange); letter-spacing: -0.02em;
-    }
-    .ss-bpm-unit {
-      font-family: var(--font-ui); font-size: 10px; font-weight: 700;
-      letter-spacing: 0.1em; color: rgba(255,255,255,0.22);
-    }
-
-    .pulse-dot {
-      width: 9px; height: 9px; border-radius: 50%;
-      background: var(--orange); opacity: 0.2;
-      transition: opacity 0.06s, transform 0.06s;
-      flex-shrink: 0;
-    }
-    .pulse-dot.active { opacity: 1; transform: scale(1.7); }
-
-    /* ═══ STATUS TEXT ═══ */
-    .status-text {
-      font-family: var(--font-mono); font-size: 9px;
-      color: var(--teal); letter-spacing: 0.04em;
-      margin-top: 8px; min-height: 16px;
-    }
-
-    /* knob decorations */
-    .knob-row {
-      display: flex; gap: 12px; align-items: center;
-      margin-top: 12px;
-    }
-    .knob {
-      width: 38px; height: 38px; border-radius: 50%;
-      background: radial-gradient(circle at 38% 32%, #5A5248, #1A1814 70%);
-      box-shadow:
-        0 3px 8px rgba(0,0,0,0.6),
-        0 1px 0 rgba(255,255,255,0.08) inset;
-      position: relative; flex-shrink: 0;
-    }
-    .knob::after {
-      content: '';
-      position: absolute; top: 6px; left: 50%;
-      transform: translateX(-50%);
-      width: 3px; height: 10px;
-      background: var(--orange);
-      border-radius: 2px;
-    }
-    .knob-label {
-      font-size: 8px; font-weight: 700; letter-spacing: 0.14em;
-      text-transform: uppercase; color: var(--ink-faint);
-      margin-top: 4px; text-align: center;
-    }
-    .knob-col { display: flex; flex-direction: column; align-items: center; }
-
-    /* TE-style color patch row */
-    .color-patches {
-      display: flex; height: 5px;
-    }
-    .color-patches > div { flex: 1; }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WEATHERMAN — WOOF.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sniglet:wght@400;800&family=IBM+Plex+Mono:wght@400;500;600&family=Barlow+Condensed:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --body-bg:  #D6D0C4;
+  --panel-bg: #C8C2B4;
+  --dark-bg:  #1E1C18;
+  --screen-bg:#0A0907;
+  --ink:      #1A1814;
+  --ink-mid:  #5A5248;
+  --ink-faint:#9A9088;
+  --rule:     #B0A898;
+  --orange:   #E8460A;
+  --yellow:   #F0BC00;
+  --green:    #2AAA50;
+  --teal:     #00909E;
+  --purple:   #7048D0;
+  --red:      #CC2020;
+  --font-logo:'Sniglet',cursive;
+  --font-ui:  'Barlow Condensed',sans-serif;
+  --font-mono:'IBM Plex Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#B8B2A4;font-family:var(--font-ui);min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:24px 12px;}
+.chassis{width:100%;max-width:1180px;background:var(--body-bg);border-radius:16px;box-shadow:0 2px 0 #E8E2D6 inset,0 -2px 0 #A09888 inset,0 20px 60px rgba(0,0,0,0.45);overflow:hidden;}
+
+/* COLOR STRIPES */
+.stripe{display:flex;height:5px;}
+.stripe>div{flex:1;}
+
+/* PORT STRIP */
+.port-strip{background:var(--dark-bg);height:32px;display:flex;align-items:center;padding:0 20px;gap:10px;border-bottom:2px solid #000;}
+.port-tag{font-family:var(--font-ui);font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:3px 9px;border-radius:3px;}
+.port-tag.orange{background:var(--orange);color:#fff;}
+.port-tag.dark{background:#3A3630;color:#9A9088;border:1px solid #555;}
+.port-tag.green{background:var(--green);color:#fff;}
+.port-status{margin-left:auto;font-family:var(--font-mono);font-size:9px;color:#4A4840;letter-spacing:0.06em;}
+.port-status span{color:var(--green);}
+
+/* HEADER */
+.faceplate-top{padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid var(--rule);}
+.brand-block{display:flex;flex-direction:column;gap:3px;flex-shrink:0;}
+.woof-logo{font-family:var(--font-logo);font-size:52px;font-weight:800;line-height:1;letter-spacing:0.02em;background-color:#2479B5;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='56'%3E%3Cg opacity='0.9'%3E%3Cellipse cx='18' cy='13' rx='9' ry='6' fill='white'/%3E%3Cellipse cx='26' cy='9' rx='7' ry='5.5' fill='white'/%3E%3Cellipse cx='33' cy='12' rx='6' ry='4.5' fill='white'/%3E%3Cellipse cx='12' cy='15' rx='6' ry='4' fill='white'/%3E%3C/g%3E%3Cg opacity='0.72'%3E%3Cellipse cx='70' cy='35' rx='7' ry='5' fill='white'/%3E%3Cellipse cx='78' cy='30' rx='6' ry='5' fill='white'/%3E%3Cellipse cx='85' cy='33' rx='5' ry='3.5' fill='white'/%3E%3Cellipse cx='64' cy='36' rx='5' ry='3.5' fill='white'/%3E%3C/g%3E%3Cg opacity='0.6'%3E%3Cellipse cx='48' cy='21' rx='5.5' ry='3.5' fill='white'/%3E%3Cellipse cx='55' cy='17' rx='5' ry='3.5' fill='white'/%3E%3Cellipse cx='61' cy='20' rx='4' ry='3' fill='white'/%3E%3C/g%3E%3C/svg%3E");background-size:100px 56px;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.brand-sub{font-family:var(--font-logo);font-size:16px;font-weight:400;letter-spacing:0.1em;text-transform:uppercase;color:#2479B5;}
+.product-block{flex:1;padding-left:24px;border-left:2px solid var(--rule);display:flex;flex-direction:column;justify-content:center;gap:5px;}
+.product-name{font-family:var(--font-ui);font-size:34px;font-weight:900;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink);line-height:1;}
+.product-tagline{font-family:var(--font-mono);font-size:9px;color:var(--ink-faint);letter-spacing:0.05em;}
+.knob-row{display:flex;gap:12px;align-items:center;}
+.knob-col{display:flex;flex-direction:column;align-items:center;}
+.knob-wrap{position:relative;width:38px;height:38px;}
+.knob-input{position:absolute;width:38px;height:38px;opacity:0;cursor:pointer;z-index:2;-webkit-appearance:slider-vertical;writing-mode:vertical-lr;direction:rtl;}
+.knob-visual{width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#5A5248,#1A1814 70%);box-shadow:0 3px 8px rgba(0,0,0,0.6),0 1px 0 rgba(255,255,255,0.08) inset;position:relative;pointer-events:none;}
+.knob-marker{position:absolute;width:3px;height:10px;background:var(--orange);border-radius:2px;left:50%;top:5px;transform:translateX(-50%);transform-origin:center 14px;}
+.knob-static{width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#5A5248,#1A1814 70%);box-shadow:0 2px 6px rgba(0,0,0,0.5);}
+.knob-label{font-size:8px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-faint);margin-top:4px;text-align:center;}
+
+/* INPUT BAR */
+.input-bar{background:var(--panel-bg);border-bottom:2px solid var(--rule);padding:10px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.ibar-label{font-size:9px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-faint);white-space:nowrap;}
+input[type="text"]{font-family:var(--font-mono);font-size:15px;font-weight:600;width:90px;padding:6px 10px;background:var(--body-bg);border:2px solid var(--ink);color:var(--ink);outline:none;border-radius:0;letter-spacing:0.08em;}
+input[type="text"]:focus{border-color:var(--orange);}
+.btn3d{font-family:var(--font-ui);font-size:11px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;padding:8px 14px;border:none;cursor:pointer;outline:none;display:inline-flex;align-items:center;justify-content:center;user-select:none;border-radius:4px;transition:filter 0.08s,transform 0.06s;white-space:nowrap;}
+.btn3d:active{transform:scale(0.96);filter:brightness(0.88);}
+.btn3d.dark{background:#2A2820;color:#C8C0B0;}
+.btn3d.dark:hover{background:#3A3830;}
+.btn3d.orange{background:var(--orange);color:#fff;}
+.btn3d.orange:hover{background:#F05A1A;}
+.btn3d.gray{background:var(--panel-bg);color:var(--ink);border:1px solid var(--rule);}
+.btn3d.gray:hover{background:var(--body-bg);}
+.btn3d.wide{padding:8px 20px;}
+.btn-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+.ibar-status{font-family:var(--font-mono);font-size:10px;color:var(--teal);letter-spacing:0.04em;flex:1;min-width:160px;}
+.sep{width:1px;height:26px;background:var(--rule);flex-shrink:0;}
+.input-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+.zip-input{font-family:var(--font-mono);font-size:16px;font-weight:600;width:88px;padding:6px 10px;background:#0A0907;color:#E0D8C8;border:1px solid #2A2820;outline:none;letter-spacing:0.1em;box-shadow:inset 0 2px 6px rgba(0,0,0,0.7);}
+.zip-input:focus{border-color:var(--orange);}
+
+/* BODY GRID */
+.body{display:grid;grid-template-columns:300px 1fr 240px;}
+
+/* SCREEN */
+.screen-row{display:grid;grid-template-columns:1fr 240px;border-top:2px solid #A09888;border-bottom:2px solid #A09888;}
+.screen-outer{background:#181614;padding:6px;border-right:2px solid #A09888;}
+.screen{position:relative;min-height:320px;background:var(--screen-bg);overflow:hidden;box-shadow:inset 0 2px 8px rgba(0,0,0,0.8),inset 0 0 0 1px rgba(255,255,255,0.04);}
+.screen::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.08) 3px,rgba(0,0,0,0.08) 4px);pointer-events:none;z-index:10;}
+.screen::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.012) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.012) 1px,transparent 1px);background-size:20px 20px;pointer-events:none;z-index:2;}
+.sky-layer{position:absolute;inset:0;transition:background 3s ease;z-index:0;}
+.star-layer{position:absolute;inset:0;pointer-events:none;z-index:1;}
+.star{position:absolute;border-radius:50%;background:white;animation:twinkle ease-in-out infinite;}
+@keyframes twinkle{0%,100%{opacity:0.9;transform:scale(1);}50%{opacity:0.2;transform:scale(0.5);}}
+.sky-glow{position:absolute;border-radius:50%;left:50%;top:40px;transform:translateX(-50%);filter:blur(30px);pointer-events:none;z-index:1;transition:all 1s ease;}
+.cloud-layer,.wind-layer,.precip-layer,.fog-layer{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1;}
+.terrain-layer{position:absolute;bottom:0;left:0;right:0;pointer-events:none;z-index:3;}
+.lightning-layer{position:absolute;inset:0;pointer-events:none;z-index:6;}
+.drop{position:absolute;width:1px;border-radius:1px;background:rgba(140,200,255,0.65);animation:fall linear infinite;}
+.snow{position:absolute;width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,0.8);animation:snowFall linear infinite;}
+.cloud{position:absolute;border-radius:999px;background:rgba(255,255,255,0.055);filter:blur(4px);animation:drift linear infinite;}
+.wind-line{position:absolute;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.16),transparent);animation:gust linear infinite;}
+.fog-bank{position:absolute;border-radius:50%;background:rgba(200,210,220,0.12);filter:blur(20px);animation:fogDrift linear infinite;}
+.lightning-bolt{position:absolute;pointer-events:none;opacity:0;animation:lightningFlash 0.15s ease-out forwards;}
+@keyframes fall{from{transform:translateY(-30px);opacity:0.8;}to{transform:translateY(340px) translateX(-8px);opacity:0.1;}}
+@keyframes snowFall{from{transform:translateY(-20px);opacity:0.9;}to{transform:translateY(340px) translateX(16px);opacity:0.1;}}
+@keyframes drift{from{transform:translateX(-150px);}to{transform:translateX(800px);}}
+@keyframes gust{from{transform:translateX(-140px);opacity:0;}20%{opacity:1;}100%{transform:translateX(700px);opacity:0;}}
+@keyframes fogDrift{from{transform:translateX(0);}to{transform:translateX(30%);}}
+@keyframes lightningFlash{0%{opacity:0;}10%{opacity:1;}30%{opacity:0.6;}50%{opacity:1;}100%{opacity:0;}}
+.screen-ghost{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:var(--font-ui);font-weight:900;font-size:clamp(28px,5vw,60px);letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.055);white-space:nowrap;pointer-events:none;z-index:2;user-select:none;}
+.screen-hud{position:absolute;inset:0;padding:10px 12px;display:flex;flex-direction:column;justify-content:space-between;z-index:5;pointer-events:none;}
+.hud-top{display:flex;justify-content:space-between;align-items:flex-start;}
+.hud-coords{font-family:var(--font-mono);font-size:8px;color:rgba(255,255,255,0.18);letter-spacing:0.06em;}
+.hud-badge{font-family:var(--font-ui);font-size:9px;font-weight:800;letter-spacing:0.16em;text-transform:uppercase;padding:2px 8px;border:1px solid;}
+.hud-badge.major{color:var(--yellow);border-color:rgba(240,188,0,0.5);background:rgba(240,188,0,0.1);}
+.hud-badge.minor{color:var(--teal);border-color:rgba(0,144,158,0.5);background:rgba(0,144,158,0.1);}
+.hud-badge.suspended{color:rgba(255,255,255,0.4);border-color:rgba(255,255,255,0.15);background:rgba(0,0,0,0.2);}
+.hud-bottom{display:flex;justify-content:space-between;align-items:flex-end;}
+.hud-condition{font-family:var(--font-ui);font-size:11px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:rgba(240,235,225,0.85);}
+.hud-bpm{font-family:var(--font-mono);font-size:11px;font-weight:600;color:var(--orange);letter-spacing:0.05em;}
+
+/* SCREEN SIDEBAR */
+.screen-sidebar{background:var(--dark-bg);padding:12px;display:flex;flex-direction:column;gap:10px;}
+.sidebar-label{font-family:var(--font-ui);font-size:8px;font-weight:800;letter-spacing:0.2em;text-transform:uppercase;color:#3A3630;}
+.bar-meters{display:flex;gap:6px;align-items:flex-end;flex:1;}
+.bm-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.bm-track{width:100%;max-width:22px;height:80px;background:#0E0C08;position:relative;overflow:hidden;border:1px solid #2A2820;box-shadow:inset 0 2px 4px rgba(0,0,0,0.6);}
+.bm-fill{position:absolute;bottom:0;left:0;right:0;height:0%;transition:height 0.35s ease;}
+.bm-label{font-family:var(--font-mono);font-size:7px;letter-spacing:0.08em;text-transform:uppercase;color:#4A4840;white-space:nowrap;}
+.readout-block{background:#080706;border:1px solid #1A1814;padding:8px 10px;box-shadow:inset 0 1px 3px rgba(0,0,0,0.7);}
+.readout-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;}
+.readout-row:last-child{margin-bottom:0;}
+.readout-key{font-size:8px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#3A3630;}
+.readout-val{font-family:var(--font-mono);font-size:13px;font-weight:600;letter-spacing:0.04em;}
+.rv-orange{color:var(--orange);}
+.rv-teal{color:var(--teal);}
+.rv-yellow{color:var(--yellow);}
+.rv-green{color:var(--green);}
+
+/* CONTROL SECTION */
+.control-section{display:grid;grid-template-columns:260px 1fr 200px;border-top:1px solid var(--rule);}
+.ctrl-panel{padding:18px 18px 16px;border-right:1px solid var(--rule);}
+.ctrl-panel:last-child{border-right:none;}
+.ctrl-label{font-size:8px;font-weight:800;letter-spacing:0.22em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.ctrl-label::after{content:'';flex:1;height:1px;background:var(--rule);}
+.status-text{color:var(--teal);font-family:var(--font-mono);font-size:10px;letter-spacing:0.04em;margin-top:8px;min-height:16px;}
+
+/* SLIDERS */
+.slider-list{display:flex;flex-direction:column;gap:11px;}
+.sl-row{display:flex;align-items:center;gap:10px;}
+.sl-pip{width:8px;height:8px;border-radius:50%;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,0.4);}
+.sl-key{font-size:9px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-mid);width:58px;flex-shrink:0;}
+.sl-val{font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--ink-mid);width:28px;text-align:right;}
+input[type="range"]{flex:1;-webkit-appearance:none;appearance:none;height:5px;background:#0A0907;border:1px solid #2A2820;border-radius:3px;outline:none;cursor:pointer;box-shadow:inset 0 1px 3px rgba(0,0,0,0.6);}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:26px;background:linear-gradient(180deg,#C0B8A8 0%,#706860 100%);border-radius:3px;cursor:pointer;box-shadow:0 1px 0 rgba(255,255,255,0.3) inset,0 2px 4px rgba(0,0,0,0.5);}
+input[type="range"]:hover::-webkit-slider-thumb{background:linear-gradient(180deg,#D8D0C0 0%,#908880 100%);}
+input[type="range"]::-moz-range-thumb{width:14px;height:26px;background:linear-gradient(180deg,#C0B8A8,#706860);border-radius:3px;border:none;box-shadow:0 2px 4px rgba(0,0,0,0.5);}
+.ctrl-btns{padding:12px 16px;border-top:2px solid var(--rule);display:flex;flex-direction:column;gap:8px;}
+.ctrl-btns .btn3d{width:100%;text-align:center;}
+
+/* WEATHER DATA */
+.col-header{background:var(--ink);color:var(--body-bg);padding:8px 16px;font-family:var(--font-ui);font-size:10px;font-weight:800;letter-spacing:0.22em;text-transform:uppercase;}
+.col-left{border-right:2px solid var(--rule);display:flex;flex-direction:column;}
+.data-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+.data-cell{padding:8px 10px;border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);}
+.data-cell:nth-child(2n){border-right:none;}
+.data-cell:nth-last-child(-n+2){border-bottom:none;}
+.dc-key{font-size:8px;font-weight:800;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:3px;}
+.dc-val{font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--ink);letter-spacing:0.02em;}
+.dc-val.c-orange{color:var(--orange);}
+.dc-val.c-teal{color:var(--teal);}
+.dc-val.c-yellow{color:#806400;}
+.dc-val.c-purple{color:var(--purple);}
+.dc-sub{font-size:8px;color:var(--ink-faint);font-family:var(--font-mono);margin-top:1px;}
+
+/* FX PANEL */
+.fx-panel{grid-column:1/-1;border-top:1px solid var(--rule);}
+.fx-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px 20px;padding:16px 18px;}
+.fx-col{display:flex;flex-direction:column;gap:6px;}
+.fx-key{font-size:9px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-mid);}
+
+/* STATUS STRIP */
+.status-strip{background:var(--dark-bg);border-top:2px solid #000;padding:8px 20px;min-height:48px;display:flex;align-items:center;flex-wrap:wrap;gap:0;}
+.ss-block{display:flex;align-items:center;gap:8px;padding:4px 18px;border-right:1px solid rgba(255,255,255,0.06);}
+.ss-block:first-child{padding-left:0;}
+.ss-key{font-family:var(--font-ui);font-size:8px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.2);}
+.ss-val{font-family:var(--font-mono);font-size:13px;font-weight:600;letter-spacing:0.04em;}
+.ss-val.orange{color:var(--orange);}
+.ss-val.teal{color:var(--teal);}
+.ss-val.yellow{color:var(--yellow);}
+.ss-val.green{color:var(--green);}
+.ss-val.dim{color:rgba(255,255,255,0.18);}
+.ss-bpm{margin-left:auto;display:flex;align-items:baseline;gap:5px;padding-left:20px;}
+.ss-bpm-num{font-family:var(--font-ui);font-size:36px;font-weight:900;line-height:1;color:var(--orange);letter-spacing:-0.02em;}
+.ss-bpm-unit{font-family:var(--font-ui);font-size:10px;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.22);}
+.pulse-dot{width:9px;height:9px;border-radius:50%;background:var(--orange);opacity:0.2;transition:opacity 0.06s,transform 0.06s;flex-shrink:0;}
+.pulse-dot.active{opacity:1;transform:scale(1.7);}
+
+/* RESPONSIVE */
+@media (max-width:1100px){
+  .body{grid-template-columns:1fr 1fr;}
+  .body>.col-right{grid-column:1/-1;}
+  .screen-row{grid-template-columns:1fr;}
+  .screen-sidebar{border-top:2px solid #A09888;}
+  .control-section{grid-template-columns:1fr 1fr;}
+}
+@media (max-width:680px){
+  body{padding:0;}
+  .chassis{border-radius:0;}
+  .port-strip{padding:0 12px;gap:6px;}
+  .port-tag{font-size:8px;padding:2px 6px;}
+  .faceplate-top{flex-direction:column;align-items:center;text-align:center;padding:14px;gap:10px;}
+  .woof-logo{font-size:38px;}
+  .product-block{padding-left:0;border-left:none;border-top:1px solid var(--rule);padding-top:10px;width:100%;align-items:center;}
+  .product-name{font-size:22px;text-align:center;}
+  .product-tagline{display:none;}
+  .knob-row{display:none;}
+  .input-bar{padding:8px 12px;gap:6px;}
+  .zip-input{width:72px;}
+  .btn3d{font-size:9px;padding:7px 10px;}
+  .body{grid-template-columns:1fr;}
+  .screen{min-height:200px;}
+  .readout-block{display:none;}
+  .control-section{grid-template-columns:1fr;}
+  .ctrl-panel{padding:12px;border-right:none;border-bottom:1px solid var(--rule);}
+  .sl-key{width:48px;font-size:8px;}
+  .status-strip{padding:8px 12px;}
+  .ss-block{padding:4px 10px;border-right:none;border-bottom:1px solid rgba(255,255,255,0.06);width:50%;}
+  .ss-bpm{margin-left:0;width:100%;justify-content:center;padding:6px 0;}
+  .fx-grid{grid-template-columns:1fr 1fr;}
+}
+</style>
 </head>
 <body>
-
 <div class="chassis">
 
-  <!-- COLOR STRIPE TOP -->
-  <div class="color-patches">
-    <div style="background:var(--orange)"></div>
-    <div style="background:var(--yellow)"></div>
-    <div style="background:var(--green)"></div>
-    <div style="background:var(--teal)"></div>
-    <div style="background:var(--purple)"></div>
-    <div style="background:var(--red)"></div>
-  </div>
+<div class="stripe">
+  <div style="background:var(--orange)"></div><div style="background:var(--yellow)"></div>
+  <div style="background:var(--green)"></div><div style="background:var(--teal)"></div>
+  <div style="background:var(--purple)"></div><div style="background:var(--red)"></div>
+</div>
 
-  <!-- PORT STRIP -->
-  <div class="port-strip">
-    <span class="port-tag orange">OUTPUT</span>
-    <span class="port-tag dark">INPUT</span>
-    <span class="port-tag green">SYNC</span>
-    <span class="port-tag dark">AUDIO</span>
-    <span class="port-status">SYS <span id="engineStatus">IDLE</span></span>
-  </div>
+<div class="port-strip">
+  <span class="port-tag orange">OUTPUT</span>
+  <span class="port-tag dark">INPUT</span>
+  <span class="port-tag green">SYNC</span>
+  <span class="port-status">SYS <span id="engineStatus">IDLE</span></span>
+</div>
 
-  <!-- FACEPLATE HEADER -->
-  <div class="faceplate-top">
-    <div class="brand-block">
-      <span class="woof-logo">WOOF.</span>
-      <span class="brand-sub">Systems</span>
-    </div>
-    <div class="product-block">
-      <div class="product-name">Weatherman</div>
-      <div class="product-tagline">128 MB WEATHER COMPOSER · AMBIENT SYSTEMS MODEL 01</div>
-    </div>
-    <div class="knob-row">
-      <div class="knob-col">
-        <div class="knob"></div>
-        <div class="knob-label">Volume</div>
+<div class="faceplate-top">
+  <div class="brand-block">
+    <span class="woof-logo">WOOF.</span>
+    <span class="brand-sub">Systems</span>
+  </div>
+  <div class="product-block">
+    <div class="product-name">Weatherman</div>
+    <div class="product-tagline">WEATHER COMPOSER · AMBIENT SYSTEMS MODEL 01</div>
+  </div>
+  <div class="knob-row">
+    <div class="knob-col">
+      <div class="knob-wrap">
+        <input id="volKnob" type="range" min="0" max="1" step="0.01" value="0.75" class="knob-input"/>
+        <div class="knob-visual"><div class="knob-marker" id="volMarker"></div></div>
       </div>
-      <div class="knob-col">
-        <div class="knob" style="width:28px;height:28px"></div>
-        <div class="knob-label">Tune</div>
-      </div>
+      <div class="knob-label">Vol <span id="volLabel">75</span></div>
+    </div>
+    <div class="knob-col">
+      <div class="knob-static"></div>
+      <div class="knob-label">Tune</div>
     </div>
   </div>
+</div>
 
-  <!-- SCREEN ROW -->
-  <div class="screen-row">
-    <div class="screen-outer">
-      <div class="screen">
-        <div class="sky-glow" id="skyGlow"></div>
-        <div class="cloud-layer" id="cloudLayer"></div>
-        <div class="wind-layer" id="windLayer"></div>
-        <div class="precip-layer" id="precipLayer"></div>
-        <div class="ground-line"></div>
-        <div class="screen-ghost" id="screenGhost">CLEAR SKY</div>
-        <div class="screen-hud">
-          <div class="hud-top">
-            <span class="hud-coords" id="hudCoords">—</span>
-            <span class="hud-badge" id="harmonyBadge">—</span>
-          </div>
-          <div class="hud-bottom">
-            <span class="hud-condition" id="hudCondition">—</span>
-            <span class="hud-bpm" id="hudBpm">— BPM</span>
-          </div>
+<div class="input-bar">
+  <span class="ibar-label">ZIP</span>
+  <input id="zipInput" type="text" value="10033" maxlength="5" placeholder="10033"/>
+  <button class="btn3d dark" id="loadWeatherBtn">Load</button>
+  <div class="sep"></div>
+  <button class="btn3d orange wide" id="playBtn">▶ Play</button>
+  <button class="btn3d dark" id="stopBtn">■ Stop</button>
+  <div class="sep"></div>
+  <button class="btn3d gray" id="resetToWeatherBtn">Reset to Weather</button>
+  <span class="ibar-status" id="status">Loading weather...</span>
+</div>
+
+<div class="screen-row">
+  <div class="screen-outer">
+    <div class="screen">
+      <div class="sky-layer" id="skyLayer"></div>
+      <div class="star-layer" id="starLayer"></div>
+      <div class="sky-glow" id="skyGlow"></div>
+      <div class="cloud-layer" id="cloudLayer"></div>
+      <div class="fog-layer" id="fogLayer"></div>
+      <div class="wind-layer" id="windLayer"></div>
+      <div class="precip-layer" id="precipLayer"></div>
+      <div class="terrain-layer" id="terrainLayer"></div>
+      <div class="lightning-layer" id="lightningLayer"></div>
+      <div class="screen-ghost" id="screenGhost">CLEAR SKY</div>
+      <div class="screen-hud">
+        <div class="hud-top">
+          <span class="hud-coords" id="hudCoords">—</span>
+          <span class="hud-badge" id="harmonyBadge">—</span>
         </div>
-      </div>
-    </div>
-    <div class="screen-sidebar">
-      <div class="sidebar-label">Atmosphere</div>
-      <div class="bar-meters">
-        <div class="bm-col">
-          <div class="bm-track"><div class="bm-fill" id="warmthBar"></div></div>
-          <div class="bm-label">WRM</div>
-        </div>
-        <div class="bm-col">
-          <div class="bm-track"><div class="bm-fill" id="windBar"></div></div>
-          <div class="bm-label">WND</div>
-        </div>
-        <div class="bm-col">
-          <div class="bm-track"><div class="bm-fill" id="wetnessBar"></div></div>
-          <div class="bm-label">WET</div>
-        </div>
-        <div class="bm-col">
-          <div class="bm-track"><div class="bm-fill" id="stormBar"></div></div>
-          <div class="bm-label">STM</div>
-        </div>
-        <div class="bm-col">
-          <div class="bm-track"><div class="bm-fill" id="brightnessBar"></div></div>
-          <div class="bm-label">LGT</div>
-        </div>
-      </div>
-      <div class="readout-block">
-        <div class="readout-row">
-          <span class="readout-key">Tempo</span>
-          <span class="readout-val rv-orange" id="tempoReadout">—</span>
-        </div>
-        <div class="readout-row">
-          <span class="readout-key">Harmony</span>
-          <span class="readout-val rv-teal" id="harmonyReadout">—</span>
-        </div>
-        <div class="readout-row">
-          <span class="readout-key">Pulse</span>
-          <span class="readout-val rv-yellow" id="pulseReadout">—</span>
-        </div>
-        <div class="readout-row">
-          <span class="readout-key">Mode</span>
-          <span class="readout-val rv-green" id="modeReadout">WEATHER</span>
+        <div class="hud-bottom">
+          <span class="hud-condition" id="hudCondition">—</span>
+          <span class="hud-bpm" id="hudBpm">— BPM</span>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- CONTROL SECTION -->
-  <div class="control-section">
-
-    <!-- LOAD / PLAY panel -->
-    <div class="ctrl-panel">
-      <div class="ctrl-label">Transport</div>
-      <div class="input-row">
-        <span style="font-size:9px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-faint)">ZIP</span>
-        <input class="zip-input" id="zipInput" type="text" value="10033" maxlength="5" placeholder="10033"/>
-        <button class="btn3d dark" id="loadWeatherBtn"><span class="btn3d-inner">Load</span></button>
-      </div>
-      <div class="btn-row">
-        <button class="btn3d orange wide" id="playBtn"><span class="btn3d-inner">▶ Play</span></button>
-        <button class="btn3d dark" id="stopBtn"><span class="btn3d-inner">■ Stop</span></button>
-      </div>
-      <div class="btn-row">
-        <button class="btn3d gray" id="applyManualBtn"><span class="btn3d-inner">Apply Sliders</span></button>
-        <button class="btn3d dark" id="resetToWeatherBtn"><span class="btn3d-inner">Reset</span></button>
-      </div>
-      <div class="status-text" id="status">Loading weather...</div>
+  <div class="screen-sidebar">
+    <div class="sidebar-label">Atmosphere</div>
+    <div class="bar-meters">
+      <div class="bm-col"><div class="bm-track"><div class="bm-fill" id="warmthBar"></div></div><div class="bm-label">WRM</div></div>
+      <div class="bm-col"><div class="bm-track"><div class="bm-fill" id="windBar"></div></div><div class="bm-label">WND</div></div>
+      <div class="bm-col"><div class="bm-track"><div class="bm-fill" id="wetnessBar"></div></div><div class="bm-label">WET</div></div>
+      <div class="bm-col"><div class="bm-track"><div class="bm-fill" id="stormBar"></div></div><div class="bm-label">STM</div></div>
+      <div class="bm-col"><div class="bm-track"><div class="bm-fill" id="brightnessBar"></div></div><div class="bm-label">LGT</div></div>
     </div>
-
-    <!-- SLIDERS panel -->
-    <div class="ctrl-panel">
-      <div class="ctrl-label">Manual Override</div>
-      <div class="slider-list">
-        <div class="sl-row">
-          <div class="sl-pip" style="background:var(--orange);box-shadow:0 0 5px var(--orange)"></div>
-          <span class="sl-key">Warmth</span>
-          <input id="warmthSlider" type="range" min="0" max="1" step="0.01" value="0.5"/>
-          <span class="sl-val" id="warmthSliderValue">0.50</span>
-        </div>
-        <div class="sl-row">
-          <div class="sl-pip" style="background:var(--teal);box-shadow:0 0 5px var(--teal)"></div>
-          <span class="sl-key">Wind</span>
-          <input id="windSlider" type="range" min="0" max="1" step="0.01" value="0.5"/>
-          <span class="sl-val" id="windSliderValue">0.50</span>
-        </div>
-        <div class="sl-row">
-          <div class="sl-pip" style="background:#5B8FD6;box-shadow:0 0 5px #5B8FD6"></div>
-          <span class="sl-key">Wetness</span>
-          <input id="wetnessSlider" type="range" min="0" max="1" step="0.01" value="0.5"/>
-          <span class="sl-val" id="wetnessSliderValue">0.50</span>
-        </div>
-        <div class="sl-row">
-          <div class="sl-pip" style="background:var(--purple);box-shadow:0 0 5px var(--purple)"></div>
-          <span class="sl-key">Storm</span>
-          <input id="stormSlider" type="range" min="0" max="1" step="0.01" value="0.5"/>
-          <span class="sl-val" id="stormSliderValue">0.50</span>
-        </div>
-        <div class="sl-row">
-          <div class="sl-pip" style="background:var(--yellow);box-shadow:0 0 5px var(--yellow)"></div>
-          <span class="sl-key">Bright</span>
-          <input id="brightnessSlider" type="range" min="0" max="1" step="0.01" value="0.5"/>
-          <span class="sl-val" id="brightnessSliderValue">0.50</span>
-        </div>
-      </div>
-      <div class="btn-row" style="margin-top:14px">
-        <button class="btn3d orange" id="applyManualBtn2"><span class="btn3d-inner">Apply</span></button>
-        <button class="btn3d dark" id="resetToWeatherBtn2"><span class="btn3d-inner">Reset to Weather</span></button>
-      </div>
+    <div class="readout-block">
+      <div class="readout-row"><span class="readout-key">Tempo</span><span class="readout-val rv-orange" id="tempoReadout">—</span></div>
+      <div class="readout-row"><span class="readout-key">Harmony</span><span class="readout-val rv-teal" id="harmonyReadout">—</span></div>
+      <div class="readout-row"><span class="readout-key">Pulse</span><span class="readout-val rv-yellow" id="pulseReadout">—</span></div>
+      <div class="readout-row"><span class="readout-key">Mode</span><span class="readout-val rv-green" id="modeReadout">WEATHER</span></div>
     </div>
+  </div>
+</div>
 
-    <!-- WEATHER DATA panel -->
-    <div class="ctrl-panel">
-      <div class="ctrl-label">Weather Data</div>
-      <div class="data-grid">
-        <div class="data-cell">
-          <div class="dc-key">Location</div>
-          <div class="dc-val" style="font-size:11px" id="locationValue">—</div>
-          <div class="dc-sub" id="coordsValue">—</div>
-        </div>
-        <div class="data-cell">
-          <div class="dc-key">Condition</div>
-          <div class="dc-val c-teal" style="font-size:11px" id="conditionValue">—</div>
-          <div class="dc-sub" id="daylightValue">—</div>
-        </div>
-        <div class="data-cell">
-          <div class="dc-key">Temp</div>
-          <div class="dc-val c-orange" id="tempValue">—</div>
-          <div class="dc-sub" id="tempMoodValue">—</div>
-        </div>
-        <div class="data-cell">
-          <div class="dc-key">Wind</div>
-          <div class="dc-val" id="windValue">—</div>
-        </div>
-        <div class="data-cell">
-          <div class="dc-key">Humidity</div>
-          <div class="dc-val" id="humidityValue">—</div>
-        </div>
-        <div class="data-cell">
-          <div class="dc-key">Precip</div>
-          <div class="dc-val c-teal" id="precipValue">—</div>
-          <div class="dc-sub" id="precipMoodValue">—</div>
-        </div>
-        <div class="data-cell">
-          <div class="dc-key">Sunrise</div>
-          <div class="dc-val c-yellow" id="sunriseValue">—</div>
-        </div>
-        <div class="data-cell">
-          <div class="dc-key">Sunset</div>
-          <div class="dc-val c-yellow" id="sunsetValue">—</div>
-        </div>
-      </div>
+<div class="control-section">
+  <!-- TRANSPORT -->
+  <div class="ctrl-panel">
+    <div class="ctrl-label">Transport</div>
+    <div class="input-row">
+      <span class="ibar-label">ZIP</span>
+      <input class="zip-input" id="zipInput2" type="text" value="10033" maxlength="5"/>
+      <button class="btn3d dark" id="loadWeatherBtn2">Load</button>
     </div>
-
+    <div class="btn-row">
+      <button class="btn3d orange wide" id="playBtn2">▶ Play</button>
+      <button class="btn3d dark" id="stopBtn2">■ Stop</button>
+    </div>
+    <div class="status-text" id="status2"></div>
   </div>
 
-  <!-- BOTTOM STATUS STRIP -->
-  <div class="status-strip">
-    <div class="ss-block">
-      <span class="ss-key">Harmony</span>
-      <span class="ss-val teal" id="harmonyValue">—</span>
+  <!-- MANUAL OVERRIDE -->
+  <div class="ctrl-panel">
+    <div class="ctrl-label">Manual Override</div>
+    <div class="slider-list">
+      <div class="sl-row"><div class="sl-pip" style="background:var(--orange)"></div><span class="sl-key">Warmth</span><input id="warmthSlider" type="range" min="0" max="1" step="0.01" value="0.5"/><span class="sl-val" id="warmthSliderValue">0.50</span></div>
+      <div class="sl-row"><div class="sl-pip" style="background:var(--teal)"></div><span class="sl-key">Wind</span><input id="windSlider" type="range" min="0" max="1" step="0.01" value="0.5"/><span class="sl-val" id="windSliderValue">0.50</span></div>
+      <div class="sl-row"><div class="sl-pip" style="background:#5B8FD6"></div><span class="sl-key">Wetness</span><input id="wetnessSlider" type="range" min="0" max="1" step="0.01" value="0.5"/><span class="sl-val" id="wetnessSliderValue">0.50</span></div>
+      <div class="sl-row"><div class="sl-pip" style="background:var(--purple)"></div><span class="sl-key">Storm</span><input id="stormSlider" type="range" min="0" max="1" step="0.01" value="0.0"/><span class="sl-val" id="stormSliderValue">0.00</span></div>
+      <div class="sl-row"><div class="sl-pip" style="background:var(--yellow)"></div><span class="sl-key">Bright</span><input id="brightnessSlider" type="range" min="0" max="1" step="0.01" value="0.7"/><span class="sl-val" id="brightnessSliderValue">0.70</span></div>
     </div>
-    <div class="ss-block">
-      <span class="ss-key">Pulse</span>
-      <span class="ss-val yellow" id="pulseValue">—</span>
-    </div>
-    <div class="ss-block">
-      <span class="ss-key">Mode</span>
-      <span class="ss-val green" id="modeValue">WEATHER</span>
-    </div>
-    <div class="ss-block">
-      <span class="pulse-dot" id="pulseDot"></span>
-    </div>
-    <div class="ss-bpm">
-      <span class="ss-bpm-num" id="tempoValueBig">—</span>
-      <span class="ss-bpm-unit">BPM</span>
+    <div class="btn-row" style="margin-top:12px">
+      <button class="btn3d orange" id="applyManualBtn">Apply</button>
+      <button class="btn3d dark" id="resetToWeatherBtn2">Reset</button>
     </div>
   </div>
 
-  <!-- COLOR STRIPE BOTTOM -->
-  <div class="color-patches">
-    <div style="background:var(--red)"></div>
-    <div style="background:var(--purple)"></div>
-    <div style="background:var(--teal)"></div>
-    <div style="background:var(--green)"></div>
-    <div style="background:var(--yellow)"></div>
-    <div style="background:var(--orange)"></div>
+  <!-- WEATHER DATA -->
+  <div class="ctrl-panel" style="padding:0;">
+    <div class="col-header">Weather Data</div>
+    <div class="data-grid">
+      <div class="data-cell"><div class="dc-key">Location</div><div class="dc-val" style="font-size:11px" id="locationValue">—</div></div>
+      <div class="data-cell"><div class="dc-key">Condition</div><div class="dc-val c-teal" style="font-size:11px" id="conditionValue">—</div></div>
+      <div class="data-cell"><div class="dc-key">Temp</div><div class="dc-val c-orange" id="tempValue">—</div><div class="dc-sub" id="tempMoodValue">—</div></div>
+      <div class="data-cell"><div class="dc-key">Wind</div><div class="dc-val" id="windValue">—</div></div>
+      <div class="data-cell"><div class="dc-key">Humidity</div><div class="dc-val" id="humidityValue">—</div></div>
+      <div class="data-cell"><div class="dc-key">Precip</div><div class="dc-val c-teal" id="precipValue">—</div></div>
+      <div class="data-cell"><div class="dc-key">Sunrise</div><div class="dc-val c-yellow" id="sunriseValue">—</div></div>
+      <div class="data-cell"><div class="dc-key">Sunset</div><div class="dc-val c-yellow" id="sunsetValue">—</div></div>
+    </div>
   </div>
+
+  <!-- FX PANEL — full width -->
+  <div class="ctrl-panel fx-panel" style="border-right:none;border-top:1px solid var(--rule);">
+    <div class="ctrl-label">FX + Composition</div>
+    <div class="fx-grid">
+      <div class="fx-col"><span class="fx-key">Reverb</span><div class="sl-row"><input id="fxReverb" type="range" min="0" max="1" step="0.01" value="0.4"/><span class="sl-val" id="fxReverbVal">0.40</span></div></div>
+      <div class="fx-col"><span class="fx-key">Delay</span><div class="sl-row"><input id="fxDelay" type="range" min="0" max="1" step="0.01" value="0.4"/><span class="sl-val" id="fxDelayVal">0.40</span></div></div>
+      <div class="fx-col"><span class="fx-key">Filter</span><div class="sl-row"><input id="fxFilter" type="range" min="0" max="1" step="0.01" value="0.6"/><span class="sl-val" id="fxFilterVal">0.60</span></div></div>
+      <div class="fx-col"><span class="fx-key">Complexity</span><div class="sl-row"><input id="fxComplexity" type="range" min="0" max="1" step="0.01" value="0.6"/><span class="sl-val" id="fxComplexityVal">0.60</span></div></div>
+      <div class="fx-col"><span class="fx-key">Melody</span><div class="sl-row"><input id="fxMelody" type="range" min="0" max="1" step="0.01" value="0.85"/><span class="sl-val" id="fxMelodyVal">0.85</span></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="status-strip">
+  <div class="ss-block"><span class="ss-key">Harmony</span><span class="ss-val teal" id="harmonyValue">—</span></div>
+  <div class="ss-block"><span class="ss-key">Pulse</span><span class="ss-val yellow" id="pulseValue">—</span></div>
+  <div class="ss-block"><span class="ss-key">Mode</span><span class="ss-val green" id="modeValue">WEATHER</span></div>
+  <div class="ss-block"><span class="pulse-dot" id="pulseDot"></span></div>
+  <div class="ss-bpm"><span class="ss-bpm-num" id="tempoValueBig">—</span><span class="ss-bpm-unit">BPM</span></div>
+</div>
+
+<div class="stripe">
+  <div style="background:var(--red)"></div><div style="background:var(--purple)"></div>
+  <div style="background:var(--teal)"></div><div style="background:var(--green)"></div>
+  <div style="background:var(--yellow)"></div><div style="background:var(--orange)"></div>
+</div>
 
 </div><!-- end chassis -->
-
 <script>
-  let currentAudio=null,currentWeather=null,currentState=null,usingManualState=false;
+'use strict';
 
-  const statusEl=document.getElementById("status");
-  const pulseDot=document.getElementById("pulseDot");
-  const engineStatusEl=document.getElementById("engineStatus");
-  const locationValue=document.getElementById("locationValue");
-  const coordsValue=document.getElementById("coordsValue");
-  const conditionValue=document.getElementById("conditionValue");
-  const daylightValue=document.getElementById("daylightValue");
-  const tempValue=document.getElementById("tempValue");
-  const tempMoodValue=document.getElementById("tempMoodValue");
-  const windValue=document.getElementById("windValue");
-  const humidityValue=document.getElementById("humidityValue");
-  const precipValue=document.getElementById("precipValue");
-  const precipMoodValue=document.getElementById("precipMoodValue");
-  const sunriseValue=document.getElementById("sunriseValue");
-  const sunsetValue=document.getElementById("sunsetValue");
-  const skyGlow=document.getElementById("skyGlow");
-  const cloudLayer=document.getElementById("cloudLayer");
-  const windLayer=document.getElementById("windLayer");
-  const precipLayer=document.getElementById("precipLayer");
-  const screenGhost=document.getElementById("screenGhost");
-  const hudCoords=document.getElementById("hudCoords");
-  const harmonyBadge=document.getElementById("harmonyBadge");
-  const hudCondition=document.getElementById("hudCondition");
-  const hudBpm=document.getElementById("hudBpm");
-  const warmthBar=document.getElementById("warmthBar");
-  const windBar=document.getElementById("windBar");
-  const wetnessBar=document.getElementById("wetnessBar");
-  const stormBar=document.getElementById("stormBar");
-  const brightnessBar=document.getElementById("brightnessBar");
-  const warmthSlider=document.getElementById("warmthSlider");
-  const windSlider=document.getElementById("windSlider");
-  const wetnessSlider=document.getElementById("wetnessSlider");
-  const stormSlider=document.getElementById("stormSlider");
-  const brightnessSlider=document.getElementById("brightnessSlider");
-  const warmthSliderValue=document.getElementById("warmthSliderValue");
-  const windSliderValue=document.getElementById("windSliderValue");
-  const wetnessSliderValue=document.getElementById("wetnessSliderValue");
-  const stormSliderValue=document.getElementById("stormSliderValue");
-  const brightnessSliderValue=document.getElementById("brightnessSliderValue");
-  const harmonyValue=document.getElementById("harmonyValue");
-  const pulseValue=document.getElementById("pulseValue");
-  const modeValue=document.getElementById("modeValue");
-  const modeReadout=document.getElementById("modeReadout");
-  const harmonyReadout=document.getElementById("harmonyReadout");
-  const pulseReadout=document.getElementById("pulseReadout");
-  const tempoReadout=document.getElementById("tempoReadout");
-  const tempoValueBig=document.getElementById("tempoValueBig");
+// ─── STATE ──────────────────────────────────────────────────
+let currentAudio = null;
+let currentWeather = null;
+let currentState = null;
+let usingManualState = false;
+let liveNodes = null;
+let lightningTimer = null;
 
-  document.getElementById("loadWeatherBtn").addEventListener("click",loadWeatherForZip);
-  document.getElementById("playBtn").addEventListener("click",playCurrentState);
-  document.getElementById("stopBtn").addEventListener("click",stopCurrentWeather);
-  document.getElementById("applyManualBtn").addEventListener("click",applyManualState);
-  document.getElementById("resetToWeatherBtn").addEventListener("click",resetToWeatherState);
-  document.getElementById("applyManualBtn2").addEventListener("click",applyManualState);
-  document.getElementById("resetToWeatherBtn2").addEventListener("click",resetToWeatherState);
-  [warmthSlider,windSlider,wetnessSlider,stormSlider,brightnessSlider].forEach(s=>s.addEventListener("input",updateSliderLabels));
+// ─── DOM REFS ────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const statusEl   = $('status');
+const pulseDot   = $('pulseDot');
+const engineStatusEl = $('engineStatus');
 
-  function clamp(n,a,b){return Math.min(Math.max(n,a),b);}
-  function formatTime(iso){return new Date(iso).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});}
-  function weatherCodeToLabel(code){
-    const map={0:"Clear sky",1:"Mainly clear",2:"Partly cloudy",3:"Overcast",45:"Fog",48:"Rime fog",51:"Light drizzle",53:"Moderate drizzle",55:"Dense drizzle",56:"Freezing drizzle",57:"Dense freezing drizzle",61:"Slight rain",63:"Moderate rain",65:"Heavy rain",66:"Freezing rain",67:"Heavy freezing rain",71:"Slight snow",73:"Moderate snow",75:"Heavy snow",77:"Snow grains",80:"Rain showers",81:"Heavy showers",82:"Violent showers",85:"Snow showers",86:"Heavy snow showers",95:"Thunderstorm",96:"Thunderstorm + hail",99:"Severe thunderstorm"};
-    return map[code]||"Unknown";
-  }
-  function computeTempo(s){return Math.round(62+(s.wind*0.42+s.wetness*0.22+s.storm*0.36)*64);}
-  function computeHarmony(s){
-    if(s.warmth>=0.62&&s.brightness>=0.62&&s.storm<0.4)return"major";
-    if(s.warmth<0.45||s.brightness<0.42||s.storm>0.55)return"minor";
-    return"suspended";
-  }
-  function interpretWeather(w){
-    const now=new Date(),sunrise=new Date(w.sunrise),sunset=new Date(w.sunset);
-    const isDaytime=now>=sunrise&&now<=sunset,code=w.weatherCode;
-    const isRainCode=[51,53,55,56,57,61,63,65,66,67,80,81,82].includes(code);
-    const isSnowCode=[71,73,75,77,85,86].includes(code);
-    const isStormCode=[95,96,99].includes(code);
-    const isFogCode=[45,48].includes(code),isCloudyCode=[2,3].includes(code),isSunnyCode=[0,1].includes(code);
-    const isRaining=w.precipitation>0.05&&isRainCode;
-    const isSnowing=w.precipitation>0.05&&isSnowCode;
-    const isStormy=isStormCode||(w.wind>=28&&w.precipitation>0.4);
-    const warmth=clamp((w.temp+5)/35,0,1),wind=clamp(w.wind/40,0,1);
-    const wetness=clamp((w.humidity/100)*0.45+w.precipitation*0.55,0,1);
-    const storm=clamp((isStormy?0.7:0)+w.wind/70+w.precipitation/8,0,1);
-    let brightness=isDaytime?0.75:0.22;
-    if(isSunnyCode)brightness+=0.18;if(isCloudyCode)brightness-=0.12;
-    if(isFogCode)brightness-=0.18;if(isRaining||isSnowing)brightness-=0.08;
-    if(isStormy)brightness-=0.18;brightness=clamp(brightness,0.08,1);
-    const s={warmth,wind,wetness,storm,brightness};
-    return{...s,tempo:computeTempo(s),harmony:computeHarmony(s),isDaytime,isRaining,isSnowing,isStormy,isFoggy:isFogCode,isSunny:isSunnyCode,isCloudy:isCloudyCode,label:weatherCodeToLabel(code),source:"weather"};
-  }
-  function stateFromSliders(){
-    const s={warmth:parseFloat(warmthSlider.value),wind:parseFloat(windSlider.value),wetness:parseFloat(wetnessSlider.value),storm:parseFloat(stormSlider.value),brightness:parseFloat(brightnessSlider.value)};
-    s.tempo=computeTempo(s);s.harmony=computeHarmony(s);
-    s.isDaytime=s.brightness>=0.5;s.isRaining=s.wetness>=0.48&&s.storm<0.75;
-    s.isSnowing=s.wetness>=0.45&&s.warmth<0.28&&s.storm<0.55;
-    s.isStormy=s.storm>=0.55;s.isFoggy=s.brightness<0.32&&s.wetness>0.45&&!s.isStormy;
-    s.isSunny=s.brightness>0.7&&s.warmth>0.58&&s.wetness<0.45;
-    s.isCloudy=!s.isSunny&&!s.isStormy&&s.brightness<0.65;
-    if(s.isStormy)s.label="Manual storm";else if(s.isSnowing)s.label="Manual snow";
-    else if(s.isRaining)s.label="Manual rain";else if(s.isSunny)s.label="Manual sun";
-    else if(s.isFoggy)s.label="Manual fog";else s.label="Manual atmosphere";
-    s.source="manual";return s;
-  }
-  function updateSliderLabels(){
-    warmthSliderValue.textContent=parseFloat(warmthSlider.value).toFixed(2);
-    windSliderValue.textContent=parseFloat(windSlider.value).toFixed(2);
-    wetnessSliderValue.textContent=parseFloat(wetnessSlider.value).toFixed(2);
-    stormSliderValue.textContent=parseFloat(stormSlider.value).toFixed(2);
-    brightnessSliderValue.textContent=parseFloat(brightnessSlider.value).toFixed(2);
-  }
-  function syncSlidersToState(s){
-    warmthSlider.value=s.warmth.toFixed(2);windSlider.value=s.wind.toFixed(2);
-    wetnessSlider.value=s.wetness.toFixed(2);stormSlider.value=s.storm.toFixed(2);
-    brightnessSlider.value=s.brightness.toFixed(2);updateSliderLabels();
-  }
-  async function loadWeatherForZip(){
-    const zip=document.getElementById("zipInput").value.trim();
-    if(!zip){statusEl.textContent="Enter a ZIP code.";return;}
-    stopCurrentWeather();statusEl.textContent="Resolving location...";
-    try{
-      const zipRes=await fetch(`https://api.zippopotam.us/us/${zip}`);
-      if(!zipRes.ok)throw new Error("ZIP not found.");
-      const zd=await zipRes.json(),place=zd.places[0];
-      const lat=parseFloat(place.latitude),lon=parseFloat(place.longitude);
-      const placeName=`${place["place name"]}, ${place["state abbreviation"]}`;
-      statusEl.textContent="Fetching weather...";
-      const wRes=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,relative_humidity_2m,precipitation,weather_code&daily=sunrise,sunset&timezone=auto`);
-      if(!wRes.ok)throw new Error("Weather fetch failed.");
-      const wd=await wRes.json();
-      currentWeather={zip,location:placeName,lat,lon,temp:wd.current.temperature_2m,wind:wd.current.wind_speed_10m,humidity:wd.current.relative_humidity_2m,precipitation:wd.current.precipitation,weatherCode:wd.current.weather_code,sunrise:wd.daily.sunrise[0],sunset:wd.daily.sunset[0]};
-      usingManualState=false;currentState=interpretWeather(currentWeather);
-      updateWeatherDisplay(currentWeather,currentState);syncSlidersToState(currentState);
-      updateVisualizer(currentState);statusEl.textContent=`${placeName} — ready.`;
-    }catch(e){statusEl.textContent=`Error: ${e.message}`;}
-  }
-  function updateWeatherDisplay(w,s){
-    locationValue.textContent=w.location;coordsValue.textContent=`${w.lat.toFixed(4)}, ${w.lon.toFixed(4)}`;
-    conditionValue.textContent=s.label;daylightValue.textContent=s.isDaytime?"Daytime":"Nighttime";
-    tempValue.textContent=`${w.temp}°C`;tempMoodValue.textContent=s.harmony==="major"?"warm / bright":s.harmony==="minor"?"cool / darker":"suspended";
-    windValue.textContent=`${w.wind} km/h`;humidityValue.textContent=`${w.humidity}%`;
-    precipValue.textContent=`${w.precipitation} mm`;precipMoodValue.textContent=s.isRaining?"rain on":s.isSnowing?"snow":"dry";
-    sunriseValue.textContent=formatTime(w.sunrise);sunsetValue.textContent=formatTime(w.sunset);
-    hudCoords.textContent=`${w.lat.toFixed(3)}, ${w.lon.toFixed(3)}`;
-  }
-  function updateInstrumentReadout(s){
-    tempoValueBig.textContent=s.tempo;hudBpm.textContent=`${s.tempo} BPM`;tempoReadout.textContent=`${s.tempo} BPM`;
-    harmonyValue.textContent=s.harmony.toUpperCase();harmonyReadout.textContent=s.harmony.toUpperCase();
-    harmonyBadge.textContent=s.harmony.toUpperCase();harmonyBadge.className=`hud-badge ${s.harmony}`;
-    const pulse=s.storm>0.55?"RESTLESS":s.wind>0.55?"MOVING":"CALM";
-    pulseValue.textContent=pulse;pulseReadout.textContent=pulse;
-    const mode=s.source==="manual"?"MANUAL":"WEATHER";
-    modeValue.textContent=mode;modeReadout.textContent=mode;
-    hudCondition.textContent=s.label.toUpperCase();screenGhost.textContent=s.label.toUpperCase();
-    const running=!!currentAudio;
-    engineStatusEl.textContent=running?"RUNNING":"IDLE";
-    engineStatusEl.style.color=running?"#2AAA50":"#4A4840";
-  }
-  function setBar(el,val,color){
-    el.style.height=`${Math.round(clamp(val,0,1)*100)}%`;el.style.background=color;
-  }
-  function updateVisualizer(s){
-    cloudLayer.innerHTML="";windLayer.innerHTML="";precipLayer.innerHTML="";
-    skyGlow.style.background=s.isDaytime?(s.isSunny?"radial-gradient(circle, rgba(255,215,80,0.95), rgba(255,150,30,0.3), transparent 70%)":"radial-gradient(circle, rgba(200,220,255,0.5), rgba(150,180,230,0.15), transparent 70%)"):"radial-gradient(circle, rgba(100,130,255,0.28), rgba(60,80,180,0.1), transparent 70%)";
-    skyGlow.style.width=`${120+s.brightness*130}px`;skyGlow.style.height=`${120+s.brightness*130}px`;
-    skyGlow.style.top=s.isDaytime?"40px":"60px";skyGlow.style.opacity=s.brightness;
-    const cc=s.isCloudy||s.isRaining||s.isSnowing||s.isFoggy?6:s.isSunny?1:3;
-    for(let i=0;i<cc;i++){const c=document.createElement("div");c.className="cloud";c.style.width=`${80+Math.random()*140}px`;c.style.height=`${18+Math.random()*32}px`;c.style.top=`${20+Math.random()*110}px`;c.style.left=`${-150-Math.random()*100}px`;c.style.animationDuration=`${14+Math.random()*20}s`;c.style.animationDelay=`${-Math.random()*14}s`;c.style.opacity=s.isFoggy?"0.3":"0.12";cloudLayer.appendChild(c);}
-    const wl=Math.max(1,Math.round(s.wind*16));
-    for(let i=0;i<wl;i++){const l=document.createElement("div");l.className="wind-line";l.style.width=`${28+Math.random()*120}px`;l.style.top=`${30+Math.random()*200}px`;l.style.animationDuration=`${2.2-s.wind*1.2+Math.random()*1}s`;l.style.animationDelay=`${-Math.random()*3}s`;l.style.opacity=`${0.1+s.wind*0.4}`;windLayer.appendChild(l);}
-    if(s.isRaining){const n=Math.round(14+s.wetness*26+s.wind*10+s.storm*8);for(let i=0;i<n;i++){const d=document.createElement("div");d.className="drop";d.style.height=`${6+Math.random()*13}px`;d.style.left=`${Math.random()*100}%`;d.style.top=`${-40-Math.random()*220}px`;d.style.animationDuration=`${0.7+Math.random()*0.7}s`;d.style.animationDelay=`${-Math.random()*2}s`;precipLayer.appendChild(d);}}
-    else if(s.isSnowing){const n=Math.round(14+s.wetness*14);for(let i=0;i<n;i++){const f=document.createElement("div");f.className="snow";f.style.left=`${Math.random()*100}%`;f.style.top=`${-30-Math.random()*220}px`;f.style.animationDuration=`${3+Math.random()*4}s`;f.style.animationDelay=`${-Math.random()*5}s`;precipLayer.appendChild(f);}}
-    setBar(warmthBar,s.warmth,"var(--orange)");setBar(windBar,s.wind,"var(--teal)");
-    setBar(wetnessBar,s.wetness,"#5B8FD6");setBar(stormBar,s.storm,"var(--purple)");
-    setBar(brightnessBar,s.brightness,"var(--yellow)");
-    updateInstrumentReadout(s);
-  }
-  function applyManualState(){
-    usingManualState=true;currentState=stateFromSliders();
-    updateVisualizer(currentState);statusEl.textContent="Manual override active.";
-    if(currentAudio)playCurrentState();
-  }
-  function resetToWeatherState(){
-    if(!currentWeather){statusEl.textContent="Load weather first.";return;}
-    usingManualState=false;currentState=interpretWeather(currentWeather);
-    syncSlidersToState(currentState);updateVisualizer(currentState);
-    statusEl.textContent="Reset to weather values.";if(currentAudio)playCurrentState();
-  }
-  function stopCurrentWeather(){
-    if(currentAudio&&currentAudio.stopAll){currentAudio.stopAll();currentAudio=null;}
-    pulseDot.classList.remove("active");
-    engineStatusEl.textContent="IDLE";engineStatusEl.style.color="#4A4840";
-  }
-  function getActiveState(){
-    if(usingManualState)return stateFromSliders();
-    if(currentWeather)return interpretWeather(currentWeather);
-    return null;
-  }
-  function playCurrentState(){
-    const s=getActiveState();if(!s){statusEl.textContent="Load weather first.";return;}
-    currentState=s;updateVisualizer(currentState);stopCurrentWeather();
-    playWeatherSoundscape(currentState);
-    statusEl.textContent=usingManualState?"Playing manual atmosphere.":"Playing live weather.";
-  }
-  function pulseVisual(){pulseDot.classList.add("active");setTimeout(()=>pulseDot.classList.remove("active"),90);}
+// ─── HELPERS ────────────────────────────────────────────────
+function clamp(n,a,b){return Math.min(Math.max(n,a),b);}
+function formatTime(iso){return new Date(iso).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});}
+function setStatus(msg){$('status').textContent=msg;$('status2').textContent=msg;}
 
-  function playWeatherSoundscape(state){
-    const audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-    const master=audioCtx.createGain();master.gain.value=0.8;master.connect(audioCtx.destination);
-    const delay=audioCtx.createDelay(1.5);delay.delayTime.value=0.24+state.wetness*0.22;
-    const feedback=audioCtx.createGain();feedback.gain.value=0.32+state.wetness*0.18;
-    const delayFilter=audioCtx.createBiquadFilter();delayFilter.type="lowpass";delayFilter.frequency.value=1400+state.brightness*1000-state.storm*250;
-    const fxSend=audioCtx.createGain();fxSend.gain.value=0.22+state.wetness*0.12;
-    fxSend.connect(delay);delay.connect(delayFilter);delayFilter.connect(feedback);feedback.connect(delay);delay.connect(master);
-    const tempo=state.tempo,beatMs=60000/tempo,sixteenthMs=beatMs/4;
-    let progression;
-    if(state.harmony==="major"){progression=[[196.00,246.94,293.66,392.00],[174.61,220.00,261.63,349.23],[220.00,277.18,329.63,440.00],[196.00,246.94,293.66,369.99]];}
-    else if(state.harmony==="minor"){progression=[[196.00,233.08,293.66,392.00],[174.61,207.65,261.63,349.23],[146.83,174.61,220.00,293.66],[196.00,233.08,293.66,349.23]];}
-    else{progression=[[196.00,246.94,311.13,392.00],[174.61,261.63,311.13,349.23],[220.00,293.66,329.63,440.00],[196.00,293.66,369.99,440.00]];}
-    let ci=0,chord=progression[0];
-    const padFilter=audioCtx.createBiquadFilter();padFilter.type="lowpass";padFilter.frequency.value=420+state.brightness*2000-state.storm*240;padFilter.Q.value=0.7;
-    const padGain=audioCtx.createGain();padGain.gain.value=0.06;
-    padFilter.connect(padGain);padGain.connect(master);padGain.connect(fxSend);
-    const padVoices=[];
-    function cpv(freq,vol,det=0){const o1=audioCtx.createOscillator(),o2=audioCtx.createOscillator(),g=audioCtx.createGain();o1.type=state.harmony==="minor"?"triangle":"sawtooth";o2.type="sine";o1.frequency.value=freq;o2.frequency.value=freq;o1.detune.value=-det;o2.detune.value=det;g.gain.value=vol;o1.connect(g);o2.connect(g);g.connect(padFilter);o1.start();o2.start();return{osc1:o1,osc2:o2};}
-    function rbp(nc){while(padVoices.length){const v=padVoices.pop();try{v.osc1.stop();}catch(e){}try{v.osc2.stop();}catch(e){}}nc.forEach((f,i)=>padVoices.push(cpv(i===0?f/2:f,i===0?0.14:0.055,i===0?4:7)));}
-    rbp(chord);
-    const fLFO=audioCtx.createOscillator(),fLFOG=audioCtx.createGain();fLFO.type="sine";fLFO.frequency.value=0.025+state.wind*0.05;fLFOG.gain.value=120+state.brightness*160;fLFO.connect(fLFOG);fLFOG.connect(padFilter.frequency);fLFO.start();
-    const tLFO=audioCtx.createOscillator(),tLFOG=audioCtx.createGain();tLFO.type="sine";tLFO.frequency.value=0.07+state.wind*0.10;tLFOG.gain.value=0.012+state.wetness*0.02;tLFO.connect(tLFOG);tLFOG.connect(padGain.gain);tLFO.start();
-    const nbs=audioCtx.sampleRate*2,nb=audioCtx.createBuffer(1,nbs,audioCtx.sampleRate);const nd=nb.getChannelData(0);for(let i=0;i<nbs;i++)nd[i]=Math.random()*2-1;
-    const ws=audioCtx.createBufferSource();ws.buffer=nb;ws.loop=true;
-    const wf=audioCtx.createBiquadFilter();wf.type="bandpass";wf.frequency.value=260+state.wind*900;wf.Q.value=0.7;
-    const wg=audioCtx.createGain();wg.gain.value=clamp(0.01+state.wind*0.10,0,0.14);
-    ws.connect(wf);wf.connect(wg);wg.connect(master);wg.connect(fxSend);ws.start();
-    const wlfo=audioCtx.createOscillator(),wlfog=audioCtx.createGain();wlfo.type="sine";wlfo.frequency.value=0.05+state.wind*0.18;wlfog.gain.value=80+state.wind*170;wlfo.connect(wlfog);wlfog.connect(wf.frequency);wlfo.start();
-    function psh(nf,ga=0.028){const now=audioCtx.currentTime,o=audioCtx.createOscillator(),f=audioCtx.createBiquadFilter(),g=audioCtx.createGain();o.type="triangle";o.frequency.setValueAtTime(nf,now);o.detune.value=(Math.random()*12)-6;f.type="lowpass";f.frequency.value=1400+state.brightness*2000;g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(ga,now+0.06);g.gain.exponentialRampToValueAtTime(0.0001,now+0.55);o.connect(f);f.connect(g);g.connect(master);g.connect(fxSend);o.start(now);o.stop(now+0.6);}
-    function psw(){const now=audioCtx.currentTime,o=audioCtx.createOscillator(),f=audioCtx.createBiquadFilter(),g=audioCtx.createGain();o.type="sawtooth";o.frequency.value=chord[1]/2;f.type="lowpass";f.frequency.setValueAtTime(220,now);f.frequency.linearRampToValueAtTime(1600+state.brightness*1300,now+0.8);g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(0.035+state.wetness*0.03,now+0.18);g.gain.exponentialRampToValueAtTime(0.0001,now+1.4);o.connect(f);f.connect(g);g.connect(master);g.connect(fxSend);o.start(now);o.stop(now+1.5);}
-    function pk(){const now=audioCtx.currentTime,o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type="sine";o.frequency.setValueAtTime(55,now);o.frequency.exponentialRampToValueAtTime(32,now+0.18);g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(0.13+state.storm*0.05,now+0.005);g.gain.exponentialRampToValueAtTime(0.0001,now+0.24);o.connect(g);g.connect(master);o.start(now);o.stop(now+0.28);}
-    function ph(acc=1){const now=audioCtx.currentTime,src=audioCtx.createBufferSource();src.buffer=nb;const f=audioCtx.createBiquadFilter();f.type="highpass";f.frequency.value=4500-state.wetness*1200;const g=audioCtx.createGain();g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime((0.012+state.wind*0.02)*acc,now+0.002);g.gain.exponentialRampToValueAtTime(0.0001,now+0.05);src.connect(f);f.connect(g);g.connect(master);src.start(now);src.stop(now+0.06);}
-    function prd(){if(!state.isRaining)return;const now=audioCtx.currentTime,o=audioCtx.createOscillator(),g=audioCtx.createGain(),f=audioCtx.createBiquadFilter();o.type="sine";o.frequency.setValueAtTime(1100+Math.random()*500,now);o.frequency.exponentialRampToValueAtTime(240+Math.random()*120,now+0.10);f.type="lowpass";f.frequency.value=1700;g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(0.025+state.wetness*0.03,now+0.01);g.gain.exponentialRampToValueAtTime(0.0001,now+0.16);o.connect(f);f.connect(g);g.connect(master);g.connect(fxSend);o.start(now);o.stop(now+0.18);}
-    function ptd(){if(!state.isStormy)return;const now=audioCtx.currentTime,src=audioCtx.createBufferSource();src.buffer=nb;const f=audioCtx.createBiquadFilter();f.type="lowpass";f.frequency.value=180;const g=audioCtx.createGain();g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(0.03+state.storm*0.04,now+0.05);g.gain.exponentialRampToValueAtTime(0.0001,now+1.8);src.connect(f);f.connect(g);g.connect(master);g.connect(fxSend);src.start(now);src.stop(now+2);}
-    const timers=[];let step=0;
-    const seq=setInterval(()=>{
-      const cs=step%16;
-      if(cs===0||(state.storm>0.72&&cs===10)){pk();pulseVisual();}
-      if([3,7,11,15].includes(cs))ph(0.7);
-      if((cs===6||cs===14)&&state.wind>0.22)ph(1);
-      if(cs===4||cs===12)psh(chord[2],0.02+state.brightness*0.012);
-      if(cs===8&&state.brightness>0.25)psw();
-      if(state.isRaining&&[2,5,9,13].includes(cs)){prd();if(state.wetness>0.72&&Math.random()<0.6)prd();}
-      if(state.isStormy&&cs===15&&Math.random()<(0.18+state.storm*0.28))ptd();
-      if(step>0&&step%64===0){ci=(ci+1)%progression.length;chord=progression[ci];rbp(chord);}
-      step++;
-    },sixteenthMs);
-    timers.push(seq);
-    currentAudio={stopAll:()=>{timers.forEach(clearInterval);try{ws.stop();}catch(e){}try{wlfo.stop();}catch(e){}try{fLFO.stop();}catch(e){}try{tLFO.stop();}catch(e){}padVoices.forEach(v=>{try{v.osc1.stop();}catch(e){}try{v.osc2.stop();}catch(e){}});setTimeout(()=>{try{audioCtx.close();}catch(e){}},250);}};
-  }
+function weatherCodeToLabel(code){
+  const m={0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Fog',48:'Rime fog',51:'Light drizzle',53:'Moderate drizzle',55:'Dense drizzle',61:'Slight rain',63:'Moderate rain',65:'Heavy rain',71:'Slight snow',73:'Moderate snow',75:'Heavy snow',77:'Snow grains',80:'Rain showers',81:'Heavy showers',82:'Violent showers',95:'Thunderstorm',96:'Thunderstorm+hail',99:'Severe thunderstorm'};
+  return m[code]||'Unknown';
+}
 
+// ─── WEATHER STATE ───────────────────────────────────────────
+function computeTempo(s){return Math.round(62+(s.wind*0.42+s.wetness*0.22+s.storm*0.36)*64);}
+
+function computeHarmony(s){
+  if(s.storm>0.55||(s.warmth<0.3&&s.brightness<0.35))return'minor';
+  if(s.storm>0.35||s.warmth<0.38)return'suspended';
+  if(s.warmth>=0.42&&s.brightness>=0.4)return'major';
+  if(s.warmth>=0.55&&s.storm<0.25)return'major';
+  return'suspended';
+}
+
+function computeTimeSignature(s){
+  if(s.isStormy||s.storm>0.65)return{steps:20,name:'5/4',kickOn:[0,12],hatOn:[4,8,16]};
+  if(s.isSnowing)return{steps:12,name:'6/8',kickOn:[0,6],hatOn:[2,4,8,10]};
+  if(s.isRaining&&s.wetness>0.6)return{steps:14,name:'7/8',kickOn:[0,8],hatOn:[2,5,10]};
+  if(s.isFoggy||(!s.isDaytime&&s.brightness<0.2))return{steps:12,name:'3/4',kickOn:[0],hatOn:[4,8]};
+  if(s.isSunny&&s.warmth>0.65)return{steps:16,name:'4/4',kickOn:[0,8],hatOn:[4,6,10,12,14]};
+  if(s.wind>0.65)return{steps:20,name:'5/4',kickOn:[0,10],hatOn:[4,8,14,18]};
+  return{steps:16,name:'4/4',kickOn:[0,8],hatOn:[4,12]};
+}
+
+function interpretWeather(w){
+  const now=new Date(),sunrise=new Date(w.sunrise),sunset=new Date(w.sunset);
+  const isDaytime=now>=sunrise&&now<=sunset,code=w.weatherCode;
+  const isRainCode=[51,53,55,61,63,65,66,67,80,81,82].includes(code);
+  const isSnowCode=[71,73,75,77,85,86].includes(code);
+  const isStormCode=[95,96,99].includes(code);
+  const isFogCode=[45,48].includes(code);
+  const isCloudyCode=[2,3].includes(code);
+  const isSunnyCode=[0,1].includes(code);
+  const isRaining=w.precipitation>0.05&&isRainCode;
+  const isSnowing=w.precipitation>0.05&&isSnowCode;
+  const isStormy=isStormCode||(w.wind>=28&&w.precipitation>0.4);
+  const warmth=clamp((w.temp+5)/35,0,1);
+  const wind=clamp(w.wind/40,0,1);
+  const wetness=clamp((w.humidity/100)*0.45+w.precipitation*0.55,0,1);
+  const storm=clamp((isStormy?0.7:0)+w.wind/70+w.precipitation/8,0,1);
+  let brightness=isDaytime?0.75:0.22;
+  if(isSunnyCode)brightness+=0.18;if(isCloudyCode)brightness-=0.12;
+  if(isFogCode)brightness-=0.18;if(isRaining||isSnowing)brightness-=0.08;
+  if(isStormy)brightness-=0.18;brightness=clamp(brightness,0.08,1);
+  const s={warmth,wind,wetness,storm,brightness};
+  return{...s,tempo:computeTempo(s),harmony:computeHarmony(s),isDaytime,isRaining,isSnowing,isStormy,isFoggy:isFogCode,isSunny:isSunnyCode,isCloudy:isCloudyCode,label:weatherCodeToLabel(code),source:'weather'};
+}
+
+function stateFromSliders(){
+  const s={
+    warmth:parseFloat($('warmthSlider').value),
+    wind:parseFloat($('windSlider').value),
+    wetness:parseFloat($('wetnessSlider').value),
+    storm:parseFloat($('stormSlider').value),
+    brightness:parseFloat($('brightnessSlider').value)
+  };
+  s.tempo=computeTempo(s);s.harmony=computeHarmony(s);
+  s.isDaytime=s.brightness>=0.5;
+  s.isRaining=s.wetness>=0.48&&s.storm<0.75;
+  s.isSnowing=s.wetness>=0.45&&s.warmth<0.28&&s.storm<0.55;
+  s.isStormy=s.storm>=0.55;
+  s.isFoggy=s.brightness<0.32&&s.wetness>0.45&&!s.isStormy;
+  s.isSunny=s.brightness>0.7&&s.warmth>0.58&&s.wetness<0.45;
+  s.isCloudy=!s.isSunny&&!s.isStormy&&s.brightness<0.65;
+  if(s.isStormy)s.label='Manual storm';
+  else if(s.isSnowing)s.label='Manual snow';
+  else if(s.isRaining)s.label='Manual rain';
+  else if(s.isSunny)s.label='Manual sun';
+  else if(s.isFoggy)s.label='Manual fog';
+  else s.label='Manual atmosphere';
+  s.source='manual';return s;
+}
+
+// ─── SLIDER UI ───────────────────────────────────────────────
+function updateSliderLabels(){
+  ['warmth','wind','wetness','storm','brightness'].forEach(k=>{
+    const el=$(`${k}Slider`);
+    if(el) $(`${k}SliderValue`).textContent=parseFloat(el.value).toFixed(2);
+  });
+}
+function syncSlidersToState(s){
+  $('warmthSlider').value=s.warmth.toFixed(2);
+  $('windSlider').value=s.wind.toFixed(2);
+  $('wetnessSlider').value=s.wetness.toFixed(2);
+  $('stormSlider').value=s.storm.toFixed(2);
+  $('brightnessSlider').value=s.brightness.toFixed(2);
   updateSliderLabels();
-  loadWeatherForZip();
+}
+
+// ─── WEATHER LOAD ────────────────────────────────────────────
+async function loadWeatherForZip(zip){
+  zip=zip||$('zipInput').value.trim();
+  if(!zip){setStatus('Enter a ZIP code.');return;}
+  stop();setStatus('Resolving location...');
+  try{
+    const zr=await fetch(`https://api.zippopotam.us/us/${zip}`);
+    if(!zr.ok)throw new Error('ZIP not found.');
+    const zd=await zr.json(),pl=zd.places[0];
+    const lat=parseFloat(pl.latitude),lon=parseFloat(pl.longitude);
+    const placeName=`${pl['place name']}, ${pl['state abbreviation']}`;
+    setStatus('Fetching weather...');
+    const wr=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,relative_humidity_2m,precipitation,weather_code&daily=sunrise,sunset&timezone=auto`);
+    if(!wr.ok)throw new Error('Weather fetch failed.');
+    const wd=await wr.json();
+    currentWeather={zip,location:placeName,lat,lon,
+      temp:wd.current.temperature_2m,
+      wind:wd.current.wind_speed_10m,
+      humidity:wd.current.relative_humidity_2m,
+      precipitation:wd.current.precipitation,
+      weatherCode:wd.current.weather_code,
+      sunrise:wd.daily.sunrise[0],
+      sunset:wd.daily.sunset[0]
+    };
+    usingManualState=false;
+    currentState=interpretWeather(currentWeather);
+    updateWeatherDisplay(currentWeather,currentState);
+    syncSlidersToState(currentState);
+    updateVisualizer(currentState);
+    setStatus(`${placeName} — ready. Press ▶ Play`);
+    // sync both zip inputs
+    $('zipInput').value=zip;$('zipInput2').value=zip;
+  }catch(e){setStatus(`Error: ${e.message}`);}
+}
+
+function updateWeatherDisplay(w,s){
+  $('locationValue').textContent=w.location;
+  $('conditionValue').textContent=s.label;
+  $('tempValue').textContent=`${w.temp}°C`;
+  $('tempMoodValue').textContent=s.harmony==='major'?'warm/bright':s.harmony==='minor'?'cool/dark':'neutral';
+  $('windValue').textContent=`${w.wind} km/h`;
+  $('humidityValue').textContent=`${w.humidity}%`;
+  $('precipValue').textContent=`${w.precipitation} mm`;
+  $('sunriseValue').textContent=formatTime(w.sunrise);
+  $('sunsetValue').textContent=formatTime(w.sunset);
+  $('hudCoords').textContent=`${w.lat.toFixed(3)}, ${w.lon.toFixed(3)}`;
+}
+
+// ─── TRANSPORT ───────────────────────────────────────────────
+function stop(){
+  if(lightningTimer){clearInterval(lightningTimer);lightningTimer=null;}
+  if(currentAudio){
+    try{currentAudio.stopAll();}catch(e){}
+    currentAudio=null;
+  }
+  liveNodes=null;
+  pulseDot.classList.remove('active');
+  engineStatusEl.textContent='IDLE';
+  engineStatusEl.style.color='#4A4840';
+}
+
+function play(){
+  const s=usingManualState?stateFromSliders():(currentWeather?interpretWeather(currentWeather):null);
+  if(!s){setStatus('Load weather first.');return;}
+  currentState=s;
+  stop();
+  updateVisualizer(s);
+  playWeatherSoundscape(s);
+  setStatus(usingManualState?'Playing manual atmosphere.':'Playing live weather soundtrack.');
+}
+
+function applyManual(){
+  usingManualState=true;
+  currentState=stateFromSliders();
+  updateVisualizer(currentState);
+  if(currentAudio) play();
+}
+
+function resetToWeather(){
+  if(!currentWeather){setStatus('Load weather first.');return;}
+  usingManualState=false;
+  currentState=interpretWeather(currentWeather);
+  syncSlidersToState(currentState);
+  updateVisualizer(currentState);
+  if(currentAudio) play();
+}
+
+function pulseVisual(){
+  pulseDot.classList.add('active');
+  setTimeout(()=>pulseDot.classList.remove('active'),90);
+}
+
+// ─── FX PARAMS ───────────────────────────────────────────────
+function getFx(){
+  return{
+    reverb:parseFloat($('fxReverb')?.value??0.4),
+    delay:parseFloat($('fxDelay')?.value??0.4),
+    filter:parseFloat($('fxFilter')?.value??0.6),
+    complexity:parseFloat($('fxComplexity')?.value??0.6),
+    melody:parseFloat($('fxMelody')?.value??0.85),
+    vol:parseFloat($('volKnob')?.value??0.75),
+  };
+}
+
+function applyLiveFx(){
+  if(!liveNodes)return;
+  const fx=getFx();
+  const {ctx,gf,rvSend,dlySend,master,melodyBus}=liveNodes;
+  const now=ctx.currentTime;
+  // Filter — exponential curve for dramatic effect
+  const base=currentState?(currentState.isStormy?600:currentState.isRaining?1000:currentState.isFoggy?500:currentState.isSunny?7000:3000):3000;
+  const hz=fx.filter<0.5?150+(fx.filter/0.5)*(base-150):base+((fx.filter-0.5)/0.5)*(18000-base);
+  gf.frequency.setTargetAtTime(hz,now,0.06);
+  rvSend.gain.setTargetAtTime(fx.reverb*0.3,now,0.06);
+  dlySend.gain.setTargetAtTime(fx.delay*0.2,now,0.06);
+  master.gain.setTargetAtTime(fx.vol*0.75,now,0.05);
+  if(melodyBus)melodyBus.gain.setTargetAtTime(fx.melody*0.8,now,0.06);
+}
+
+// ─── UPDATEINSTRUMENTREADOUT ─────────────────────────────────
+function updateInstrumentReadout(s){
+  const tempo=s.tempo;
+  $('tempoValueBig').textContent=tempo;
+  $('hudBpm').textContent=`${tempo} BPM`;
+  $('tempoReadout').textContent=`${tempo} BPM`;
+  $('harmonyValue').textContent=s.harmony.toUpperCase();
+  $('harmonyReadout').textContent=s.harmony.toUpperCase();
+  const hb=$('harmonyBadge');hb.textContent=s.harmony.toUpperCase();hb.className=`hud-badge ${s.harmony}`;
+  const pulse=s.storm>0.55?'RESTLESS':s.wind>0.55?'MOVING':'CALM';
+  $('pulseValue').textContent=pulse;$('pulseReadout').textContent=pulse;
+  $('modeValue').textContent=s.source==='manual'?'MANUAL':'WEATHER';
+  $('modeReadout').textContent=s.source==='manual'?'MANUAL':'WEATHER';
+  $('screenGhost').textContent=s.label.toUpperCase();
+  engineStatusEl.textContent=currentAudio?'RUNNING':'IDLE';
+  engineStatusEl.style.color=currentAudio?'var(--green)':'#4A4840';
+}
+
+function setBar(id,val,color){
+  const el=$(id);if(!el)return;
+  el.style.height=`${Math.round(clamp(val,0,1)*100)}%`;
+  el.style.background=color;
+}
+
+// ─── VISUALIZER ──────────────────────────────────────────────
+function getSkyGradient(s,w){
+  if(!s.isDaytime)return s.isStormy?'linear-gradient(180deg,#0A0814,#1A1428)':'linear-gradient(180deg,#040812,#0E1830)';
+  const now=new Date();
+  const sunrise=w?new Date(w.sunrise):new Date();
+  const sunset=w?new Date(w.sunset):new Date();
+  const pos=Math.max(0,Math.min(1,(now-sunrise)/(sunset-sunrise)));
+  if(pos<0.12)return'linear-gradient(180deg,#1A1040,#FF6B35)';
+  if(pos<0.25)return'linear-gradient(180deg,#2A4080,#F5A623)';
+  if(pos>0.88)return'linear-gradient(180deg,#1A1040,#FF4500)';
+  if(pos>0.78)return'linear-gradient(180deg,#2A3870,#E8760A)';
+  if(s.isStormy)return'linear-gradient(180deg,#1A2030,#354060)';
+  if(s.isCloudy)return'linear-gradient(180deg,#4A5868,#788898)';
+  if(s.isRaining)return'linear-gradient(180deg,#1E2830,#384858)';
+  if(s.isSnowing)return'linear-gradient(180deg,#2A3040,#505870)';
+  if(s.isFoggy)return'linear-gradient(180deg,#3A4450,#687480)';
+  if(s.isSunny)return'linear-gradient(180deg,#1A6CB5,#5BB0F0)';
+  return'linear-gradient(180deg,#2A5090,#4A90D0)';
+}
+
+function getTerrainSVG(key,color,waterColor){
+  const t={
+    coastal:`<svg viewBox="0 0 800 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><rect x="0" y="50" width="800" height="30" fill="${color}"/><path d="M0,50 Q100,40 200,50 Q300,60 400,48 Q500,38 600,50 Q700,58 800,46 L800,80 L0,80 Z" fill="${waterColor}" opacity="0.6"/></svg>`,
+    beach:`<svg viewBox="0 0 800 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,60 Q200,50 400,55 Q600,60 800,50 L800,80 L0,80 Z" fill="${color}"/><path d="M0,65 Q200,57 400,62 Q600,68 800,58 L800,80 L0,80 Z" fill="${waterColor}" opacity="0.6"/></svg>`,
+    mountains:`<svg viewBox="0 0 800 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><polygon points="0,80 60,30 120,80" fill="${color}" opacity="0.7"/><polygon points="80,80 160,15 240,80" fill="${color}" opacity="0.85"/><polygon points="180,80 260,25 340,80" fill="${color}" opacity="0.75"/><polygon points="300,80 380,10 460,80" fill="${color}"/><polygon points="420,80 500,20 580,80" fill="${color}" opacity="0.9"/><polygon points="540,80 620,30 700,80" fill="${color}" opacity="0.8"/><polygon points="660,80 740,18 800,60 800,80" fill="${color}" opacity="0.85"/><polygon points="152,20 160,10 168,20" fill="white" opacity="0.5"/><polygon points="372,16 380,5 388,16" fill="white" opacity="0.45"/></svg>`,
+    desert:`<svg viewBox="0 0 800 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,65 Q100,60 200,63 Q300,66 400,62 Q500,58 600,64 Q700,68 800,62 L800,80 L0,80 Z" fill="${color}"/><rect x="80" y="48" width="5" height="20" fill="${color}" opacity="0.8"/><rect x="72" y="54" width="8" height="4" fill="${color}" opacity="0.8"/><rect x="500" y="55" width="120" height="12" fill="${color}" opacity="0.5"/></svg>`,
+    hills:`<svg viewBox="0 0 800 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,80 Q100,50 200,60 Q300,70 400,52 Q500,40 600,58 Q700,68 800,55 L800,80 Z" fill="${color}"/></svg>`,
+    flat:`<svg viewBox="0 0 800 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><rect x="0" y="65" width="800" height="15" fill="${color}"/></svg>`
+  };
+  return t[key]||t.flat;
+}
+
+const CITY_DATA={
+  'new york':{terrain:'coastal'},'manhattan':{terrain:'coastal'},'brooklyn':{terrain:'coastal'},
+  'los angeles':{terrain:'coastal'},'beverly hills':{terrain:'coastal'},'santa monica':{terrain:'beach'},
+  'long beach':{terrain:'beach'},'hollywood':{terrain:'hills'},'malibu':{terrain:'beach'},
+  'chicago':{terrain:'flat'},'miami':{terrain:'beach'},'fort lauderdale':{terrain:'beach'},
+  'san francisco':{terrain:'coastal'},'oakland':{terrain:'coastal'},'berkeley':{terrain:'coastal'},
+  'seattle':{terrain:'mountains'},'bellevue':{terrain:'mountains'},
+  'denver':{terrain:'mountains'},'boulder':{terrain:'mountains'},'salt lake':{terrain:'mountains'},
+  'portland':{terrain:'mountains'},'houston':{terrain:'flat'},'dallas':{terrain:'flat'},
+  'austin':{terrain:'hills'},'boston':{terrain:'coastal'},'las vegas':{terrain:'desert'},
+  'phoenix':{terrain:'desert'},'scottsdale':{terrain:'desert'},'nashville':{terrain:'hills'},
+  'atlanta':{terrain:'flat'},'new orleans':{terrain:'coastal'},'san diego':{terrain:'beach'},
+  'honolulu':{terrain:'beach'},'pittsburgh':{terrain:'hills'},
+};
+
+function getCityProfile(locationName,lat,lon){
+  if(locationName){
+    const l=locationName.toLowerCase();
+    for(const k of Object.keys(CITY_DATA)){if(l.includes(k))return CITY_DATA[k];}
+  }
+  if(lat&&lon){
+    if(lat<27&&lon>-82)return{terrain:'beach'};
+    if(lon<-104&&lon>-125&&lat>35&&lat<50)return{terrain:'mountains'};
+    if(lon<-104&&lat<37)return{terrain:'desert'};
+    if((lon>-80&&lon<-65)||(lon<-115&&lon>-125))return{terrain:'coastal'};
+    if(lon>-100&&lon<-80&&lat>36&&lat<50)return{terrain:'flat'};
+  }
+  return{terrain:'flat'};
+}
+
+function startLightning(s){
+  if(lightningTimer){clearInterval(lightningTimer);lightningTimer=null;}
+  if(!s.isStormy)return;
+  const layer=$('lightningLayer');
+  lightningTimer=setInterval(()=>{
+    if(Math.random()>(0.3+s.storm*0.4))return;
+    const bolt=document.createElement('div');bolt.className='lightning-bolt';
+    const x=10+Math.random()*80;
+    bolt.style.cssText=`left:${x}%;top:10%;width:2px;height:${60+Math.random()*100}px;background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(180,160,255,0.4));box-shadow:0 0 8px rgba(255,255,255,0.8);clip-path:polygon(40% 0%,60% 0%,55% 45%,75% 45%,25% 100%,40% 55%,20% 55%);`;
+    layer.appendChild(bolt);
+    const sl=$('skyLayer');sl.style.filter='brightness(2.5)';
+    setTimeout(()=>{sl.style.filter='';bolt.remove();},200);
+  },1800+Math.random()*2000);
+}
+
+function updateVisualizer(s){
+  const skyLayer=$('skyLayer'),starLayer=$('starLayer'),fogLayer=$('fogLayer');
+  const cloudLayer=$('cloudLayer'),windLayer=$('windLayer'),precipLayer=$('precipLayer');
+  const terrainLayer=$('terrainLayer');
+  cloudLayer.innerHTML='';windLayer.innerHTML='';precipLayer.innerHTML='';
+  starLayer.innerHTML='';fogLayer.innerHTML='';
+
+  skyLayer.style.background=getSkyGradient(s,currentWeather);
+
+  // Stars at night
+  if(!s.isDaytime&&!s.isStormy){
+    const n=s.isCloudy?15:55;
+    for(let i=0;i<n;i++){
+      const st=document.createElement('div');st.className='star';
+      const sz=0.5+Math.random()*2;
+      st.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*65}%;animation-duration:${2+Math.random()*4}s;animation-delay:${-Math.random()*4}s;`;
+      starLayer.appendChild(st);
+    }
+  }
+
+  // Sun/moon glow
+  const sg=$('skyGlow');
+  sg.style.background=s.isDaytime&&s.isSunny
+    ?'radial-gradient(circle,rgba(255,230,100,1),rgba(255,180,40,0.4),transparent 70%)'
+    :s.isDaytime
+    ?'radial-gradient(circle,rgba(220,230,255,0.5),rgba(180,200,240,0.15),transparent 70%)'
+    :'radial-gradient(circle,rgba(230,240,255,0.4),rgba(180,200,255,0.15),transparent 70%)';
+  sg.style.width=sg.style.height=`${100+s.brightness*120}px`;
+  sg.style.top=s.isDaytime?'30px':'20px';
+  sg.style.opacity=Math.max(0.2,s.brightness);
+
+  // Clouds
+  const cc=s.isStormy?8:s.isCloudy||s.isRaining||s.isSnowing?6:s.isSunny?1:3;
+  for(let i=0;i<cc;i++){
+    const c=document.createElement('div');c.className='cloud';
+    c.style.cssText=`width:${80+Math.random()*160}px;height:${18+Math.random()*36}px;top:${15+Math.random()*100}px;left:${-160-Math.random()*100}px;animation-duration:${14+Math.random()*22}s;animation-delay:${-Math.random()*16}s;opacity:${s.isStormy?'0.22':s.isFoggy?'0.35':'0.10'};`;
+    cloudLayer.appendChild(c);
+  }
+
+  // Wind lines
+  for(let i=0;i<Math.max(1,Math.round(s.wind*16));i++){
+    const l=document.createElement('div');l.className='wind-line';
+    l.style.cssText=`width:${28+Math.random()*130}px;top:${30+Math.random()*220}px;animation-duration:${2.2-s.wind*1.2+Math.random()*1}s;animation-delay:${-Math.random()*3}s;opacity:${0.1+s.wind*0.4};`;
+    windLayer.appendChild(l);
+  }
+
+  // Precip
+  if(s.isRaining){
+    const n=Math.round(20+s.wetness*40+s.wind*15+s.storm*10);
+    for(let i=0;i<n;i++){
+      const d=document.createElement('div');d.className='drop';
+      const heavy=s.storm>0.5;
+      d.style.cssText=`height:${heavy?14+Math.random()*10:6+Math.random()*10}px;width:${heavy?'2px':'1px'};left:${Math.random()*110-5}%;top:${-40-Math.random()*280}px;animation-duration:${heavy?0.4+Math.random()*0.3:0.7+Math.random()*0.7}s;animation-delay:${-Math.random()*2}s;`;
+      precipLayer.appendChild(d);
+    }
+  }else if(s.isSnowing){
+    for(let i=0;i<Math.round(20+s.wetness*20);i++){
+      const f=document.createElement('div');f.className='snow';
+      f.style.cssText=`width:${2+Math.random()*4}px;height:${2+Math.random()*4}px;left:${Math.random()*100}%;top:${-30-Math.random()*280}px;animation-duration:${3+Math.random()*5}s;animation-delay:${-Math.random()*6}s;`;
+      precipLayer.appendChild(f);
+    }
+  }
+
+  // Fog
+  if(s.isFoggy||(s.wetness>0.6&&!s.isDaytime)){
+    for(let i=0;i<6;i++){
+      const fb=document.createElement('div');fb.className='fog-bank';
+      fb.style.cssText=`width:${300+Math.random()*400}px;height:${80+Math.random()*100}px;bottom:${20+Math.random()*120}px;left:${Math.random()*80}%;animation-duration:${40+Math.random()*40}s;animation-delay:${-Math.random()*30}s;`;
+      fogLayer.appendChild(fb);
+    }
+  }
+
+  // Terrain
+  const profile=getCityProfile(currentWeather?.location,currentWeather?.lat,currentWeather?.lon);
+  const isNight=!s.isDaytime;
+  const tc=isNight?'#080A0C':'#141820';
+  const wc=isNight?'#0A1428':'#1A3050';
+  terrainLayer.innerHTML=getTerrainSVG(profile.terrain,tc,wc);
+
+  // Lightning
+  startLightning(s);
+
+  // Bars
+  setBar('warmthBar',s.warmth,'var(--orange)');
+  setBar('windBar',s.wind,'var(--teal)');
+  setBar('wetnessBar',s.wetness,'#5B8FD6');
+  setBar('stormBar',s.storm,'var(--purple)');
+  setBar('brightnessBar',s.brightness,'var(--yellow)');
+
+  updateInstrumentReadout(s);
+}
+
+// ─── AUDIO ENGINE ────────────────────────────────────────────
+function playWeatherSoundscape(state){
+  const fx=getFx();
+  const timeSig=computeTimeSignature(state);
+  const ctx=new(window.AudioContext||window.webkitAudioContext)();
+
+  // MASTER CHAIN
+  const master=ctx.createGain();master.gain.value=fx.vol*0.75;
+  const limiter=ctx.createDynamicsCompressor();
+  limiter.threshold.value=-8;limiter.knee.value=3;limiter.ratio.value=12;
+  limiter.attack.value=0.001;limiter.release.value=0.1;
+  master.connect(limiter);limiter.connect(ctx.destination);
+
+  // GLOBAL FILTER
+  const gf=ctx.createBiquadFilter();gf.type='lowpass';
+  const base=state.isStormy?600:state.isRaining?1000:state.isFoggy?500:state.isSunny?7000:3000;
+  gf.frequency.value=fx.filter<0.5?150+(fx.filter/0.5)*(base-150):base+((fx.filter-0.5)/0.5)*(18000-base);
+  gf.Q.value=0.8;gf.connect(master);
+
+  // REVERB NETWORK
+  const rvSend=ctx.createGain();rvSend.gain.value=fx.reverb*0.28;
+  const rvReturn=ctx.createGain();rvReturn.gain.value=0.4;
+  const rv1=ctx.createDelay(2);rv1.delayTime.value=0.083;
+  const rv2=ctx.createDelay(2);rv2.delayTime.value=0.127;
+  const rv3=ctx.createDelay(2);rv3.delayTime.value=0.211;
+  const rvFB=ctx.createGain();rvFB.gain.value=0.22+fx.reverb*0.12;
+  const rvF=ctx.createBiquadFilter();rvF.type='lowpass';rvF.frequency.value=2400;
+  rvSend.connect(rv1);rvSend.connect(rv2);rvSend.connect(rv3);
+  rv1.connect(rvF);rv2.connect(rvF);rv3.connect(rvF);
+  rvF.connect(rvFB);rvFB.connect(rv1);rvFB.connect(rv2);
+  rvF.connect(rvReturn);rvReturn.connect(gf);
+
+  // DELAY
+  const dlySend=ctx.createGain();dlySend.gain.value=fx.delay*0.18;
+  const dlyNode=ctx.createDelay(1.2);dlyNode.delayTime.value=60/state.tempo;
+  const dlyFB=ctx.createGain();dlyFB.gain.value=0.2+fx.delay*0.14;
+  const dlyF=ctx.createBiquadFilter();dlyF.type='lowpass';dlyF.frequency.value=1800;
+  const dlyReturn=ctx.createGain();dlyReturn.gain.value=0.35;
+  dlySend.connect(dlyNode);dlyNode.connect(dlyF);dlyF.connect(dlyFB);
+  dlyFB.connect(dlyNode);dlyF.connect(dlyReturn);dlyReturn.connect(gf);
+
+  // Store live nodes
+  liveNodes={ctx,gf,rvSend,dlySend,master,melodyBus:null};
+
+  function wire(n){n.connect(gf);n.connect(rvSend);n.connect(dlySend);}
+
+  // PINK NOISE BUFFER
+  const nbs=ctx.sampleRate*3;
+  const nb=ctx.createBuffer(1,nbs,ctx.sampleRate);
+  const nd=nb.getChannelData(0);
+  let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+  for(let i=0;i<nbs;i++){
+    const w=Math.random()*2-1;
+    b0=0.99886*b0+w*0.0555179;b1=0.99332*b1+w*0.0750759;
+    b2=0.96900*b2+w*0.1538520;b3=0.86650*b3+w*0.3104856;
+    b4=0.55000*b4+w*0.5329522;b5=-0.7616*b5-w*0.0168980;
+    nd[i]=(b0+b1+b2+b3+b4+b5+b6+w*0.5362)/10;b6=w*0.115926;
+  }
+
+  // LOCATION FINGERPRINT
+  const lat=currentWeather?.lat??40.7;
+  const lon=currentWeather?.lon??-74.0;
+  const s1=Math.abs(Math.sin(lat*127.1+lon*311.7));
+  const s2=Math.abs(Math.sin(lat*269.5+lon*183.3));
+  const s3=Math.abs(Math.sin(lat*43.7+lon*499.1));
+  const s4=Math.abs(Math.sin(lat*157.3+lon*67.9));
+
+  // MODE & ROOT
+  const MODES={major:[0,2,4,5,7,9,11],minor:[0,2,3,5,7,8,10],suspended:[0,2,3,5,7,9,10]};
+  const mode=MODES[state.harmony];
+  const ROOTS=[110,116.54,123.47,130.81,138.59,146.83,155.56,164.81,174.61,185,196,207.65];
+  const rootHz=ROOTS[Math.floor(s1*ROOTS.length)];
+
+  function mHz(deg,oct=1){
+    const semi=mode[((deg%mode.length)+mode.length)%mode.length];
+    return rootHz*oct*Math.pow(2,semi/12);
+  }
+
+  // CHORD SYSTEM
+  function buildChord(rd){
+    return[mHz(rd,1),mHz(rd,2),mHz(rd+2,2),mHz(rd+4,2),mHz(rd+6,2)];
+  }
+  function chordTones(ch){return[ch[1],ch[2],ch[3],ch[4],ch[1]*2,ch[2]*2];}
+
+  const PROG_DEGS={
+    major:[[0,2,4,3],[3,1,4,2],[0,4,3,2]],
+    minor:[[0,3,4,1],[0,4,3,2],[1,0,4,3]],
+    suspended:[[0,3,1,4],[0,4,2,3],[1,0,4,2]],
+  };
+  const progSet=PROG_DEGS[state.harmony];
+  const progDeg=progSet[Math.floor(s2*progSet.length)];
+  const progression=progDeg.map(d=>buildChord(d));
+  let chordIdx=0;
+  let chord=progression[0];
+
+  function buildMotif(ch){
+    const t=chordTones(ch);
+    return[t[Math.floor(s1*t.length)],t[Math.floor(s2*t.length)],t[Math.floor(s3*t.length)],t[Math.floor(s4*t.length)]];
+  }
+  let motif=buildMotif(chord);
+
+  // DYNAMICS
+  const PHASES=['bloom','full','breathe','sparse','bloom'];
+  let phase='bloom';let phaseIdx=0;
+  const pDurs=[20,32,16,22,18];
+  let phaseTimer=null;
+  function nextPhase(){
+    phaseIdx=(phaseIdx+1)%PHASES.length;phase=PHASES[phaseIdx];
+    phaseTimer=setTimeout(nextPhase,pDurs[phaseIdx]*1000+(Math.random()-.5)*5000);
+  }
+  phaseTimer=setTimeout(nextPhase,pDurs[0]*1000);
+  function pGain(){return{bloom:0.65,full:1,breathe:0.45,sparse:0.3}[phase]||0.6;}
+
+  // PAD
+  const padBus=ctx.createGain();padBus.gain.value=0;wire(padBus);
+  const padF=ctx.createBiquadFilter();padF.type='lowpass';
+  padF.frequency.value=700+state.brightness*1800;padF.Q.value=0.9;padF.connect(padBus);
+  const fLFO=ctx.createOscillator();const fLFOG=ctx.createGain();
+  fLFO.type='sine';fLFO.frequency.value=0.015+state.wind*0.03;
+  fLFOG.gain.value=200+state.brightness*300;
+  fLFO.connect(fLFOG);fLFOG.connect(padF.frequency);fLFO.start();
+  const bLFO=ctx.createOscillator();const bLFOG=ctx.createGain();
+  bLFO.type='sine';bLFO.frequency.value=0.04+state.wind*0.05;
+  bLFOG.gain.value=0.010+state.storm*0.008;
+  bLFO.connect(bLFOG);bLFOG.connect(padBus.gain);bLFO.start();
+  const padVoices=[];
+  function buildPad(ch){
+    padVoices.forEach(v=>{try{v.stop(ctx.currentTime+2);}catch(e){}});
+    padVoices.length=0;
+    ch.forEach((freq,i)=>{
+      const osc=ctx.createOscillator();const g=ctx.createGain();
+      osc.type=i===0?'sine':(state.harmony==='minor'?'triangle':'sawtooth');
+      osc.frequency.value=freq;
+      osc.detune.value=i%2===0?i*1.5:-i*1.5;
+      g.gain.value=i===0?0.06:0.018-i*0.002;
+      osc.connect(g);g.connect(padF);osc.start();padVoices.push(osc);
+    });
+  }
+  buildPad(chord);
+  padBus.gain.setValueAtTime(0,ctx.currentTime);
+  padBus.gain.linearRampToValueAtTime(0.055,ctx.currentTime+2.5);
+
+  // WIND
+  const wSrc=ctx.createBufferSource();wSrc.buffer=nb;wSrc.loop=true;
+  const wBP=ctx.createBiquadFilter();wBP.type='bandpass';wBP.frequency.value=280+state.wind*800;wBP.Q.value=0.6;
+  const wHP=ctx.createBiquadFilter();wHP.type='highpass';wHP.frequency.value=120;
+  const wGain=ctx.createGain();wGain.gain.value=clamp(0.005+state.wind*0.055,0,0.08);
+  wSrc.connect(wBP);wBP.connect(wHP);wHP.connect(wGain);wGain.connect(gf);wSrc.start();
+  const wLFO=ctx.createOscillator();const wLFOG=ctx.createGain();
+  wLFO.type='sine';wLFO.frequency.value=0.04+state.wind*0.14;wLFOG.gain.value=80+state.wind*160;
+  wLFO.connect(wLFOG);wLFOG.connect(wBP.frequency);wLFO.start();
+
+  // EARTH RUMBLE
+  const eSrc=ctx.createBufferSource();eSrc.buffer=nb;eSrc.loop=true;
+  const eLP=ctx.createBiquadFilter();eLP.type='lowpass';eLP.frequency.value=80;
+  const eGain=ctx.createGain();eGain.gain.value=0.01+state.storm*0.02;
+  eSrc.connect(eLP);eLP.connect(eGain);eGain.connect(gf);eSrc.start();
+
+  // MELODY BUS — clearly audible
+  const melodyBus=ctx.createGain();melodyBus.gain.value=fx.melody*0.8;
+  melodyBus.connect(gf);melodyBus.connect(rvSend);
+  liveNodes.melodyBus=melodyBus;
+
+  // Melody phrase state
+  let phrasePos=0,phraseResting=false,phraseRestBeats=0;
+  let lastFreq=motif[0];
+
+  function nextMelodyFreq(){
+    const tones=chordTones(chord);
+    const pool=[...tones,motif[Math.floor(Math.random()*motif.length)]];
+    const sorted=[...pool].sort((a,b)=>Math.abs(a-lastFreq)-Math.abs(b-lastFreq));
+    const r=Math.random();
+    let f;
+    if(r<0.55)f=sorted[Math.floor(Math.random()*2)];      // stepwise
+    else if(r<0.82)f=motif[Math.floor(Math.random()*motif.length)]; // motif
+    else f=sorted[2+Math.floor(Math.random()*2)];          // leap
+    lastFreq=f;return f;
+  }
+
+  function playMelodyNote(){
+    if(phraseResting){phraseRestBeats--;if(phraseRestBeats<=0)phraseResting=false;return;}
+    if(phase==='sparse'&&Math.random()<0.25)return;
+    const freq=nextMelodyFreq();
+    if(!freq||freq<80||freq>6000)return;
+    const now=ctx.currentTime;
+    const osc=ctx.createOscillator();const g=ctx.createGain();const f=ctx.createBiquadFilter();
+    osc.type='sine';osc.frequency.value=freq;
+    f.type='lowpass';f.frequency.value=5000+state.brightness*3000;
+    const atk=0.006+Math.random()*0.012;
+    const dec=0.9+Math.random()*(1.5+state.wetness*0.8);
+    const peak=0.10+state.brightness*0.05; // clearly audible
+    g.gain.setValueAtTime(0.0001,now);
+    g.gain.exponentialRampToValueAtTime(peak,now+atk);
+    g.gain.exponentialRampToValueAtTime(0.0001,now+atk+dec);
+    osc.connect(f);f.connect(g);g.connect(melodyBus);
+    osc.start(now);osc.stop(now+atk+dec+0.05);
+    phrasePos++;
+    if(phrasePos>=4){phrasePos=0;phraseResting=true;phraseRestBeats=Math.floor(Math.random()*3);}
+  }
+
+  function playVibe(){
+    const tones=chordTones(chord);
+    const freq=tones[Math.floor(Math.random()*4)];
+    if(!freq)return;
+    const now=ctx.currentTime;
+    const osc=ctx.createOscillator();const g=ctx.createGain();
+    osc.type='triangle';osc.frequency.value=freq;
+    g.gain.setValueAtTime(0.0001,now);
+    g.gain.exponentialRampToValueAtTime(0.035,now+0.004);
+    g.gain.exponentialRampToValueAtTime(0.0001,now+0.6+Math.random()*0.4);
+    osc.connect(g);g.connect(melodyBus);osc.start(now);osc.stop(now+1.1);
+  }
+
+  function playKick(){
+    const now=ctx.currentTime;
+    const osc=ctx.createOscillator();const g=ctx.createGain();
+    osc.type='sine';osc.frequency.setValueAtTime(chord[0],now);
+    osc.frequency.exponentialRampToValueAtTime(chord[0]*0.85,now+0.25);
+    const vol=phase==='sparse'?0.04:0.07+state.storm*0.03;
+    g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(vol,now+0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001,now+0.45);
+    osc.connect(g);g.connect(gf);osc.start(now);osc.stop(now+0.5);
+  }
+
+  function playSubBass(){
+    if(state.harmony==='suspended')return;
+    const now=ctx.currentTime;
+    const osc=ctx.createOscillator();const g=ctx.createGain();
+    osc.type='sine';osc.frequency.value=chord[0]*0.25;
+    g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(0.055,now+0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001,now+0.3);
+    osc.connect(g);g.connect(gf);osc.start(now);osc.stop(now+0.35);
+  }
+
+  function playHat(vol=0.008){
+    const now=ctx.currentTime;
+    const src=ctx.createBufferSource();src.buffer=nb;
+    const hpf=ctx.createBiquadFilter();hpf.type='highpass';hpf.frequency.value=5500-state.wetness*1200;
+    const g=ctx.createGain();g.gain.value=vol*pGain();
+    src.connect(hpf);hpf.connect(g);g.connect(gf);src.start(now);src.stop(now+0.035);
+  }
+
+  function playShimmer(){
+    if(phase==='sparse')return;
+    const tones=chordTones(chord);const freq=Math.random()<0.6?tones[2]*2:tones[0]*4;
+    if(!freq)return;
+    const now=ctx.currentTime;
+    const osc=ctx.createOscillator();const g=ctx.createGain();
+    osc.type='triangle';osc.frequency.value=freq;
+    g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(0.012+state.brightness*0.007,now+0.05);
+    g.gain.exponentialRampToValueAtTime(0.0001,now+0.55);
+    osc.connect(g);g.connect(gf);g.connect(rvSend);osc.start(now);osc.stop(now+0.65);
+  }
+
+  function playRainDrop(){
+    if(!state.isRaining)return;
+    const tones=chordTones(chord);const freq=tones[Math.floor(Math.random()*3)]*4;
+    if(!freq)return;
+    const now=ctx.currentTime;
+    const osc=ctx.createOscillator();const g=ctx.createGain();
+    const flt=ctx.createBiquadFilter();flt.type='lowpass';flt.frequency.value=2200;
+    osc.type='sine';osc.frequency.setValueAtTime(freq,now);osc.frequency.exponentialRampToValueAtTime(freq*0.5,now+0.12);
+    g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(0.015+state.wetness*0.015,now+0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001,now+0.18);
+    osc.connect(flt);flt.connect(g);g.connect(gf);g.connect(rvSend);osc.start(now);osc.stop(now+0.22);
+  }
+
+  function playThunder(){
+    if(!state.isStormy)return;
+    const now=ctx.currentTime;
+    const src=ctx.createBufferSource();src.buffer=nb;
+    const flt=ctx.createBiquadFilter();flt.type='lowpass';flt.frequency.value=160;
+    const g=ctx.createGain();
+    g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(0.05+state.storm*0.04,now+0.06);
+    g.gain.exponentialRampToValueAtTime(0.0001,now+2.2);
+    src.connect(flt);flt.connect(g);g.connect(gf);g.connect(rvSend);src.start(now);src.stop(now+2.5);
+  }
+
+  function playRadarPing(){
+    const tones=chordTones(chord);const freq=tones[2]*2;if(!freq)return;
+    const now=ctx.currentTime;
+    const osc=ctx.createOscillator();const g=ctx.createGain();
+    osc.type='sine';osc.frequency.setValueAtTime(freq,now);osc.frequency.exponentialRampToValueAtTime(freq*0.75,now+0.35);
+    g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(0.012,now+0.008);g.gain.exponentialRampToValueAtTime(0.0001,now+0.45);
+    osc.connect(g);g.connect(gf);g.connect(rvSend);osc.start(now);osc.stop(now+0.5);
+  }
+
+  // Dilla swing
+  const dillaSwing=state.wetness>0.4?60000/state.tempo/4*0.06:0;
+
+  // SEQUENCER
+  const beatMs=60000/state.tempo;
+  const sixMs=beatMs/4;
+  const STEPS=timeSig.steps;
+  const CHORD_CYCLE=STEPS*2;
+  const MELODY_CYCLE=4; // every beat
+  const RADAR_CYCLE=STEPS+13;
+  const HERMETO_CYCLE=Math.max(1,Math.round(STEPS/3));
+
+  // Show time sig
+  $('hudCondition').textContent=`${state.label.toUpperCase()} • ${timeSig.name}`;
+
+  let step=0;
+  const timers=[];
+
+  const seqTimer=setInterval(()=>{
+    const cs=step%STEPS;
+
+    // KICK
+    if(timeSig.kickOn.includes(cs)){
+      const dOff=cs===0?0:dillaSwing;
+      setTimeout(()=>{playKick();pulseVisual();},dOff);
+      if(cs===0){setTimeout(()=>playSubBass(),dOff+2);}
+    }
+
+    // HAT
+    if(timeSig.hatOn.includes(cs)){
+      const isUp=cs%4!==0;
+      const hOff=isUp?dillaSwing*0.8:0;
+      setTimeout(()=>playHat(isUp?0.007:0.012),hOff);
+    }
+
+    // SHIMMER on mid-bar
+    if(cs===Math.floor(STEPS/2)&&state.brightness>0.25)playShimmer();
+
+    // RAIN
+    if(state.isRaining&&cs%Math.max(2,Math.floor(STEPS/6))===1&&Math.random()<0.5+state.wetness*0.3)playRainDrop();
+
+    // THUNDER
+    if(state.isStormy&&cs===STEPS-1&&Math.random()<0.12+state.storm*0.22)playThunder();
+
+    // MELODY — every beat unconditionally
+    if(step%MELODY_CYCLE===0)playMelodyNote();
+
+    // VIBE on beat 3 of every 2nd bar
+    if(step%(STEPS*2)===Math.floor(STEPS*1.5)&&phase!=='sparse')playVibe();
+
+    // HERMETO polyrhythm
+    if(step%HERMETO_CYCLE===0&&phase==='full')playVibe();
+
+    // RADAR
+    if(step%RADAR_CYCLE===0&&state.wind>0.2)playRadarPing();
+
+    // CHORD CHANGE
+    if(step>0&&step%CHORD_CYCLE===0){
+      chordIdx=(chordIdx+1)%progression.length;
+      chord=progression[chordIdx];
+      motif=buildMotif(chord);
+      padVoices.forEach(v=>{try{v.stop(ctx.currentTime+2.5);}catch(e){}});
+      setTimeout(()=>buildPad(chord),600);
+      // Chord stab
+      if(phase!=='sparse'){
+        chordTones(chord).slice(0,3).forEach((freq,i)=>{
+          const n3=ctx.currentTime;
+          const o=ctx.createOscillator();const g3=ctx.createGain();
+          o.type='sine';o.frequency.value=freq;
+          g3.gain.setValueAtTime(0.0001,n3);g3.gain.exponentialRampToValueAtTime(0.014*(1-i*0.25),n3+0.015);
+          g3.gain.exponentialRampToValueAtTime(0.0001,n3+1.5);
+          o.connect(g3);g3.connect(gf);g3.connect(rvSend);o.start(n3);o.stop(n3+1.7);
+        });
+      }
+    }
+
+    // Phase-driven pad vol
+    padBus.gain.linearRampToValueAtTime(0.055*pGain(),ctx.currentTime+1.5);
+
+    step++;
+  },sixMs);
+  timers.push(seqTimer);
+
+  currentAudio={
+    stopAll:()=>{
+      timers.forEach(clearInterval);
+      clearTimeout(phaseTimer);
+      liveNodes=null;
+      [wSrc,eSrc].forEach(s=>{try{s.stop();}catch(e){}});
+      [fLFO,bLFO,wLFO].forEach(l=>{try{l.stop();}catch(e){}});
+      padVoices.forEach(v=>{try{v.stop();}catch(e){}});
+      padBus.gain.setValueAtTime(0,ctx.currentTime);
+      setTimeout(()=>{try{ctx.close();}catch(e){}},300);
+    }
+  };
+}
+
+// ─── EVENT WIRING ────────────────────────────────────────────
+$('loadWeatherBtn').addEventListener('click',()=>loadWeatherForZip($('zipInput').value));
+$('loadWeatherBtn2').addEventListener('click',()=>loadWeatherForZip($('zipInput2').value));
+$('playBtn').addEventListener('click',play);
+$('playBtn2').addEventListener('click',play);
+$('stopBtn').addEventListener('click',stop);
+$('stopBtn2').addEventListener('click',stop);
+$('applyManualBtn').addEventListener('click',applyManual);
+$('resetToWeatherBtn').addEventListener('click',resetToWeather);
+$('resetToWeatherBtn2').addEventListener('click',resetToWeather);
+
+['warmth','wind','wetness','storm','brightness'].forEach(k=>{
+  const sl=$(`${k}Slider`);
+  sl.addEventListener('input',updateSliderLabels);
+  sl.addEventListener('input',()=>{
+    if(currentAudio){
+      clearTimeout(sl._d);
+      sl._d=setTimeout(()=>{usingManualState=true;applyManual();},300);
+    }
+  });
+});
+
+['fxReverb','fxDelay','fxFilter','fxComplexity','fxMelody'].forEach(id=>{
+  const el=$(id),valEl=$(id+'Val');
+  if(el&&valEl)el.addEventListener('input',()=>{valEl.textContent=parseFloat(el.value).toFixed(2);applyLiveFx();});
+});
+
+// Volume knob
+const volKnob=$('volKnob');
+const volMarker=$('volMarker');
+function updateVolKnob(){
+  if(!volKnob||!volMarker)return;
+  const deg=-135+parseFloat(volKnob.value)*270;
+  volMarker.style.transform=`translateX(-50%) rotate(${deg}deg)`;
+  $('volLabel').textContent=Math.round(parseFloat(volKnob.value)*100);
+}
+if(volKnob){volKnob.addEventListener('input',()=>{updateVolKnob();applyLiveFx();});updateVolKnob();}
+
+// Sync both ZIP inputs
+$('zipInput').addEventListener('input',()=>$('zipInput2').value=$('zipInput').value);
+$('zipInput2').addEventListener('input',()=>$('zipInput').value=$('zipInput2').value);
+
+// ─── INIT ────────────────────────────────────────────────────
+updateSliderLabels();
+loadWeatherForZip('10033');
 </script>
 </body>
 </html>
