@@ -27,8 +27,8 @@
   --font-mono:'IBM Plex Mono',monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:#B8B2A4;font-family:var(--font-ui);min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:20px 0;}
-.chassis{width:100%;max-width:1400px;background:var(--body-bg);border-radius:0;box-shadow:0 20px 60px rgba(0,0,0,0.45);overflow:hidden;}
+body{background:#B8B2A4;font-family:var(--font-ui);min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:24px 12px;}
+.chassis{width:100%;max-width:1180px;background:var(--body-bg);border-radius:16px;box-shadow:0 2px 0 #E8E2D6 inset,0 -2px 0 #A09888 inset,0 20px 60px rgba(0,0,0,0.45);overflow:hidden;}
 
 /* COLOR STRIPES */
 .stripe{display:flex;height:5px;}
@@ -44,21 +44,13 @@ body{background:#B8B2A4;font-family:var(--font-ui);min-height:100vh;display:flex
 .port-status span{color:var(--green);}
 
 /* HEADER */
-.faceplate-top{padding:0;display:flex;align-items:stretch;border-bottom:1px solid var(--rule);overflow:hidden;}
-.brand-block{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2px;flex-shrink:0;padding:20px 32px;background:var(--body-bg);}
-.globe-wrap{position:relative;display:flex;align-items:center;justify-content:center;}
-.globe-svg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:0;}
-.woof-logo{font-family:var(--font-logo);font-size:46px;font-weight:800;line-height:1;letter-spacing:0.02em;color:#fff;position:relative;z-index:1;padding:8px 22px;}
-.brand-sub{font-family:var(--font-ui);font-size:11px;font-weight:700;letter-spacing:0.45em;text-transform:uppercase;color:var(--orange);opacity:0.8;
-  display:flex;justify-content:space-between;width:180px;margin-top:4px;}
-.header-divider{width:5px;background:var(--ink);flex-shrink:0;align-self:stretch;}
-.product-block{flex:1;padding:16px 24px;display:flex;flex-direction:column;justify-content:center;gap:5px;position:relative;overflow:hidden;
-  background:linear-gradient(180deg,#2479B5 0%,#5BAEE8 60%,#A8D4F5 100%);}
-.product-block::before{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='90'%3E%3Cg opacity='0.55'%3E%3Cellipse cx='40' cy='28' rx='28' ry='16' fill='white'/%3E%3Cellipse cx='60' cy='20' rx='22' ry='14' fill='white'/%3E%3Cellipse cx='80' cy='26' rx='18' ry='12' fill='white'/%3E%3Cellipse cx='25' cy='32' rx='16' ry='10' fill='white'/%3E%3C/g%3E%3Cg opacity='0.4'%3E%3Cellipse cx='190' cy='55' rx='22' ry='13' fill='white'/%3E%3Cellipse cx='210' cy='47' rx='18' ry='12' fill='white'/%3E%3Cellipse cx='228' cy='53' rx='14' ry='10' fill='white'/%3E%3Cellipse cx='176' cy='58' rx='14' ry='9' fill='white'/%3E%3C/g%3E%3Cg opacity='0.3'%3E%3Cellipse cx='270' cy='22' rx='16' ry='10' fill='white'/%3E%3Cellipse cx='285' cy='16' rx='14' ry='9' fill='white'/%3E%3Cellipse cx='258' cy='25' rx='12' ry='7' fill='white'/%3E%3C/g%3E%3C/svg%3E");background-size:300px 90px;animation:cloudDrift 28s linear infinite;pointer-events:none;z-index:0;}
-.product-block::after{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='70'%3E%3Cg opacity='0.25'%3E%3Cellipse cx='80' cy='40' rx='24' ry='13' fill='white'/%3E%3Cellipse cx='98' cy='33' rx='19' ry='12' fill='white'/%3E%3Cellipse cx='115' cy='38' rx='15' ry='10' fill='white'/%3E%3Cellipse cx='65' cy='43' rx='14' ry='8' fill='white'/%3E%3C/g%3E%3C/svg%3E");background-size:200px 70px;animation:cloudDrift 42s linear infinite reverse;pointer-events:none;z-index:0;}
-@keyframes cloudDrift{from{background-position:0 0;}to{background-position:300px 0;}}
-.product-name{font-family:var(--font-ui);font-size:34px;font-weight:900;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink);line-height:1;position:relative;z-index:1;text-shadow:0 1px 0 rgba(255,255,255,0.3);}
-.product-tagline{font-family:var(--font-mono);font-size:9px;color:rgba(0,0,0,0.45);letter-spacing:0.05em;position:relative;z-index:1;}
+.faceplate-top{padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid var(--rule);}
+.brand-block{display:flex;flex-direction:column;gap:3px;flex-shrink:0;}
+.woof-logo{font-family:var(--font-logo);font-size:52px;font-weight:800;line-height:1;letter-spacing:0.02em;background-color:#2479B5;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='56'%3E%3Cg opacity='0.9'%3E%3Cellipse cx='18' cy='13' rx='9' ry='6' fill='white'/%3E%3Cellipse cx='26' cy='9' rx='7' ry='5.5' fill='white'/%3E%3Cellipse cx='33' cy='12' rx='6' ry='4.5' fill='white'/%3E%3Cellipse cx='12' cy='15' rx='6' ry='4' fill='white'/%3E%3C/g%3E%3Cg opacity='0.72'%3E%3Cellipse cx='70' cy='35' rx='7' ry='5' fill='white'/%3E%3Cellipse cx='78' cy='30' rx='6' ry='5' fill='white'/%3E%3Cellipse cx='85' cy='33' rx='5' ry='3.5' fill='white'/%3E%3Cellipse cx='64' cy='36' rx='5' ry='3.5' fill='white'/%3E%3C/g%3E%3Cg opacity='0.6'%3E%3Cellipse cx='48' cy='21' rx='5.5' ry='3.5' fill='white'/%3E%3Cellipse cx='55' cy='17' rx='5' ry='3.5' fill='white'/%3E%3Cellipse cx='61' cy='20' rx='4' ry='3' fill='white'/%3E%3C/g%3E%3C/svg%3E");background-size:100px 56px;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.brand-sub{font-family:var(--font-logo);font-size:16px;font-weight:400;letter-spacing:0.1em;text-transform:uppercase;color:#2479B5;}
+.product-block{flex:1;padding-left:24px;border-left:2px solid var(--rule);display:flex;flex-direction:column;justify-content:center;gap:5px;}
+.product-name{font-family:var(--font-ui);font-size:34px;font-weight:900;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink);line-height:1;}
+.product-tagline{font-family:var(--font-mono);font-size:9px;color:var(--ink-faint);letter-spacing:0.05em;}
 .knob-row{display:flex;gap:12px;align-items:center;}
 .knob-col{display:flex;flex-direction:column;align-items:center;}
 .knob-wrap{position:relative;width:38px;height:38px;}
@@ -149,7 +141,7 @@ input[type="text"]:focus{border-color:var(--orange);}
 .rv-green{color:var(--green);}
 
 /* CONTROL SECTION */
-.control-section{display:grid;grid-template-columns:220px 1fr 200px;border-top:1px solid var(--rule);}
+.control-section{display:grid;grid-template-columns:260px 1fr 200px;border-top:1px solid var(--rule);}
 .ctrl-panel{padding:18px 18px 16px;border-right:1px solid var(--rule);}
 .ctrl-panel:last-child{border-right:none;}
 .ctrl-label{font-size:8px;font-weight:800;letter-spacing:0.22em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
@@ -184,24 +176,11 @@ input[type="range"]::-moz-range-thumb{width:14px;height:26px;background:linear-g
 .dc-val.c-purple{color:var(--purple);}
 .dc-sub{font-size:8px;color:var(--ink-faint);font-family:var(--font-mono);margin-top:1px;}
 
-/* MIXER */
-.mixer-section{display:flex;border-top:1px solid var(--rule);min-height:0;}
-.mixer-channels{flex:1;min-width:0;padding:12px 16px 12px;display:flex;flex-direction:column;gap:8px;overflow-x:auto;}
-.mixer-strips{display:flex;gap:0;align-items:stretch;min-width:max-content;}
-.mix-ch{display:flex;flex-direction:column;align-items:center;gap:5px;padding:6px 14px;border-right:1px solid var(--rule);min-width:72px;}
-.mix-ch.master{border-left:2px solid var(--ink);border-right:none;background:rgba(0,0,0,0.03);min-width:72px;}
-.mix-ch-label{font-size:8px;font-weight:800;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-mid);}
-.mix-ch-label.master{color:var(--orange);}
-.mix-track{width:10px;height:90px;background:#0A0907;border:1px solid #2A2820;border-radius:5px;position:relative;cursor:pointer;box-shadow:inset 0 2px 4px rgba(0,0,0,0.6);}
-.mix-thumb{width:26px;height:12px;background:linear-gradient(180deg,#C8C0B0,#706860);border-radius:3px;position:absolute;left:50%;transform:translateX(-50%);cursor:grab;box-shadow:0 1px 0 rgba(255,255,255,0.3) inset,0 2px 4px rgba(0,0,0,0.5);}
-.mix-thumb:active{cursor:grabbing;}
-.mix-val{font-family:var(--font-mono);font-size:9px;font-weight:600;color:var(--ink-mid);min-width:24px;text-align:center;}
-.mix-pip{width:8px;height:8px;border-radius:50%;}
-.mix-level-btn{display:flex;flex-direction:column;gap:3px;align-items:center;}
-.mix-btn{font-size:7px;font-weight:800;letter-spacing:0.1em;padding:3px 10px;border:1px solid var(--rule);background:var(--panel-bg);color:var(--ink-mid);cursor:pointer;border-radius:2px;white-space:nowrap;}
-.mix-btn.active{background:var(--ink);color:var(--body-bg);border-color:var(--ink);}
-.mix-btn.active.hi{background:var(--orange);border-color:var(--orange);color:#fff;}
-.mixer-fx{flex:0 0 280px;padding:12px 20px 12px;border-left:2px solid var(--rule);display:flex;flex-direction:column;gap:0;}
+/* FX PANEL */
+.fx-panel{grid-column:1/-1;border-top:1px solid var(--rule);}
+.fx-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px 20px;padding:16px 18px;}
+.fx-col{display:flex;flex-direction:column;gap:6px;}
+.fx-key{font-size:9px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-mid);}
 
 /* STATUS STRIP */
 .status-strip{background:var(--dark-bg);border-top:2px solid #000;padding:8px 20px;min-height:48px;display:flex;align-items:center;flex-wrap:wrap;gap:0;}
@@ -233,13 +212,12 @@ input[type="range"]::-moz-range-thumb{width:14px;height:26px;background:linear-g
   .chassis{border-radius:0;}
   .port-strip{padding:0 12px;gap:6px;}
   .port-tag{font-size:8px;padding:2px 6px;}
-  .faceplate-top{flex-direction:column;align-items:stretch;}
-  .brand-block{padding:14px 16px 10px;text-align:center;align-items:center;}
-  .header-divider{width:100%;height:4px;align-self:auto;}
-  .product-block{padding:14px 16px;align-items:center;min-height:80px;}
+  .faceplate-top{flex-direction:column;align-items:center;text-align:center;padding:14px;gap:10px;}
+  .woof-logo{font-size:38px;}
+  .product-block{padding-left:0;border-left:none;border-top:1px solid var(--rule);padding-top:10px;width:100%;align-items:center;}
   .product-name{font-size:22px;text-align:center;}
   .product-tagline{display:none;}
-  .knob-row{padding:12px 16px!important;justify-content:center;}
+  .knob-row{display:none;}
   .input-bar{padding:8px 12px;gap:6px;}
   .zip-input{width:72px;}
   .btn3d{font-size:9px;padding:7px 10px;}
@@ -253,49 +231,157 @@ input[type="range"]::-moz-range-thumb{width:14px;height:26px;background:linear-g
   .ss-block{padding:4px 10px;border-right:none;border-bottom:1px solid rgba(255,255,255,0.06);width:50%;}
   .ss-bpm{margin-left:0;width:100%;justify-content:center;padding:6px 0;}
   .fx-grid{grid-template-columns:1fr 1fr;}
-
-  /* MIXER — own full-width section on mobile */
-  .mixer-section{flex-direction:column;}
-  .mixer-channels{padding:14px 12px 10px;overflow-x:visible;}
-  .mixer-strips{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    min-width:unset;
-    width:100%;
-    gap:0;
-    border:1px solid var(--rule);
-    border-radius:4px;
-    overflow:hidden;
-  }
-  .mix-ch{
-    min-width:unset;
-    padding:10px 6px;
-    border-right:1px solid var(--rule);
-    border-bottom:1px solid var(--rule);
-  }
-  .mix-ch:nth-child(3n){border-right:none;}
-  .mix-ch:nth-last-child(-n+3){border-bottom:none;}
-  .mix-ch.master{
-    border-left:none;
-    border-top:2px solid var(--ink);
-    background:rgba(0,0,0,0.03);
-    grid-column:1/-1;
-    flex-direction:row;
-    justify-content:space-between;
-    align-items:center;
-    padding:8px 14px;
-    min-width:unset;
-  }
-  .mix-ch.master .mix-level-btn{flex-direction:row;gap:6px;}
-  .mix-ch.master .mix-btn{padding:4px 12px;}
-  .mixer-fx{
-    flex:unset;
-    border-left:none;
-    border-top:2px solid var(--rule);
-    padding:14px 12px 12px;
-  }
 }
+
+/* ── HELVETICA SKIN ──────────────────────────────────── */
+body[data-skin="helvetica"]{background:#E8E8E6;--hv-bg:#F5F5F3;--hv-ink:#1A1A1A;--hv-mid:#999;--hv-rule:#E0E0DC;--hv-font:'Inter',sans-serif;}
+body[data-skin="helvetica"] .chassis{background:var(--hv-bg);box-shadow:0 1px 0 var(--hv-rule),0 20px 60px rgba(0,0,0,0.08);}
+
+/* stripe → single 1px rule */
+body[data-skin="helvetica"] .stripe{height:1px;background:var(--hv-ink);}
+body[data-skin="helvetica"] .stripe>div{background:var(--hv-ink);}
+
+/* port strip → clean top bar */
+body[data-skin="helvetica"] .port-strip{background:var(--hv-ink);height:36px;border-bottom:none;gap:16px;padding:0 32px;}
+body[data-skin="helvetica"] .port-tag{font-family:var(--hv-font);font-size:9px;font-weight:500;letter-spacing:0.1em;border-radius:0;padding:2px 8px;}
+body[data-skin="helvetica"] .port-tag.orange{background:transparent;color:rgba(245,245,243,0.9);border:1px solid rgba(245,245,243,0.3);}
+body[data-skin="helvetica"] .port-tag.dark{background:transparent;color:rgba(245,245,243,0.4);border:none;padding:0;}
+body[data-skin="helvetica"] .port-tag.green{background:transparent;color:rgba(245,245,243,0.4);border:none;}
+body[data-skin="helvetica"] .port-status{font-family:var(--hv-font);color:rgba(245,245,243,0.3);font-size:9px;}
+body[data-skin="helvetica"] #engineStatus{color:rgba(245,245,243,0.4);}
+
+/* faceplate header */
+body[data-skin="helvetica"] .faceplate-top{border-bottom:1px solid var(--hv-ink);background:var(--hv-bg);}
+body[data-skin="helvetica"] .brand-block{background:var(--hv-bg);padding:28px 32px;gap:4px;border-right:1px solid var(--hv-ink);}
+body[data-skin="helvetica"] .globe-svg{display:none;}
+body[data-skin="helvetica"] .woof-logo{font-family:var(--hv-font);font-size:42px;font-weight:700;color:var(--hv-ink);letter-spacing:-0.02em;padding:0;}
+body[data-skin="helvetica"] .brand-sub{font-family:var(--hv-font);font-size:9px;font-weight:500;letter-spacing:0.14em;color:var(--hv-mid);width:auto;justify-content:flex-start;gap:0;display:block;}
+body[data-skin="helvetica"] .brand-sub span{letter-spacing:0.14em;}
+body[data-skin="helvetica"] .header-divider{background:var(--hv-ink);width:1px;}
+body[data-skin="helvetica"] .product-block{background:var(--hv-bg);padding:28px 32px;}
+body[data-skin="helvetica"] .product-block::before{display:none;}
+body[data-skin="helvetica"] .product-block::after{display:none;}
+body[data-skin="helvetica"] .product-name{font-family:var(--hv-font);font-size:42px;font-weight:300;letter-spacing:-0.03em;color:var(--hv-ink);text-shadow:none;}
+body[data-skin="helvetica"] .product-tagline{font-family:var(--hv-font);font-size:9px;font-weight:400;letter-spacing:0.08em;color:var(--hv-mid);}
+body[data-skin="helvetica"] .knob-row{background:var(--hv-bg);}
+body[data-skin="helvetica"] .knob-visual{background:var(--hv-ink);border-radius:50%;box-shadow:none;}
+body[data-skin="helvetica"] .knob-marker{background:#F5F5F3;}
+body[data-skin="helvetica"] .knob-static{background:#E0E0DC;box-shadow:none;}
+body[data-skin="helvetica"] .knob-label{font-family:var(--hv-font);color:var(--hv-mid);font-size:8px;letter-spacing:0.1em;}
+
+/* input bar */
+body[data-skin="helvetica"] .input-bar{background:var(--hv-bg);border-bottom:1px solid var(--hv-ink);padding:12px 32px;}
+body[data-skin="helvetica"] .ibar-label{font-family:var(--hv-font);font-size:9px;font-weight:500;letter-spacing:0.1em;color:var(--hv-mid);}
+body[data-skin="helvetica"] .zip-input{background:transparent;border:none;border-bottom:1px solid var(--hv-ink);color:var(--hv-ink);font-family:var(--hv-font);font-size:22px;font-weight:300;letter-spacing:-0.01em;width:80px;box-shadow:none;}
+body[data-skin="helvetica"] .zip-input:focus{border-color:var(--hv-ink);outline:none;}
+body[data-skin="helvetica"] .btn3d{font-family:var(--hv-font);border-radius:0;font-weight:500;letter-spacing:0.1em;}
+body[data-skin="helvetica"] .btn3d.dark{background:transparent;color:var(--hv-ink);border:1px solid var(--hv-ink);}
+body[data-skin="helvetica"] .btn3d.dark:hover{background:var(--hv-ink);color:var(--hv-bg);}
+body[data-skin="helvetica"] .btn3d.orange{background:var(--hv-ink);color:var(--hv-bg);border:1px solid var(--hv-ink);}
+body[data-skin="helvetica"] .btn3d.orange:hover{background:#333;}
+body[data-skin="helvetica"] .btn3d.gray{background:transparent;color:var(--hv-ink);border:1px solid var(--hv-rule);}
+body[data-skin="helvetica"] .ibar-status{font-family:var(--hv-font);color:var(--hv-mid);font-size:10px;}
+body[data-skin="helvetica"] .sep{background:var(--hv-rule);}
+
+/* screen */
+body[data-skin="helvetica"] .screen-row{border-top:1px solid var(--hv-ink);border-bottom:1px solid var(--hv-ink);}
+body[data-skin="helvetica"] .screen-outer{background:#0A0A0A;padding:3px;border-right:1px solid var(--hv-ink);}
+body[data-skin="helvetica"] .screen-ghost{font-family:var(--hv-font);font-weight:700;color:rgba(255,255,255,0.04);letter-spacing:0.06em;}
+body[data-skin="helvetica"] .hud-coords{font-family:var(--hv-font);color:rgba(255,255,255,0.2);}
+body[data-skin="helvetica"] .hud-badge{font-family:var(--hv-font);font-weight:500;letter-spacing:0.12em;border-radius:0;}
+body[data-skin="helvetica"] .hud-badge.major{color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.25);background:transparent;}
+body[data-skin="helvetica"] .hud-badge.minor{color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.25);background:transparent;}
+body[data-skin="helvetica"] .hud-badge.suspended{color:rgba(255,255,255,0.4);border-color:rgba(255,255,255,0.15);background:transparent;}
+body[data-skin="helvetica"] .hud-condition{font-family:var(--hv-font);font-weight:500;color:rgba(255,255,255,0.7);letter-spacing:0.1em;}
+body[data-skin="helvetica"] .hud-bpm{font-family:var(--hv-font);color:rgba(255,255,255,0.35);}
+
+/* sidebar */
+body[data-skin="helvetica"] .screen-sidebar{background:var(--hv-bg);border-left:1px solid var(--hv-ink);}
+body[data-skin="helvetica"] .sidebar-label{font-family:var(--hv-font);font-size:8px;font-weight:500;letter-spacing:0.14em;color:var(--hv-mid);}
+body[data-skin="helvetica"] .bm-track{background:#E8E8E6;border:none;box-shadow:none;}
+body[data-skin="helvetica"] .bm-fill{background:var(--hv-ink);}
+body[data-skin="helvetica"] .bm-label{font-family:var(--hv-font);color:var(--hv-mid);}
+body[data-skin="helvetica"] .readout-block{background:transparent;border:none;box-shadow:none;border-top:1px solid var(--hv-rule);}
+body[data-skin="helvetica"] .readout-key{font-family:var(--hv-font);color:var(--hv-mid);}
+body[data-skin="helvetica"] .readout-val{font-family:var(--hv-font);font-weight:300;}
+body[data-skin="helvetica"] .rv-orange,body[data-skin="helvetica"] .rv-teal,body[data-skin="helvetica"] .rv-yellow,body[data-skin="helvetica"] .rv-green{color:var(--hv-ink);}
+
+/* control section */
+body[data-skin="helvetica"] .control-section{border-top:1px solid var(--hv-ink);}
+body[data-skin="helvetica"] .ctrl-panel{background:var(--hv-bg);border-right:1px solid var(--hv-rule);}
+body[data-skin="helvetica"] .ctrl-label{font-family:var(--hv-font);color:var(--hv-mid);font-size:8px;letter-spacing:0.16em;}
+body[data-skin="helvetica"] .ctrl-label::after{background:var(--hv-rule);}
+body[data-skin="helvetica"] .status-text{font-family:var(--hv-font);color:var(--hv-mid);}
+body[data-skin="helvetica"] .sl-key{font-family:var(--hv-font);color:var(--hv-mid);}
+body[data-skin="helvetica"] .sl-val{font-family:var(--hv-font);color:var(--hv-ink);}
+body[data-skin="helvetica"] .sl-pip{border-radius:0;}
+body[data-skin="helvetica"] input[type="range"]{background:var(--hv-rule);border:none;border-radius:0;height:1px;box-shadow:none;}
+body[data-skin="helvetica"] input[type="range"]::-webkit-slider-thumb{background:var(--hv-ink);border-radius:0;width:1px;height:20px;box-shadow:none;}
+body[data-skin="helvetica"] input[type="range"]:hover::-webkit-slider-thumb{background:#333;}
+body[data-skin="helvetica"] input[type="range"]::-moz-range-thumb{background:var(--hv-ink);border-radius:0;width:1px;height:20px;border:none;}
+body[data-skin="helvetica"] .col-header{background:var(--hv-ink);color:var(--hv-bg);font-family:var(--hv-font);letter-spacing:0.16em;}
+body[data-skin="helvetica"] .data-cell{background:var(--hv-bg);border-color:var(--hv-rule);}
+body[data-skin="helvetica"] .dc-key{font-family:var(--hv-font);color:var(--hv-mid);}
+body[data-skin="helvetica"] .dc-val{font-family:var(--hv-font);font-weight:300;color:var(--hv-ink);}
+body[data-skin="helvetica"] .dc-val.c-orange,body[data-skin="helvetica"] .dc-val.c-teal,body[data-skin="helvetica"] .dc-val.c-yellow{color:var(--hv-ink);}
+body[data-skin="helvetica"] .dc-sub{font-family:var(--hv-font);color:var(--hv-mid);}
+
+/* mixer */
+body[data-skin="helvetica"] .mixer-section{border-top:1px solid var(--hv-ink);}
+body[data-skin="helvetica"] .mixer-channels{background:var(--hv-bg);}
+body[data-skin="helvetica"] .mix-ch{border-right:1px solid var(--hv-rule);}
+body[data-skin="helvetica"] .mix-ch.master{border-left:1px solid var(--hv-ink);background:var(--hv-ink);}
+body[data-skin="helvetica"] .mix-ch-label{font-family:var(--hv-font);font-size:8px;font-weight:500;letter-spacing:0.12em;color:var(--hv-mid);}
+body[data-skin="helvetica"] .mix-ch-label.master{color:rgba(245,245,243,0.5);}
+body[data-skin="helvetica"] .mix-btn{font-family:var(--hv-font);font-size:8px;font-weight:500;letter-spacing:0.08em;border-radius:0;border:1px solid var(--hv-rule);background:transparent;color:var(--hv-mid);}
+body[data-skin="helvetica"] .mix-btn.active{background:var(--hv-ink);color:var(--hv-bg);border-color:var(--hv-ink);}
+body[data-skin="helvetica"] .mix-btn.active.hi{background:var(--hv-ink);border-color:var(--hv-ink);color:var(--hv-bg);}
+body[data-skin="helvetica"] .mix-ch.master .mix-btn{border-color:rgba(245,245,243,0.15);color:rgba(245,245,243,0.3);}
+body[data-skin="helvetica"] .mix-ch.master .mix-btn.active{background:var(--hv-bg);color:var(--hv-ink);border-color:var(--hv-bg);}
+body[data-skin="helvetica"] .mix-pip{border-radius:0;width:6px;height:6px;background:var(--hv-ink);}
+body[data-skin="helvetica"] .mix-ch.master .mix-pip{background:rgba(245,245,243,0.4);}
+body[data-skin="helvetica"] .mixer-fx{border-left:1px solid var(--hv-ink);background:var(--hv-ink);}
+body[data-skin="helvetica"] .mixer-fx .ctrl-label{color:rgba(245,245,243,0.35);font-family:var(--hv-font);}
+body[data-skin="helvetica"] .mixer-fx .ctrl-label::after{background:rgba(245,245,243,0.1);}
+body[data-skin="helvetica"] .mixer-fx .sl-key{color:rgba(245,245,243,0.35);font-family:var(--hv-font);}
+body[data-skin="helvetica"] .mixer-fx .sl-val{color:rgba(245,245,243,0.35);font-family:var(--hv-font);}
+body[data-skin="helvetica"] .mixer-fx input[type="range"]{background:rgba(245,245,243,0.12);}
+body[data-skin="helvetica"] .mixer-fx input[type="range"]::-webkit-slider-thumb{background:var(--hv-bg);}
+
+/* status strip */
+body[data-skin="helvetica"] .status-strip{background:var(--hv-ink);}
+body[data-skin="helvetica"] .ss-key{font-family:var(--hv-font);font-size:8px;letter-spacing:0.12em;color:rgba(245,245,243,0.3);}
+body[data-skin="helvetica"] .ss-val{font-family:var(--hv-font);color:rgba(245,245,243,0.7);}
+body[data-skin="helvetica"] .ss-bpm-num{font-family:var(--hv-font);font-weight:300;color:var(--hv-bg);}
+body[data-skin="helvetica"] .ss-bpm-unit{font-family:var(--hv-font);color:rgba(245,245,243,0.3);}
+body[data-skin="helvetica"] .pulse-dot{background:var(--hv-bg);}
+body[data-skin="helvetica"] .ss-block{border-right:1px solid rgba(245,245,243,0.08);}
+
+/* bottom stripe → 1px rule */
+body[data-skin="helvetica"] .stripe:last-of-type{background:var(--hv-rule);}
+body[data-skin="helvetica"] .stripe:last-of-type>div{background:var(--hv-rule);}
+
+/* HELVETICA VISUALIZER */
+.hv-viz{display:none;position:absolute;inset:0;z-index:8;pointer-events:none;font-family:'Inter',sans-serif;}
+body[data-skin="helvetica"] .hv-viz{display:block;}
+body[data-skin="helvetica"] .sky-layer,
+body[data-skin="helvetica"] .star-layer,
+body[data-skin="helvetica"] .sky-glow,
+body[data-skin="helvetica"] .cloud-layer,
+body[data-skin="helvetica"] .fog-layer,
+body[data-skin="helvetica"] .wind-layer,
+body[data-skin="helvetica"] .precip-layer,
+body[data-skin="helvetica"] .terrain-layer,
+body[data-skin="helvetica"] .lightning-layer,
+body[data-skin="helvetica"] .screen-ghost,
+body[data-skin="helvetica"] .screen-hud{display:none;}
+body[data-skin="helvetica"] .screen{background:#F5F5F3;min-height:280px;}
+body[data-skin="helvetica"] .screen-outer{background:#E8E8E6;padding:0;border-right:1px solid #1A1A1A;}
+body[data-skin="helvetica"] .screen-row{border-top:1px solid #1A1A1A;border-bottom:1px solid #1A1A1A;}
+body[data-skin="helvetica"] .screen::after,
+body[data-skin="helvetica"] .screen::before{display:none;}
 </style>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
 <div class="chassis">
@@ -307,35 +393,22 @@ input[type="range"]::-moz-range-thumb{width:14px;height:26px;background:linear-g
 </div>
 
 <div class="port-strip">
-  <span class="port-tag orange" id="portStatus">● IDLE</span>
-  <span class="port-tag dark" id="portHarmony">—</span>
-  <span class="port-tag dark" id="portTimeSig">—</span>
-  <span class="port-tag dark" id="portLocation">NO ZIP</span>
-  <span class="port-status">ENGINE <span id="engineStatus">IDLE</span></span>
+  <span class="port-tag orange">OUTPUT</span>
+  <span class="port-tag dark">INPUT</span>
+  <span class="port-tag green">SYNC</span>
+  <span class="port-status">SYS <span id="engineStatus">IDLE</span></span>
 </div>
 
 <div class="faceplate-top">
   <div class="brand-block">
-    <div class="globe-wrap">
-      <svg class="globe-svg" width="180" height="76" viewBox="0 0 180 76" xmlns="http://www.w3.org/2000/svg">
-        <!-- Main badge fill - orange -->
-        <path d="M16,0 L164,0 Q180,0 180,16 L180,60 Q180,76 164,76 L16,76 Q0,76 0,60 L0,16 Q0,0 16,0 Z" fill="#E8460A"/>
-        <!-- White inner border inset -->
-        <path d="M20,5 L160,5 Q175,5 175,20 L175,56 Q175,71 160,71 L20,71 Q5,71 5,56 L5,20 Q5,5 20,5 Z" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1.5"/>
-        <!-- Thin second inner border -->
-        <path d="M24,9 L156,9 Q170,9 170,23 L170,53 Q170,67 156,67 L24,67 Q10,67 10,53 L10,23 Q10,9 24,9 Z" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
-      </svg>
-      <span class="woof-logo">WOOF.</span>
-    </div>
-    <span class="brand-sub"><span>I</span><span>N</span><span>S</span><span>T</span><span>R</span><span>U</span><span>M</span><span>E</span><span>N</span><span>T</span><span>S</span></span>
+    <span class="woof-logo">WOOF.</span>
+    <span class="brand-sub">Systems</span>
   </div>
-  <div class="header-divider"></div>
   <div class="product-block">
     <div class="product-name">Weatherman</div>
     <div class="product-tagline">WEATHER COMPOSER · AMBIENT SYSTEMS MODEL 01</div>
   </div>
-  <div class="header-divider"></div>
-  <div class="knob-row" style="padding:16px 24px;background:var(--body-bg);flex-shrink:0;">
+  <div class="knob-row">
     <div class="knob-col">
       <div class="knob-wrap">
         <input id="volKnob" type="range" min="0" max="1" step="0.01" value="0.75" class="knob-input"/>
@@ -384,7 +457,8 @@ input[type="range"]::-moz-range-thumb{width:14px;height:26px;background:linear-g
           <span class="hud-condition" id="hudCondition">—</span>
           <span class="hud-bpm" id="hudBpm">— BPM</span>
         </div>
-      </div>
+            <!-- HV VISUALIZER -->
+      <div class="hv-viz" id="hvViz"></div>
     </div>
   </div>
   <div class="screen-sidebar">
@@ -452,104 +526,18 @@ input[type="range"]::-moz-range-thumb{width:14px;height:26px;background:linear-g
     </div>
   </div>
 
-</div><!-- end control-section -->
-
-<!-- MIXER + FX PANEL — full width -->
-<div class="mixer-section">
-    <div class="mixer-channels">
-      <div class="ctrl-label">Mixer</div>
-      <div class="mixer-strips">
-
-        <!-- PAD -->
-        <div class="mix-ch">
-          <div class="mix-ch-label">Pad</div>
-          <div class="mix-level-btn" data-ch="mxPad">
-            <button class="mix-btn" data-val="1.0">HI</button>
-            <button class="mix-btn active" data-val="0.65">MID</button>
-            <button class="mix-btn" data-val="0.3">LO</button>
-            <button class="mix-btn" data-val="0">OFF</button>
-          </div>
-          <input type="hidden" id="mxPad" value="0.65"/>
-          <div class="mix-pip" style="background:var(--teal)"></div>
-        </div>
-
-        <!-- MELODY -->
-        <div class="mix-ch">
-          <div class="mix-ch-label">Melody</div>
-          <div class="mix-level-btn" data-ch="mxMelody">
-            <button class="mix-btn hi active" data-val="1.0">HI</button>
-            <button class="mix-btn" data-val="0.65">MID</button>
-            <button class="mix-btn" data-val="0.3">LO</button>
-            <button class="mix-btn" data-val="0">OFF</button>
-          </div>
-          <input type="hidden" id="mxMelody" value="1.0"/>
-          <div class="mix-pip" style="background:var(--yellow)"></div>
-        </div>
-
-        <!-- WIND -->
-        <div class="mix-ch">
-          <div class="mix-ch-label">Wind</div>
-          <div class="mix-level-btn" data-ch="mxWind">
-            <button class="mix-btn" data-val="1.0">HI</button>
-            <button class="mix-btn active" data-val="0.65">MID</button>
-            <button class="mix-btn" data-val="0.3">LO</button>
-            <button class="mix-btn" data-val="0">OFF</button>
-          </div>
-          <input type="hidden" id="mxWind" value="0.65"/>
-          <div class="mix-pip" style="background:var(--green)"></div>
-        </div>
-
-        <!-- EARTH -->
-        <div class="mix-ch">
-          <div class="mix-ch-label">Earth</div>
-          <div class="mix-level-btn" data-ch="mxBreath">
-            <button class="mix-btn" data-val="1.0">HI</button>
-            <button class="mix-btn active" data-val="0.65">MID</button>
-            <button class="mix-btn" data-val="0.3">LO</button>
-            <button class="mix-btn" data-val="0">OFF</button>
-          </div>
-          <input type="hidden" id="mxBreath" value="0.65"/>
-          <div class="mix-pip" style="background:#8B7355"></div>
-        </div>
-
-        <!-- PERC -->
-        <div class="mix-ch">
-          <div class="mix-ch-label">Perc</div>
-          <div class="mix-level-btn" data-ch="mxPerc">
-            <button class="mix-btn" data-val="1.0">HI</button>
-            <button class="mix-btn active" data-val="0.65">MID</button>
-            <button class="mix-btn" data-val="0.3">LO</button>
-            <button class="mix-btn" data-val="0">OFF</button>
-          </div>
-          <input type="hidden" id="mxPerc" value="0.65"/>
-          <div class="mix-pip" style="background:var(--orange)"></div>
-        </div>
-
-        <!-- MASTER -->
-        <div class="mix-ch master">
-          <div class="mix-ch-label master">Master</div>
-          <div class="mix-level-btn" data-ch="mxMaster">
-            <button class="mix-btn hi active" data-val="1.0">HI</button>
-            <button class="mix-btn" data-val="0.65">MID</button>
-            <button class="mix-btn" data-val="0.3">LO</button>
-            <button class="mix-btn" data-val="0">OFF</button>
-          </div>
-          <input type="hidden" id="mxMaster" value="1.0"/>
-          <div class="mix-pip" style="background:var(--orange)"></div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- FX -->
-    <div class="mixer-fx">
-      <div class="ctrl-label">FX</div>
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <div class="sl-row"><span class="sl-key" style="width:72px;">Reverb</span><input id="fxReverb" type="range" min="0" max="1" step="0.01" value="0.65"/><span class="sl-val" id="fxReverbVal">0.65</span></div>
-        <div class="sl-row"><span class="sl-key" style="width:72px;">Delay</span><input id="fxDelay" type="range" min="0" max="1" step="0.01" value="0.4"/><span class="sl-val" id="fxDelayVal">0.40</span></div>
+  <!-- FX PANEL — full width -->
+  <div class="ctrl-panel fx-panel" style="border-right:none;border-top:1px solid var(--rule);">
+    <div class="ctrl-label">FX + Composition</div>
+    <div class="fx-grid">
+      <div class="fx-col"><span class="fx-key">Reverb</span><div class="sl-row"><input id="fxReverb" type="range" min="0" max="1" step="0.01" value="0.4"/><span class="sl-val" id="fxReverbVal">0.40</span></div></div>
+      <div class="fx-col"><span class="fx-key">Delay</span><div class="sl-row"><input id="fxDelay" type="range" min="0" max="1" step="0.01" value="0.4"/><span class="sl-val" id="fxDelayVal">0.40</span></div></div>
+      <div class="fx-col"><span class="fx-key">Filter</span><div class="sl-row"><input id="fxFilter" type="range" min="0" max="1" step="0.01" value="0.6"/><span class="sl-val" id="fxFilterVal">0.60</span></div></div>
+      <div class="fx-col"><span class="fx-key">Complexity</span><div class="sl-row"><input id="fxComplexity" type="range" min="0" max="1" step="0.01" value="0.6"/><span class="sl-val" id="fxComplexityVal">0.60</span></div></div>
+      <div class="fx-col"><span class="fx-key">Melody</span><div class="sl-row"><input id="fxMelody" type="range" min="0" max="1" step="0.01" value="0.85"/><span class="sl-val" id="fxMelodyVal">0.85</span></div></div>
     </div>
   </div>
-</div><!-- end mixer-section -->
+</div>
 
 <div class="status-strip">
   <div class="ss-block"><span class="ss-key">Harmony</span><span class="ss-val teal" id="harmonyValue">—</span></div>
@@ -626,7 +614,7 @@ function interpretWeather(w){
   const isRaining=w.precipitation>0.05&&isRainCode;
   const isSnowing=w.precipitation>0.05&&isSnowCode;
   const isStormy=isStormCode||(w.wind>=28&&w.precipitation>0.4);
-  const warmth=clamp((w.temp*9/5+32-20)/80,0,1);
+  const warmth=clamp((w.temp+5)/35,0,1);
   const wind=clamp(w.wind/40,0,1);
   const wetness=clamp((w.humidity/100)*0.45+w.precipitation*0.55,0,1);
   const storm=clamp((isStormy?0.7:0)+w.wind/70+w.precipitation/8,0,1);
@@ -717,8 +705,7 @@ async function loadWeatherForZip(zip){
 function updateWeatherDisplay(w,s){
   $('locationValue').textContent=w.location;
   $('conditionValue').textContent=s.label;
-  const tempF=Math.round(w.temp*9/5+32);
-  $('tempValue').textContent=`${tempF}°F`;
+  $('tempValue').textContent=`${w.temp}°C`;
   $('tempMoodValue').textContent=s.harmony==='major'?'warm/bright':s.harmony==='minor'?'cool/dark':'neutral';
   $('windValue').textContent=`${w.wind} km/h`;
   $('humidityValue').textContent=`${w.humidity}%`;
@@ -787,20 +774,16 @@ function getFx(){
 function applyLiveFx(){
   if(!liveNodes)return;
   const fx=getFx();
-  const {ctx,gf,rvSend,dlySend,master,melodyBus,mxPad,mxWind,mxBreath,mxPerc}=liveNodes;
+  const {ctx,gf,rvSend,dlySend,master,melodyBus}=liveNodes;
   const now=ctx.currentTime;
+  // Filter — exponential curve for dramatic effect
   const base=currentState?(currentState.isStormy?600:currentState.isRaining?1000:currentState.isFoggy?500:currentState.isSunny?7000:3000):3000;
   const hz=fx.filter<0.5?150+(fx.filter/0.5)*(base-150):base+((fx.filter-0.5)/0.5)*(18000-base);
   gf.frequency.setTargetAtTime(hz,now,0.06);
   rvSend.gain.setTargetAtTime(fx.reverb*0.3,now,0.06);
   dlySend.gain.setTargetAtTime(fx.delay*0.2,now,0.06);
-  const mxMasterVal=parseFloat($('mxMaster')?.value??0.75);
-  master.gain.setTargetAtTime(fx.vol*mxMasterVal*0.75,now,0.05);
-  if(mxPad)    mxPad.gain.setTargetAtTime(parseFloat($('mxPad')?.value??0.7),now,0.06);
-  if(mxWind)   mxWind.gain.setTargetAtTime(parseFloat($('mxWind')?.value??0.6),now,0.06);
-  if(mxBreath) mxBreath.gain.setTargetAtTime(parseFloat($('mxBreath')?.value??0.6),now,0.06);
-  if(mxPerc)   mxPerc.gain.setTargetAtTime(parseFloat($('mxPerc')?.value??0.75),now,0.06);
-  if(melodyBus)melodyBus.gain.setTargetAtTime(parseFloat($('mxMelody')?.value??0.85)*0.3,now,0.06);
+  master.gain.setTargetAtTime(fx.vol*0.75,now,0.05);
+  if(melodyBus)melodyBus.gain.setTargetAtTime(fx.melody*0.8,now,0.06);
 }
 
 // ─── UPDATEINSTRUMENTREADOUT ─────────────────────────────────
@@ -819,12 +802,6 @@ function updateInstrumentReadout(s){
   $('screenGhost').textContent=s.label.toUpperCase();
   engineStatusEl.textContent=currentAudio?'RUNNING':'IDLE';
   engineStatusEl.style.color=currentAudio?'var(--green)':'#4A4840';
-  // Port strip live status
-  const ps=$('portStatus');
-  if(ps){ps.textContent=currentAudio?'● PLAYING':'● IDLE';ps.className=currentAudio?'port-tag green':'port-tag orange';}
-  const ph=$('portHarmony');if(ph)ph.textContent=s.harmony.toUpperCase();
-  const pt=$('portTimeSig');if(pt){const ts=computeTimeSignature(s);pt.textContent=ts.name;}
-  const pl=$('portLocation');if(pl&&currentWeather)pl.textContent=currentWeather.location.split(',')[0].toUpperCase();
 }
 
 function setBar(id,val,color){
@@ -1000,6 +977,7 @@ function updateVisualizer(s){
   setBar('brightnessBar',s.brightness,'var(--yellow)');
 
   updateInstrumentReadout(s);
+  if(document.body.getAttribute('data-skin')==='helvetica'&&typeof updateHvViz==='function') updateHvViz(s);
 }
 
 // ─── AUDIO ENGINE ────────────────────────────────────────────
@@ -1014,6 +992,11 @@ function playWeatherSoundscape(state){
   limiter.threshold.value=-8;limiter.knee.value=3;limiter.ratio.value=12;
   limiter.attack.value=0.001;limiter.release.value=0.1;
   master.connect(limiter);limiter.connect(ctx.destination);
+  const analyser=ctx.createAnalyser();
+  analyser.fftSize=512;analyser.smoothingTimeConstant=0.75;
+  analyser.minDecibels=-80;analyser.maxDecibels=-10;
+  limiter.connect(analyser);analyser.connect(ctx.destination);
+  limiter.disconnect(ctx.destination);
 
   // GLOBAL FILTER
   const gf=ctx.createBiquadFilter();gf.type='lowpass';
@@ -1021,50 +1004,57 @@ function playWeatherSoundscape(state){
   gf.frequency.value=fx.filter<0.5?150+(fx.filter/0.5)*(base-150):base+((fx.filter-0.5)/0.5)*(18000-base);
   gf.Q.value=0.8;gf.connect(master);
 
-  // REVERB — 6-tap network, single safe feedback path
-  const rvSend=ctx.createGain();rvSend.gain.value=fx.reverb*0.3;
-  const rvReturn=ctx.createGain();rvReturn.gain.value=0.5;
-  const rvTaps=[0.037,0.083,0.127,0.193,0.253,0.367];
-  const rvDelays=rvTaps.map(t=>{const d=ctx.createDelay(3);d.delayTime.value=t;return d;});
-  // Single feedback path — gain must stay well below 1/numTaps to avoid runaway
-  const rvFB=ctx.createGain();rvFB.gain.value=0.18+fx.reverb*0.08; // max ~0.26, safe
-  const rvF=ctx.createBiquadFilter();rvF.type='lowpass';rvF.frequency.value=3000;
-  const rvHP=ctx.createBiquadFilter();rvHP.type='highpass';rvHP.frequency.value=90;
-  // Fan out send to all taps
-  rvDelays.forEach(d=>rvSend.connect(d));
-  // Mix all taps through filter
-  rvDelays.forEach(d=>d.connect(rvF));
-  rvF.connect(rvHP);
-  // Single feedback loop back into ONLY first tap
-  rvHP.connect(rvFB);rvFB.connect(rvDelays[0]);
-  // Output
-  rvHP.connect(rvReturn);rvReturn.connect(gf);
+  // REVERB NETWORK
+  const rvSend=ctx.createGain();rvSend.gain.value=fx.reverb*0.28;
+  const rvReturn=ctx.createGain();rvReturn.gain.value=0.4;
+  const rv1=ctx.createDelay(2);rv1.delayTime.value=0.083;
+  const rv2=ctx.createDelay(2);rv2.delayTime.value=0.127;
+  const rv3=ctx.createDelay(2);rv3.delayTime.value=0.211;
+  const rvFB=ctx.createGain();rvFB.gain.value=0.22+fx.reverb*0.12;
+  const rvF=ctx.createBiquadFilter();rvF.type='lowpass';rvF.frequency.value=2400;
+  rvSend.connect(rv1);rvSend.connect(rv2);rvSend.connect(rv3);
+  rv1.connect(rvF);rv2.connect(rvF);rv3.connect(rvF);
+  rvF.connect(rvFB);rvFB.connect(rv1);rvFB.connect(rv2);
+  rvF.connect(rvReturn);rvReturn.connect(gf);
 
-  // DELAY
+  // DELAY — type/time changes with weather condition
+  function getDelayTime(tempo,s){
+    const b=60/tempo;
+    if(s.isStormy)   return b*0.75;   // dotted 1/8
+    if(s.isRaining)  return b*0.5;    // 1/8
+    if(s.isFoggy)    return b*2;      // 1/2
+    if(!s.isDaytime) return b*1.5;    // dotted 1/4
+    if(s.isSunny)    return b*0.375;  // dotted 1/16
+    return b;                         // 1/4 default
+  }
+  function getDelayFB(s,fxv){return Math.min(0.45,( s.isStormy?0.28:s.isFoggy?0.42:s.isRaining?0.35:0.3 )+fxv*0.15);}
   const dlySend=ctx.createGain();dlySend.gain.value=fx.delay*0.18;
-  const dlyNode=ctx.createDelay(1.2);dlyNode.delayTime.value=60/state.tempo;
-  const dlyFB=ctx.createGain();dlyFB.gain.value=0.2+fx.delay*0.14;
-  const dlyF=ctx.createBiquadFilter();dlyF.type='lowpass';dlyF.frequency.value=1800;
-  const dlyReturn=ctx.createGain();dlyReturn.gain.value=0.35;
+  const dlyNode=ctx.createDelay(3.0);dlyNode.delayTime.value=getDelayTime(state.tempo,state);
+  const dlyFB=ctx.createGain();dlyFB.gain.value=getDelayFB(state,fx.delay);
+  const dlyF=ctx.createBiquadFilter();dlyF.type='lowpass';dlyF.frequency.value=2000;
+  const dlyReturn=ctx.createGain();dlyReturn.gain.value=0.32;
   dlySend.connect(dlyNode);dlyNode.connect(dlyF);dlyF.connect(dlyFB);
   dlyFB.connect(dlyNode);dlyF.connect(dlyReturn);dlyReturn.connect(gf);
 
-  // Store live nodes
-  liveNodes={ctx,gf,rvSend,dlySend,master,melodyBus:null};
+  // BITCRUSHER — WaveShaper-based, used on perc during storm/rain
+  const bcAmt=state.isStormy?0.55:state.isRaining?0.3:0.0;
+  const bcInput=ctx.createGain();bcInput.gain.value=1;
+  if(bcAmt>0.05){
+    const bcDepth=state.isStormy?4:6;
+    const bcSteps=Math.pow(2,bcDepth);
+    const bcCurve=new Float32Array(256);
+    for(let i=0;i<256;i++){const x=(i*2/255)-1;bcCurve[i]=Math.round(x*bcSteps)/bcSteps;}
+    const bcShaper=ctx.createWaveShaper();bcShaper.curve=bcCurve;bcShaper.oversample='none';
+    const bcWet=ctx.createGain();bcWet.gain.value=bcAmt;
+    const bcDry=ctx.createGain();bcDry.gain.value=1-bcAmt*0.5;
+    bcInput.connect(bcShaper);bcShaper.connect(bcWet);bcWet.connect(gf);
+    bcInput.connect(bcDry);bcDry.connect(gf);
+  } else {bcInput.connect(gf);}
 
-  // MIXER CHANNEL GAINS — one per audio layer, stored for live slider control
-  const mxPadGain    = ctx.createGain(); mxPadGain.gain.value    = parseFloat($('mxPad')?.value??0.7);
-  const mxWindGain   = ctx.createGain(); mxWindGain.gain.value   = parseFloat($('mxWind')?.value??0.6);
-  const mxBreathGain = ctx.createGain(); mxBreathGain.gain.value = parseFloat($('mxBreath')?.value??0.6);
-  mxBreathGain.connect(gf); mxBreathGain.connect(rvSend);
-  const mxPercGain   = ctx.createGain(); mxPercGain.gain.value   = parseFloat($('mxPerc')?.value??0.75);
-  mxPercGain.connect(gf); // perc goes dry to output — no reverb/delay for tightness
-  liveNodes.mxPad=mxPadGain; liveNodes.mxWind=mxWindGain;
-  liveNodes.mxBreath=mxBreathGain; liveNodes.mxPerc=mxPercGain;
+  // Store live nodes
+  liveNodes={ctx,gf,rvSend,dlySend,master,melodyBus:null,analyser,dlyFB,dlyNode,bcInput,getDelayFB};
 
   function wire(n){n.connect(gf);n.connect(rvSend);n.connect(dlySend);}
-  // Percussion wires through perc bus (no reverb/delay — keeps perc tight)
-  function wirePerc(n){const g=ctx.createGain();g.gain.value=1;n.connect(mxPercGain);mxPercGain.connect(gf);}
 
   // PINK NOISE BUFFER
   const nbs=ctx.sampleRate*3;
@@ -1133,8 +1123,8 @@ function playWeatherSoundscape(state){
   phaseTimer=setTimeout(nextPhase,pDurs[0]*1000);
   function pGain(){return{bloom:0.65,full:1,breathe:0.45,sparse:0.3}[phase]||0.6;}
 
-  // PAD — routed through mxPadGain mixer channel (set up after mxPadGain is created)
-  const padBus=ctx.createGain();padBus.gain.value=0;
+  // PAD
+  const padBus=ctx.createGain();padBus.gain.value=0;wire(padBus);
   const padF=ctx.createBiquadFilter();padF.type='lowpass';
   padF.frequency.value=700+state.brightness*1800;padF.Q.value=0.9;padF.connect(padBus);
   const fLFO=ctx.createOscillator();const fLFOG=ctx.createGain();
@@ -1160,17 +1150,14 @@ function playWeatherSoundscape(state){
   }
   buildPad(chord);
   padBus.gain.setValueAtTime(0,ctx.currentTime);
-  padBus.gain.linearRampToValueAtTime(0.18,ctx.currentTime+4.5);
-  // Route pad through mixer channel
-  padBus.connect(mxPadGain); mxPadGain.connect(gf); mxPadGain.connect(rvSend);
+  padBus.gain.linearRampToValueAtTime(0.055,ctx.currentTime+2.5);
 
   // WIND
   const wSrc=ctx.createBufferSource();wSrc.buffer=nb;wSrc.loop=true;
   const wBP=ctx.createBiquadFilter();wBP.type='bandpass';wBP.frequency.value=280+state.wind*800;wBP.Q.value=0.6;
   const wHP=ctx.createBiquadFilter();wHP.type='highpass';wHP.frequency.value=120;
   const wGain=ctx.createGain();wGain.gain.value=clamp(0.005+state.wind*0.055,0,0.08);
-  wSrc.connect(wBP);wBP.connect(wHP);wHP.connect(wGain);
-  wGain.connect(mxWindGain); mxWindGain.connect(gf); wSrc.start();
+  wSrc.connect(wBP);wBP.connect(wHP);wHP.connect(wGain);wGain.connect(gf);wSrc.start();
   const wLFO=ctx.createOscillator();const wLFOG=ctx.createGain();
   wLFO.type='sine';wLFO.frequency.value=0.04+state.wind*0.14;wLFOG.gain.value=80+state.wind*160;
   wLFO.connect(wLFOG);wLFOG.connect(wBP.frequency);wLFO.start();
@@ -1179,173 +1166,48 @@ function playWeatherSoundscape(state){
   const eSrc=ctx.createBufferSource();eSrc.buffer=nb;eSrc.loop=true;
   const eLP=ctx.createBiquadFilter();eLP.type='lowpass';eLP.frequency.value=80;
   const eGain=ctx.createGain();eGain.gain.value=0.01+state.storm*0.02;
-  eSrc.connect(eLP);eLP.connect(eGain);eGain.connect(mxBreathGain);eSrc.start();
+  eSrc.connect(eLP);eLP.connect(eGain);eGain.connect(gf);eSrc.start();
 
-  // ORGANIC BREATH
-  const breathSrc=ctx.createBufferSource();breathSrc.buffer=nb;breathSrc.loop=true;
-  const breathBP=ctx.createBiquadFilter();breathBP.type='bandpass';
-  breathBP.frequency.value=320+state.warmth*200; // warmer weather = higher breath tone
-  breathBP.Q.value=0.4; // wide band = more natural, less tonal
-  const breathLP=ctx.createBiquadFilter();breathLP.type='lowpass';breathLP.frequency.value=700;
-  const breathGain=ctx.createGain();breathGain.gain.value=clamp(0.018+state.wetness*0.025,0,0.055);
-  // Slow amplitude LFO — makes it breathe rather than drone
-  const breathLFO=ctx.createOscillator();const breathLFOG=ctx.createGain();
-  breathLFO.type='sine';breathLFO.frequency.value=0.12+state.wind*0.08;
-  breathLFOG.gain.value=breathGain.gain.value*0.5;
-  breathLFO.connect(breathLFOG);breathLFOG.connect(breathGain.gain);
-  breathSrc.connect(breathBP);breathBP.connect(breathLP);breathLP.connect(breathGain);
-  breathGain.connect(mxBreathGain); mxBreathGain.connect(gf); mxBreathGain.connect(rvSend);
-  breathSrc.start();breathLFO.start();
-
-  // MELODY BUS — through mixer fader, then reverb + delay
-  const melodyBus=ctx.createGain();melodyBus.gain.value=parseFloat($('mxMelody')?.value??0.85)*0.3;
-  melodyBus.connect(gf);
-  melodyBus.connect(rvSend);
-  melodyBus.connect(dlySend);
+  // MELODY BUS — clearly audible
+  const melodyBus=ctx.createGain();melodyBus.gain.value=fx.melody*0.8;
+  melodyBus.connect(gf);melodyBus.connect(rvSend);
   liveNodes.melodyBus=melodyBus;
 
-  // Melody scale = chord tones ONLY across a singable 2-octave range
-  // Stepwise motion comes from moving between adjacent chord degrees, not chromatic passing tones
-  function getMelodyScale(){
-    const tones=chordTones(chord); // [root,3rd,5th,7th, root*2,3rd*2,5th*2]
-    // Use upper 4 chord tones (in melody register) + one octave up of root and 3rd
-    // All notes are guaranteed to be in the chord — no chromatic passing tones
-    const pool=[
-      tones[0],       // root (mid register)
-      tones[1],       // 3rd
-      tones[2],       // 5th
-      tones[3],       // 7th
-      tones[0]*2,     // root (upper octave)
-      tones[1]*2,     // 3rd (upper octave)
-      tones[2]*2,     // 5th (upper octave)
-    ];
-    return pool.filter(f=>f>180&&f<1800).sort((a,b)=>a-b);
-  }
+  // Melody phrase state
+  let phrasePos=0,phraseResting=false,phraseRestBeats=0;
+  let lastFreq=motif[0];
 
-  // Rhythmic durations in beats — simpler, more singable
-  // Mostly quarter (1) and half (2) notes, occasional dotted feel
-  // Less syncopation, more like a real vocal line
-  const NOTE_RHYTHMS=[
-    [2, 1, 1, 2],       // long-short-short-long — classic
-    [1, 1, 2, 2],       // walk up then hold
-    [2, 2, 1, 1, 2],    // held opening, resolve
-    [1, 2, 1, 2],       // alternating quarter-half
-    [4, 2],             // one long, one medium — breath
-    [1, 1, 1, 2],       // three quarters and hold
-    [2, 1, 2, 1],       // long-short pattern
-    [3, 1, 2],          // dotted half feel
-  ];
-
-  // Phrase contours — direction shapes for melody lines
-  function buildPhrase(scale, startFreq, contour){
-    const out=[];let cur=startFreq;
-    const sorted=[...scale].sort((a,b)=>a-b);
-    const idx=sorted.findIndex(f=>f>=cur*0.97);
-    let pos=Math.max(0,Math.min(idx,sorted.length-1));
-
-    for(let i=0;i<contour.length;i++){
-      out.push(sorted[clamp(pos,0,sorted.length-1)]);
-      const step=contour[i];
-      pos=clamp(pos+step,0,sorted.length-1);
-    }
-    return out;
-  }
-
-  // Contour patterns — direction of melody in scale steps
-  const CONTOURS={
-    major:[
-      [1,1,1,-1,0],    // rise and resolve
-      [2,-1,-1,1,0],   // arch
-      [1,-1,1,-1,0],   // wave
-      [-1,-1,2,-1],    // valley and rise
-    ],
-    minor:[
-      [-1,-1,1,1,0],   // descend then resolve up
-      [1,-1,-2,1],     // peak and fall
-      [-1,1,-1,1,-1],  // brooding wave
-    ],
-    suspended:[
-      [1,0,1,-1,0],    // ambiguous rise
-      [-1,1,1,-1],     // floating
-    ],
-  };
-
-  let melodyRunning=true;
-  const beatMs=60000/state.tempo;
-  const beatSec=beatMs/1000;
-
-  // Melody state — driven by sequencer clock, not setTimeout
-  // A "phrase" is a list of {freq, dur (in beats), rest (bool)} events
-  // We pre-generate one phrase at a time, then play through it step by step
-  let melPhrase=[];      // current phrase queue [{freq, durBeats}]
-  let melBeatCount=0;    // beats until next note fires
-  let melRestBeats=0;    // beats of silence between phrases
-  let melPhraseActive=false;
-
-  function generateMelPhrase(){
-    const scale=getMelodyScale();
-    if(!scale.length)return[];
+  function nextMelodyFreq(){
     const tones=chordTones(chord);
-    const startFreq=tones[Math.floor(Math.random()*3)];
-    const contourSet=CONTOURS[state.harmony]||CONTOURS.major;
-    const contour=contourSet[Math.floor(Math.random()*contourSet.length)];
-    const notes=buildPhrase(scale,startFreq,contour);
-    const rhythm=NOTE_RHYTHMS[Math.floor(Math.random()*NOTE_RHYTHMS.length)];
-    return notes.map((freq,i)=>({
-      freq,
-      durBeats: rhythm[i%rhythm.length],
-      rest: Math.random()<0.12&&i>0&&i<notes.length-1
-    }));
+    const pool=[...tones,motif[Math.floor(Math.random()*motif.length)]];
+    const sorted=[...pool].sort((a,b)=>Math.abs(a-lastFreq)-Math.abs(b-lastFreq));
+    const r=Math.random();
+    let f;
+    if(r<0.55)f=sorted[Math.floor(Math.random()*2)];      // stepwise
+    else if(r<0.82)f=motif[Math.floor(Math.random()*motif.length)]; // motif
+    else f=sorted[2+Math.floor(Math.random()*2)];          // leap
+    lastFreq=f;return f;
   }
 
-  function playMelNote(freq, durBeats){
-    if(!melodyRunning||!freq||freq<150||freq>2000)return;
-    const t=ctx.currentTime;
-    const dur=durBeats*beatSec;
-    const atk=0.015;
-    const sus=Math.min(dur*0.85, dur-0.05);
-    const peak=0.055+state.brightness*0.02;
-
-    // Pure sine only — no harmonics, no overtones, no clashing
-    const osc=ctx.createOscillator();const g=ctx.createGain();
+  function playMelodyNote(){
+    if(phraseResting){phraseRestBeats--;if(phraseRestBeats<=0)phraseResting=false;return;}
+    if(phase==='sparse'&&Math.random()<0.25)return;
+    const freq=nextMelodyFreq();
+    if(!freq||freq<80||freq>6000)return;
+    const now=ctx.currentTime;
+    const osc=ctx.createOscillator();const g=ctx.createGain();const f=ctx.createBiquadFilter();
     osc.type='sine';osc.frequency.value=freq;
-    g.gain.setValueAtTime(0.0001,t);
-    g.gain.exponentialRampToValueAtTime(peak,t+atk);
-    g.gain.exponentialRampToValueAtTime(0.0001,t+sus);
-    osc.connect(g);g.connect(melodyBus);
-    osc.start(t);osc.stop(t+sus+0.05);
-  }
-
-  // Called every beat from sequencer
-  function tickMelody(){
-    if(!melodyRunning)return;
-
-    // Counting down rest between phrases
-    if(melRestBeats>0){melRestBeats--;return;}
-
-    // Start a new phrase if needed
-    if(!melPhraseActive||melPhrase.length===0){
-      melPhrase=generateMelPhrase();
-      melPhraseActive=true;
-      melBeatCount=0;
-    }
-
-    // Count down to next note
-    if(melBeatCount>0){melBeatCount--;return;}
-
-    // Fire next note
-    const event=melPhrase.shift();
-    if(!event){
-      // Phrase done — rest before next
-      melPhraseActive=false;
-      const sparseExtra=phase==='sparse'?4:0;
-      melRestBeats=2+Math.floor(Math.random()*4)+sparseExtra;
-      return;
-    }
-
-    if(!event.rest) playMelNote(event.freq, event.durBeats);
-    // Schedule when next note fires (in beats, rounded to nearest beat)
-    melBeatCount=Math.max(1,Math.round(event.durBeats))-1;
+    f.type='lowpass';f.frequency.value=5000+state.brightness*3000;
+    const atk=0.006+Math.random()*0.012;
+    const dec=0.9+Math.random()*(1.5+state.wetness*0.8);
+    const peak=0.10+state.brightness*0.05; // clearly audible
+    g.gain.setValueAtTime(0.0001,now);
+    g.gain.exponentialRampToValueAtTime(peak,now+atk);
+    g.gain.exponentialRampToValueAtTime(0.0001,now+atk+dec);
+    osc.connect(f);f.connect(g);g.connect(melodyBus);
+    osc.start(now);osc.stop(now+atk+dec+0.05);
+    phrasePos++;
+    if(phrasePos>=4){phrasePos=0;phraseResting=true;phraseRestBeats=Math.floor(Math.random()*3);}
   }
 
   function playVibe(){
@@ -1361,8 +1223,34 @@ function playWeatherSoundscape(state){
     osc.connect(g);g.connect(melodyBus);osc.start(now);osc.stop(now+1.1);
   }
 
+  function playKick(){
+    const now=ctx.currentTime;
+    const osc=ctx.createOscillator();const g=ctx.createGain();
+    osc.type='sine';osc.frequency.setValueAtTime(chord[0],now);
+    osc.frequency.exponentialRampToValueAtTime(chord[0]*0.85,now+0.25);
+    const vol=phase==='sparse'?0.04:0.07+state.storm*0.03;
+    g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(vol,now+0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001,now+0.45);
+    osc.connect(g);g.connect(gf);osc.start(now);osc.stop(now+0.5);
+  }
 
-  // ── PERCUSSION — defined below in groove section ─────────────
+  function playSubBass(){
+    if(state.harmony==='suspended')return;
+    const now=ctx.currentTime;
+    const osc=ctx.createOscillator();const g=ctx.createGain();
+    osc.type='sine';osc.frequency.value=chord[0]*0.25;
+    g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(0.055,now+0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001,now+0.3);
+    osc.connect(g);g.connect(gf);osc.start(now);osc.stop(now+0.35);
+  }
+
+  function playHat(vol=0.008){
+    const now=ctx.currentTime;
+    const src=ctx.createBufferSource();src.buffer=nb;
+    const hpf=ctx.createBiquadFilter();hpf.type='highpass';hpf.frequency.value=5500-state.wetness*1200;
+    const g=ctx.createGain();g.gain.value=vol*pGain();
+    src.connect(hpf);hpf.connect(g);g.connect(gf);src.start(now);src.stop(now+0.035);
+  }
 
   function playShimmer(){
     if(phase==='sparse')return;
@@ -1382,11 +1270,11 @@ function playWeatherSoundscape(state){
     if(!freq)return;
     const now=ctx.currentTime;
     const osc=ctx.createOscillator();const g=ctx.createGain();
-    const flt=ctx.createBiquadFilter();flt.type='lowpass';flt.frequency.value=2800;
-    osc.type='sine';osc.frequency.value=freq; // no pitch glide — stays in chord
-    g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(0.012+state.wetness*0.012,now+0.005);
-    g.gain.exponentialRampToValueAtTime(0.0001,now+0.14);
-    osc.connect(flt);flt.connect(g);g.connect(gf);g.connect(rvSend);osc.start(now);osc.stop(now+0.18);
+    const flt=ctx.createBiquadFilter();flt.type='lowpass';flt.frequency.value=2200;
+    osc.type='sine';osc.frequency.setValueAtTime(freq,now);osc.frequency.exponentialRampToValueAtTime(freq*0.5,now+0.12);
+    g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(0.015+state.wetness*0.015,now+0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001,now+0.18);
+    osc.connect(flt);flt.connect(g);g.connect(gf);g.connect(rvSend);osc.start(now);osc.stop(now+0.22);
   }
 
   function playThunder(){
@@ -1404,185 +1292,64 @@ function playWeatherSoundscape(state){
     const tones=chordTones(chord);const freq=tones[2]*2;if(!freq)return;
     const now=ctx.currentTime;
     const osc=ctx.createOscillator();const g=ctx.createGain();
-    osc.type='sine';osc.frequency.value=freq; // stay on chord tone, no glide
-    g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(0.010,now+0.008);g.gain.exponentialRampToValueAtTime(0.0001,now+0.5);
-    osc.connect(g);g.connect(gf);g.connect(rvSend);osc.start(now);osc.stop(now+0.55);
+    osc.type='sine';osc.frequency.setValueAtTime(freq,now);osc.frequency.exponentialRampToValueAtTime(freq*0.75,now+0.35);
+    g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(0.012,now+0.008);g.gain.exponentialRampToValueAtTime(0.0001,now+0.45);
+    osc.connect(g);g.connect(gf);g.connect(rvSend);osc.start(now);osc.stop(now+0.5);
   }
 
-  // ── PERCUSSION FUNCTIONS ─────────────────────────────────────
+  // Dilla swing
+  const dillaSwing=state.wetness>0.4?60000/state.tempo/4*0.06:0;
 
-  function playKick(vol){
-    vol=vol??0.07+state.storm*0.03;
+  // ARPEGGIATOR — sunny/bright, plays broken chord tones on upbeats
+  const ARP_PATTERNS={major:[0,2,1,3,2,4,1,3],minor:[0,1,3,1,0,2,3,2],suspended:[0,3,1,2,3,0,2,1]};
+  function playArpNote(freq){
+    if(!freq||freq<100||freq>3000)return;
     const now=ctx.currentTime;
     const osc=ctx.createOscillator();const g=ctx.createGain();
-    osc.type='sine';
-    osc.frequency.setValueAtTime(90,now);
-    osc.frequency.exponentialRampToValueAtTime(38,now+0.12);
-    osc.frequency.exponentialRampToValueAtTime(30,now+0.35);
-    g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(vol,now+0.004);
-    g.gain.exponentialRampToValueAtTime(vol*0.3,now+0.06);
-    g.gain.exponentialRampToValueAtTime(0.0001,now+0.45);
-    osc.connect(g);g.connect(mxPercGain);osc.start(now);osc.stop(now+0.5);
+    const flt=ctx.createBiquadFilter();flt.type='bandpass';flt.frequency.value=freq*1.8;flt.Q.value=2;
+    osc.type='triangle';osc.frequency.value=freq;
+    g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(0.055,now+0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001,now+0.35);
+    osc.connect(flt);flt.connect(g);g.connect(melodyBus);
+    osc.start(now);osc.stop(now+0.4);
   }
 
-  function playSnare(vol=0.018,tone=180){
-    const now=ctx.currentTime;
-    const src=ctx.createBufferSource();src.buffer=nb;
-    const bhpf=ctx.createBiquadFilter();bhpf.type='highpass';bhpf.frequency.value=1800;
-    const blpf=ctx.createBiquadFilter();blpf.type='lowpass';blpf.frequency.value=6000;
-    const ng=ctx.createGain();
-    ng.gain.setValueAtTime(0.0001,now);ng.gain.exponentialRampToValueAtTime(vol,now+0.002);
-    ng.gain.exponentialRampToValueAtTime(0.0001,now+0.18);
-    src.connect(bhpf);bhpf.connect(blpf);blpf.connect(ng);ng.connect(mxPercGain);
-    src.start(now);src.stop(now+0.2);
-    const osc=ctx.createOscillator();const tg=ctx.createGain();
-    osc.type='triangle';osc.frequency.setValueAtTime(tone,now);osc.frequency.exponentialRampToValueAtTime(tone*0.5,now+0.08);
-    tg.gain.setValueAtTime(0.0001,now);tg.gain.exponentialRampToValueAtTime(vol*0.5,now+0.002);
-    tg.gain.exponentialRampToValueAtTime(0.0001,now+0.1);
-    osc.connect(tg);tg.connect(mxPercGain);osc.start(now);osc.stop(now+0.12);
+  // FILTER SWELL — slow autonomous LFO on global filter
+  let swellTimer=null;
+  function startFilterSwell(){
+    const baseF=state.isStormy?600:state.isRaining?1200:state.isFoggy?400:state.isSunny?5000:2500;
+    const depth=state.isStormy?800:state.isFoggy?600:1500;
+    const rate=state.isStormy?0.8:state.isFoggy?0.05:state.isSunny?0.15:0.1;
+    let ph=0;
+    swellTimer=setInterval(()=>{
+      ph+=rate*0.05;
+      gf.frequency.setTargetAtTime(Math.max(100,baseF+Math.sin(ph)*depth),ctx.currentTime,0.3);
+    },50);
   }
+  startFilterSwell();
 
-  function playGhost(offset=0){
-    const now=ctx.currentTime+offset;
-    const src=ctx.createBufferSource();src.buffer=nb;
-    const hpf=ctx.createBiquadFilter();hpf.type='highpass';hpf.frequency.value=3000;
-    const g=ctx.createGain();g.gain.value=0.003+Math.random()*0.003;
-    src.connect(hpf);hpf.connect(g);g.connect(mxPercGain);
-    src.start(now);src.stop(now+0.025);
+  // EFFECT SWELL — reverb/delay breathe every 4 bars
+  let swellStep=0;
+  function tickEffectSwell(){
+    const swellPeriod=STEPS*4;
+    swellStep=(swellStep+1)%swellPeriod;
+    const curve=Math.sin((swellStep/swellPeriod)*Math.PI);
+    const rvBase=fx.reverb*0.28;
+    rvSend.gain.setTargetAtTime(rvBase+(( state.isStormy?0.55:state.isFoggy?0.5:0.38 )-rvBase)*curve*0.5,ctx.currentTime,0.5);
+    const fbBase=getDelayFB(state,fx.delay);
+    dlyFB.gain.setTargetAtTime(Math.min(0.45,fbBase+0.1*curve),ctx.currentTime,0.5);
   }
-
-  function playHat(vol=0.010,open=false){
-    const now=ctx.currentTime;
-    const src=ctx.createBufferSource();src.buffer=nb;
-    const hpf=ctx.createBiquadFilter();hpf.type='highpass';hpf.frequency.value=6500-state.wetness*1500;
-    const lpf=ctx.createBiquadFilter();lpf.type='lowpass';lpf.frequency.value=open?18000:9000;
-    const g=ctx.createGain();
-    g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(vol,now+0.001);
-    g.gain.exponentialRampToValueAtTime(0.0001,now+(open?0.18:0.04));
-    src.connect(hpf);hpf.connect(lpf);lpf.connect(g);g.connect(mxPercGain);
-    src.start(now);src.stop(now+(open?0.22:0.05));
-  }
-
-  function playRim(){
-    const now=ctx.currentTime;
-    const osc=ctx.createOscillator();const g=ctx.createGain();
-    osc.type='square';osc.frequency.setValueAtTime(800,now);osc.frequency.exponentialRampToValueAtTime(300,now+0.04);
-    g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(0.014,now+0.001);
-    g.gain.exponentialRampToValueAtTime(0.0001,now+0.06);
-    osc.connect(g);g.connect(mxPercGain);osc.start(now);osc.stop(now+0.08);
-  }
-
-  function playSubBass(){
-    if(state.harmony==='suspended')return;
-    const now=ctx.currentTime;
-    const osc=ctx.createOscillator();const g=ctx.createGain();
-    osc.type='sine';osc.frequency.value=chord[0]*0.25;
-    g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(0.055,now+0.005);
-    g.gain.exponentialRampToValueAtTime(0.0001,now+0.3);
-    osc.connect(g);g.connect(mxPercGain);osc.start(now);osc.stop(now+0.35);
-  }
-
-  // Dilla swing — ms nudge applied to non-downbeat hits
-  const sixMs=60000/state.tempo/4;
-  const dillaAmt=state.wetness>0.35?sixMs*0.065:sixMs*0.03; // wetter = more drunk
-
-  function dOff(cs){ // offset for Dilla feel — odd 16ths pushed slightly late
-    if(cs%4===0)return 0;                    // downbeats: on grid
-    if(cs%2===1)return dillaAmt;             // e and ah: late (drunk feel)
-    return dillaAmt*0.4;                     // upbeats: slightly late
-  }
-
-  // ── GROOVE PATTERNS (16-step, weather-driven) ─────────────────
-  // Each pattern is a 16-element array: 0=off, 1=normal, 2=accent, 0.5=ghost
-  function getGroovePatterns(timeSig, state){
-    const STEPS=timeSig.steps;
-
-    if(state.isStormy||state.storm>0.6){
-      // 5/4 STORM — relentless, chaotic
-      return{
-        kick: [2,0,0,0, 0,0,0,0, 0,0,0,0, 2,0,0,0, 0,0,0,0],
-        snare:[0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],
-        hat:  [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
-        ghost:[0,0.5,0,0.5,0,0.5,0,0.5,0,0.5,0,0.5,0,0.5,0,0.5,0,0.5,0,0.5],
-        open: [0,0,0,0, 0,0,0,1, 0,0,0,0, 0,0,0,1, 0,0,0,0],
-        rim:  [0,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-      };
-    }
-    if(state.isSnowing){
-      // 6/8 SNOW — gentle waltz
-      return{
-        kick: [2,0,0, 0,0,0, 1,0,0, 0,0,0],
-        snare:[0,0,0, 1,0,0, 0,0,0, 1,0,0],
-        hat:  [1,0,1, 0,1,0, 1,0,1, 0,1,0],
-        ghost:[0,0.5,0,0,0.5,0,0,0.5,0,0,0.5,0],
-        open: [0,0,0, 0,0,1, 0,0,0, 0,0,1],
-        rim:  [0,0,0, 0,1,0, 0,0,0, 0,1,0],
-      };
-    }
-    if(state.isRaining&&state.wetness>0.5){
-      // 7/8 RAIN — limping, irregular, J Dilla-influenced
-      return{
-        kick: [2,0,0, 0,0,0, 0,1,0, 0,0,0, 0,0],
-        snare:[0,0,0, 1,0,0, 0,0,0, 1,0,0, 0,0],
-        hat:  [1,0,1, 0,1,0, 1,0,1, 0,1,0, 1,0],
-        ghost:[0,0.5,0,0,0.5,0,0,0.5,0,0,0.5,0,0,0.5],
-        open: [0,0,0, 0,0,0, 1,0,0, 0,0,0, 0,1],
-        rim:  [0,0,0, 0,1,0, 0,0,0, 0,0,1, 0,0],
-      };
-    }
-    if(state.isFoggy||(!state.isDaytime&&state.brightness<0.25)){
-      // 3/4 FOG/NIGHT — minimal, brushed
-      return{
-        kick: [2,0,0,0, 0,0,0,0, 0,0,0,0],
-        snare:[0,0,0,0, 1,0,0,0, 0,0,0,0],
-        hat:  [1,0,1,0, 0,0,1,0, 1,0,0,0],
-        ghost:[0,0.5,0,0.5,0,0.5,0,0.5,0,0.5,0,0.5],
-        open: [0,0,0,0, 0,0,0,0, 0,0,0,1],
-        rim:  [0,0,0,0, 0,1,0,0, 0,0,0,0],
-      };
-    }
-    if(state.isSunny&&state.warmth>0.6){
-      // 4/4 SUNNY — bouncy, funky, Prince-inspired 16ths
-      return{
-        kick: [2,0,0,0.5,0,0,0,0, 1,0,0,0.5,0,0,0,0],
-        snare:[0,0,0,0, 1,0,0,0.5,0,0,0,0, 1,0,0,0],
-        hat:  [1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1],
-        ghost:[0,0.5,0,0,0.5,0,0.5,0,0,0.5,0,0,0.5,0,0.5,0],
-        open: [0,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,1,0],
-        rim:  [0,0,1,0, 0,1,0,0, 0,0,1,0, 0,1,0,0],
-      };
-    }
-    if(state.wind>0.6){
-      // 5/4 WINDY — restless
-      return{
-        kick: [2,0,0,0, 0,0,0,1, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-        snare:[0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],
-        hat:  [1,0,1,1, 0,1,0,1, 0,1,1,0, 1,0,1,1, 0,1,0,1],
-        ghost:[0.5,0,0,0.5,0,0,0.5,0,0,0.5,0,0,0.5,0,0,0.5,0,0,0.5,0],
-        open: [0,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0, 0,0,0,1],
-        rim:  [0,0,1,0, 0,0,1,0, 0,0,0,0, 0,1,0,0, 0,0,0,0],
-      };
-    }
-    // DEFAULT 4/4 — Dilla-influenced hip-hop feel
-    return{
-      kick: [2,0,0,0, 0,0,0.5,0, 1,0,0,0, 0.5,0,0,0],
-      snare:[0,0,0,0, 1,0,0,0.5,0,0,0,0, 1,0,0.5,0],
-      hat:  [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
-      ghost:[0,0.5,0,0.5,0,0.5,0,0.5,0,0.5,0,0.5,0,0.5,0,0.5],
-      open: [0,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],
-      rim:  [0,0,0,1, 0,0,0,0, 0,0,0,1, 0,0,0,0],
-    };
-  }
-
-  // Dilla swing — ms nudge applied to non-downbeat hits
 
   // SEQUENCER
+  const beatMs=60000/state.tempo;
+  const sixMs=beatMs/4;
   const STEPS=timeSig.steps;
-  const groove=getGroovePatterns(timeSig,state);
   const CHORD_CYCLE=STEPS*2;
+  const MELODY_CYCLE=4; // every beat
   const RADAR_CYCLE=STEPS+13;
   const HERMETO_CYCLE=Math.max(1,Math.round(STEPS/3));
 
+  // Show time sig
   $('hudCondition').textContent=`${state.label.toUpperCase()} • ${timeSig.name}`;
 
   let step=0;
@@ -1590,79 +1357,77 @@ function playWeatherSoundscape(state){
 
   const seqTimer=setInterval(()=>{
     const cs=step%STEPS;
-    const swingMs=dOff(cs);
 
-    // ── KICK ──────────────────────────────────────────────────
-    const kv=groove.kick[cs]??0;
-    if(kv>0){
+    // KICK
+    if(timeSig.kickOn.includes(cs)){
+      const dOff=cs===0?0:dillaSwing;
+      setTimeout(()=>{playKick();pulseVisual();},dOff);
+      if(cs===0){setTimeout(()=>playSubBass(),dOff+2);}
+    }
+
+    // HAT
+    if(timeSig.hatOn.includes(cs)){
+      const isUp=cs%4!==0;
+      const hOff=isUp?dillaSwing*0.8:0;
+      setTimeout(()=>playHat(isUp?0.007:0.012),hOff);
+    }
+
+    // ARPEGGIATOR — on sunny/bright, upbeat hats
+    if((state.isSunny||state.brightness>0.5)&&phase!=='sparse'){
+      if(timeSig.hatOn.includes(cs)&&cs%4!==0){
+        const arpPat=ARP_PATTERNS[state.harmony]||ARP_PATTERNS.major;
+        const tones=chordTones(chord);
+        const freq=tones[arpPat[cs%arpPat.length]%tones.length];
+        if(freq) setTimeout(()=>playArpNote(freq),dillaSwing*0.3);
+      }
+    }
+
+    // EFFECT SWELL TICK
+    tickEffectSwell();
+
+    // BITCRUSHED SNARE — extra grit layer during storm/rain
+    if(bcAmt>0.05&&timeSig.kickOn.includes(cs)&&cs!==0){
       setTimeout(()=>{
-        playKick(kv===2?0.09+state.storm*0.04:0.055);
-        if(kv===2){playSubBass();pulseVisual();}
-      },swingMs);
+        const now=ctx.currentTime;
+        const src2=ctx.createBufferSource();src2.buffer=nb;
+        const hp2=ctx.createBiquadFilter();hp2.type='highpass';hp2.frequency.value=2500;
+        const g2=ctx.createGain();
+        g2.gain.setValueAtTime(0.0001,now);g2.gain.exponentialRampToValueAtTime(0.01,now+0.002);
+        g2.gain.exponentialRampToValueAtTime(0.0001,now+0.1);
+        src2.connect(hp2);hp2.connect(g2);g2.connect(bcInput);
+        src2.start(now);src2.stop(now+0.12);
+      },dillaSwing);
     }
 
-    // ── SNARE ─────────────────────────────────────────────────
-    const sv=groove.snare[cs]??0;
-    if(sv>0){
-      setTimeout(()=>{
-        // Dilla: snares sometimes land slightly off — extra nudge on non-accents
-        playSnare(sv===2?0.026:sv===0.5?0.008:0.018);
-        if(sv>=1) pulseVisual();
-      },swingMs+(sv<1?dillaAmt*1.2:0));
-    }
-
-    // ── GHOST HITS ────────────────────────────────────────────
-    const gv=groove.ghost[cs]??0;
-    if(gv>0&&Math.random()<0.65){
-      // Ghost hits: sometimes ahead, sometimes behind — Dilla's asymmetric feel
-      const ghostNudge=(Math.random()<0.5?-1:1)*dillaAmt*(0.3+Math.random()*0.5);
-      setTimeout(()=>playGhost(),Math.max(0,swingMs+ghostNudge));
-    }
-
-    // ── HATS ──────────────────────────────────────────────────
-    const hv=groove.hat[cs]??0;
-    if(hv>0){
-      setTimeout(()=>playHat(hv===2?0.015:0.009,false),swingMs);
-    }
-
-    // ── OPEN HAT ──────────────────────────────────────────────
-    const ov=groove.open[cs]??0;
-    if(ov>0){
-      setTimeout(()=>playHat(0.018,true),swingMs);
-    }
-
-    // ── RIM SHOT ──────────────────────────────────────────────
-    const rv=groove.rim[cs]??0;
-    if(rv>0){
-      setTimeout(()=>playRim(),swingMs+(Math.random()<0.4?dillaAmt*0.6:0));
-    }
-
-    // ── MELODY — tick on every beat, locked to sequencer clock ──
-    if(step%4===0&&step>=(STEPS*2))tickMelody();
-
-    // ── SHIMMER ───────────────────────────────────────────────
+    // SHIMMER on mid-bar
     if(cs===Math.floor(STEPS/2)&&state.brightness>0.25)playShimmer();
 
-    // ── RAIN ──────────────────────────────────────────────────
+    // RAIN
     if(state.isRaining&&cs%Math.max(2,Math.floor(STEPS/6))===1&&Math.random()<0.5+state.wetness*0.3)playRainDrop();
 
-    // ── THUNDER ───────────────────────────────────────────────
+    // THUNDER
     if(state.isStormy&&cs===STEPS-1&&Math.random()<0.12+state.storm*0.22)playThunder();
 
-    // ── RADAR ─────────────────────────────────────────────────
+    // MELODY — every beat unconditionally
+    if(step%MELODY_CYCLE===0)playMelodyNote();
+
+    // VIBE on beat 3 of every 2nd bar
     if(step%(STEPS*2)===Math.floor(STEPS*1.5)&&phase!=='sparse')playVibe();
+
+    // HERMETO polyrhythm
     if(step%HERMETO_CYCLE===0&&phase==='full')playVibe();
 
-    // ── RADAR ─────────────────────────────────────────────────
+    // RADAR
     if(step%RADAR_CYCLE===0&&state.wind>0.2)playRadarPing();
 
-    // ── CHORD CHANGE ──────────────────────────────────────────
+    // CHORD CHANGE
     if(step>0&&step%CHORD_CYCLE===0){
       chordIdx=(chordIdx+1)%progression.length;
       chord=progression[chordIdx];
       motif=buildMotif(chord);
       padVoices.forEach(v=>{try{v.stop(ctx.currentTime+2.5);}catch(e){}});
       setTimeout(()=>buildPad(chord),600);
+      // Chord stab
       if(phase!=='sparse'){
         chordTones(chord).slice(0,3).forEach((freq,i)=>{
           const n3=ctx.currentTime;
@@ -1675,7 +1440,9 @@ function playWeatherSoundscape(state){
       }
     }
 
-    padBus.gain.linearRampToValueAtTime(0.18*pGain(),ctx.currentTime+1.5);
+    // Phase-driven pad vol
+    padBus.gain.linearRampToValueAtTime(0.055*pGain(),ctx.currentTime+1.5);
+
     step++;
   },sixMs);
   timers.push(seqTimer);
@@ -1684,9 +1451,10 @@ function playWeatherSoundscape(state){
     stopAll:()=>{
       timers.forEach(clearInterval);
       clearTimeout(phaseTimer);
-      melodyRunning=false;
-      [wSrc,eSrc,breathSrc].forEach(s=>{try{s.stop();}catch(e){}});
-      [fLFO,bLFO,wLFO,breathLFO].forEach(l=>{try{l.stop();}catch(e){}});
+      if(swellTimer)clearInterval(swellTimer);
+      liveNodes=null;
+      [wSrc,eSrc].forEach(s=>{try{s.stop();}catch(e){}});
+      [fLFO,bLFO,wLFO].forEach(l=>{try{l.stop();}catch(e){}});
       padVoices.forEach(v=>{try{v.stop();}catch(e){}});
       padBus.gain.setValueAtTime(0,ctx.currentTime);
       setTimeout(()=>{try{ctx.close();}catch(e){}},300);
@@ -1732,33 +1500,343 @@ function updateVolKnob(){
 }
 if(volKnob){volKnob.addEventListener('input',()=>{updateVolKnob();applyLiveFx();});updateVolKnob();}
 
-// Mixer level buttons — 4 states: HI / MID / LO / OFF
-document.querySelectorAll('.mix-level-btn').forEach(group=>{
-  group.querySelectorAll('.mix-btn').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      const chId=group.dataset.ch;
-      const val=parseFloat(btn.dataset.val);
-      // Update hidden input
-      const inp=$(chId); if(inp) inp.value=val;
-      // Update active state — HI gets orange highlight
-      group.querySelectorAll('.mix-btn').forEach(b=>{
-        b.classList.remove('active','hi');
-      });
-      btn.classList.add('active');
-      if(val===1.0) btn.classList.add('hi');
-      // Apply live
-      applyLiveFx();
-    });
-  });
-});
-
 // Sync both ZIP inputs
 $('zipInput').addEventListener('input',()=>$('zipInput2').value=$('zipInput').value);
 $('zipInput2').addEventListener('input',()=>$('zipInput').value=$('zipInput2').value);
 
 // ─── INIT ────────────────────────────────────────────────────
+document.body.setAttribute('data-skin','helvetica');
+const _hb=document.getElementById('skinBtnHelvetica');if(_hb){document.querySelectorAll('.skin-btn').forEach(b=>b.classList.remove('active'));_hb.classList.add('active');}
 updateSliderLabels();
 loadWeatherForZip('10033');
+// ─── HELVETICA VISUALIZER ────────────────────────────────────
+let hvAnimFrame=null;
+let hvState=null;
+
+function updateHvViz(s){
+  hvState=s;
+  const el=document.getElementById('hvViz');
+  if(!el)return;
+  if(!el.querySelector('canvas')){
+    el.innerHTML='<canvas id="hvCanvas" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>';
+    startHvAnim();
+  }
+}
+
+function startHvAnim(){
+  if(hvAnimFrame) cancelAnimationFrame(hvAnimFrame);
+  const canvas=document.getElementById('hvCanvas');
+  if(!canvas)return;
+  const c=canvas.getContext('2d');
+  let W,H;
+  // Peak hold per bar
+  let peaks=[];
+  let peakTimers=[];
+
+  function resize(){
+    const r=canvas.parentElement.getBoundingClientRect();
+    canvas.width=Math.round(r.width*devicePixelRatio);
+    canvas.height=Math.round(r.height*devicePixelRatio);
+    c.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    W=r.width; H=r.height;
+    peaks=[]; peakTimers=[];
+  }
+  resize();
+  new ResizeObserver(resize).observe(canvas.parentElement);
+
+  // Map FFT bins into perceptual bands (log-spaced, more low-freq resolution)
+  // 128 bins from fftSize=256, sample rate ~44100 → bin width ~172Hz
+  // We group into NUM_BARS bands, log-spaced between 40Hz and 16kHz
+  const NUM_BARS=28;
+  const SR=44100;
+  const FFT=512;
+  const BIN_HZ=SR/FFT;
+  const MIN_HZ=60, MAX_HZ=8000;  // realistic range for this synth
+
+  function getBarBins(){
+    const bands=[];
+    for(let i=0;i<NUM_BARS;i++){
+      // Log-spaced edges, both using i/NUM_BARS and (i+1)/NUM_BARS
+      const loHz=MIN_HZ*Math.pow(MAX_HZ/MIN_HZ, i/NUM_BARS);
+      const hiHz=MIN_HZ*Math.pow(MAX_HZ/MIN_HZ,(i+1)/NUM_BARS);
+      const lo=Math.max(0,Math.round(loHz/BIN_HZ));
+      const hi=Math.min(FFT/2-1,Math.round(hiHz/BIN_HZ));
+      bands.push({lo, hi:Math.max(lo,hi)});
+    }
+    return bands;
+  }
+  const BANDS=getBarBins();
+
+  function draw(){
+    if(document.body.getAttribute('data-skin')!=='helvetica'){
+      hvAnimFrame=requestAnimationFrame(draw);return;
+    }
+    const s=hvState;
+    const clk=window._hvClock;
+    const analyser=liveNodes?liveNodes.analyser:null;
+
+    c.clearRect(0,0,W,H);
+
+    if(!s){hvAnimFrame=requestAnimationFrame(draw);return;}
+
+    const bpm=clk?clk.bpm:(s.tempo||70);
+    const STEPS=clk?clk.STEPS:16;
+    const sixMs=clk?clk.sixMs:(60000/bpm/4);
+    const beatMs=sixMs*4;
+    const elapsed=clk?performance.now()-clk.lastBeatTime:0;
+    const beatPhase=Math.min(1,elapsed/beatMs);
+
+    // ── GET REAL FFT DATA — float dB values ───────────────────
+    let freqDataDB=null;
+    if(analyser){
+      freqDataDB=new Float32Array(analyser.frequencyBinCount);
+      analyser.getFloatFrequencyData(freqDataDB); // returns dB values
+    }
+
+    // ── WEATHER UNDERLAY — drawn before bars, very low opacity ──
+    const wallT=performance.now()/1000;
+    const wind=s.wind||0, storm=s.storm||0, wet=s.wetness||0;
+    const bright=s.brightness||0;
+
+    // ── SKY BACKGROUND — fills the whole canvas before bars ───
+    // This IS the background — replace the flat #F5F5F3
+    let skyTop, skyBot;
+    if(!s.isDaytime){
+      skyTop='#0D1520'; skyBot='#1A2535'; // deep night navy
+    } else if(s.isStormy){
+      skyTop='#3A3C48'; skyBot='#5A5C6A'; // stormy grey-purple
+    } else if(s.isRaining){
+      skyTop='#7A8FA8'; skyBot='#A8BAC8'; // rain blue-grey
+    } else if(s.isFoggy){
+      skyTop='#C0C8C8'; skyBot='#D8DCDC'; // fog pale teal-grey
+    } else if(s.isSunny&&s.isDaytime){
+      skyTop='#5AA0D8'; skyBot='#A8D0F0'; // clear blue sky
+    } else {
+      skyTop='#8AA8C0'; skyBot='#B8CCDA'; // partly cloudy
+    }
+    const skyGrad=c.createLinearGradient(0,0,0,H);
+    skyGrad.addColorStop(0,skyTop);
+    skyGrad.addColorStop(1,skyBot);
+    c.fillStyle=skyGrad;c.fillRect(0,0,W,H);
+
+    // ── CLOUDS ────────────────────────────────────────────────
+    if(!s.isStormy&&!s.isRaining){
+      const cloudCount=s.isSunny?2:s.isCloudy?6:4;
+      c.fillStyle='rgba(255,255,255,0.22)';
+      for(let i=0;i<cloudCount;i++){
+        const cx=((i/cloudCount)*W+(wallT*18*(0.4+wind*0.3)+i*197))%W;
+        const cy=H*0.08+i*H*0.06;
+        const cw=60+i*35;
+        c.beginPath();c.ellipse(cx,cy,cw,18,0,0,Math.PI*2);c.fill();
+        c.beginPath();c.ellipse(cx+cw*0.3,cy-10,cw*0.55,14,0,0,Math.PI*2);c.fill();
+      }
+    }
+
+    // ── STORM CLOUDS ──────────────────────────────────────────
+    if(s.isStormy){
+      c.fillStyle='rgba(0,0,0,0.3)';
+      for(let i=0;i<5;i++){
+        const cx=((i/5)*W+(wallT*8+i*211))%W;
+        const cy=H*0.06+i*H*0.05;
+        c.beginPath();c.ellipse(cx,cy,90+i*20,26,0,0,Math.PI*2);c.fill();
+      }
+    }
+
+    // ── SUN ───────────────────────────────────────────────────
+    if(s.isSunny&&s.isDaytime){
+      c.save();
+      const sx=W*0.82, sy=H*0.18, sr=22+bright*8;
+      // Glow
+      const sunGlow=c.createRadialGradient(sx,sy,0,sx,sy,sr*3);
+      sunGlow.addColorStop(0,'rgba(255,230,100,0.35)');
+      sunGlow.addColorStop(1,'rgba(255,200,50,0)');
+      c.fillStyle=sunGlow;c.fillRect(sx-sr*3,sy-sr*3,sr*6,sr*6);
+      // Disc
+      c.fillStyle='rgba(255,220,80,0.9)';
+      c.beginPath();c.arc(sx,sy,sr,0,Math.PI*2);c.fill();
+      c.restore();
+    }
+
+    // ── MOON (night) ──────────────────────────────────────────
+    if(!s.isDaytime&&!s.isStormy){
+      c.fillStyle='rgba(220,230,255,0.7)';
+      c.beginPath();c.arc(W*0.8,H*0.15,14,0,Math.PI*2);c.fill();
+      // Stars
+      for(let i=0;i<40;i++){
+        const sx2=((i*137.5)%1)*W;
+        const sy2=((i*97.3)%1)*(H*0.55);
+        const twinkle=0.4+0.6*Math.sin(wallT*1.2+i*2.1);
+        c.fillStyle=`rgba(255,255,255,${twinkle*0.7})`;
+        c.beginPath();c.arc(sx2,sy2,0.8,0,Math.PI*2);c.fill();
+      }
+    }
+
+    // ── RAIN ──────────────────────────────────────────────────
+    if(s.isRaining){
+      c.strokeStyle='rgba(180,210,240,0.6)';c.lineWidth=1;
+      const n=Math.round(wet*80+30);
+      for(let i=0;i<n;i++){
+        const rx=((i/n)*W*1.3+wallT*110*(1+wind*0.5))%W;
+        const ry=(wallT*200+i*(H/n))%H;
+        c.beginPath();c.moveTo(rx,ry);c.lineTo(rx-3,ry+12);c.stroke();
+      }
+    }
+
+    // ── SNOW ──────────────────────────────────────────────────
+    if(s.isSnowing){
+      for(let i=0;i<50;i++){
+        const sx=((i/50)*W+Math.sin(wallT*0.4+i*1.3)*20)%(W+10)-5;
+        const sy=(wallT*18+i*(H/50))%H;
+        c.fillStyle='rgba(255,255,255,0.75)';
+        c.beginPath();c.arc(sx,sy,1.5,0,Math.PI*2);c.fill();
+      }
+    }
+
+    // ── WIND LINES ────────────────────────────────────────────
+    if(wind>0.3){
+      c.strokeStyle=`rgba(255,255,255,${wind*0.18})`;c.lineWidth=1;
+      for(let i=0;i<10;i++){
+        const ly=H*0.05+i*(H*0.1);
+        const lw=30+i*18;
+        const lx=((wallT*90*(0.5+wind)+i*173)%(W+lw))-lw;
+        c.beginPath();c.moveTo(lx,ly);c.lineTo(lx+lw,ly);c.stroke();
+      }
+    }
+
+    // ── LIGHTNING ─────────────────────────────────────────────
+    if(storm>0.5&&Math.random()<storm*0.006){
+      c.strokeStyle='rgba(255,255,220,0.9)';c.lineWidth=1.5;
+      const lx=W*0.2+Math.random()*W*0.6;
+      c.beginPath();c.moveTo(lx,0);
+      c.lineTo(lx+10,H*0.3);c.lineTo(lx-5,H*0.5);c.lineTo(lx+8,H*0.7);
+      c.stroke();
+      c.fillStyle='rgba(255,255,200,0.15)';c.fillRect(0,0,W,H);
+    }
+
+    // ── EQ BARS ───────────────────────────────────────────────
+    const PAD_L=14, PAD_R=14, PAD_TOP=32, PAD_BOT=40;
+    const barAreaW=W-PAD_L-PAD_R;
+    const barAreaH=H-PAD_TOP-PAD_BOT;
+    const barW=Math.floor(barAreaW/NUM_BARS);
+    const gap=Math.max(1,Math.round(barW*0.18));
+    const bw=barW-gap;
+
+    for(let i=0;i<NUM_BARS;i++){
+      const band=BANDS[i];
+      let val=0;
+      if(freqDataDB){
+        // Average dB in band
+        let sum=0,count=0;
+        for(let b=band.lo;b<=band.hi;b++){
+          const db=freqDataDB[b];
+          if(isFinite(db)&&db>-Infinity){sum+=db;count++;}
+        }
+        if(count>0){
+          const avgDb=sum/count;
+          // Map dB range (-80 to -10) to 0-1
+          const mapped=Math.max(0,(avgDb-(-80))/((-10)-(-80)));
+          // A-weighting approximation: reduce low-end, boost 2-4kHz
+          // Center frequency of this bar
+          const centerHz=MIN_HZ*Math.pow(MAX_HZ/MIN_HZ,(i+0.5)/NUM_BARS);
+          let aWeight=1.0;
+          if(centerHz<200)      aWeight=0.35+centerHz/200*0.3;  // -9dB@100Hz
+          else if(centerHz<500) aWeight=0.65+((centerHz-200)/300)*0.2;
+          else if(centerHz<2000)aWeight=0.85+((centerHz-500)/1500)*0.15;
+          else if(centerHz<4000)aWeight=1.0;
+          else if(centerHz<8000)aWeight=0.95;
+          else                  aWeight=0.75;
+          val=Math.min(1,mapped*aWeight);
+        }
+      } else {
+        val=0;
+      }
+
+      const barH=Math.max(1,val*barAreaH);
+      const x=PAD_L+i*barW;
+      const y=PAD_TOP+barAreaH-barH;
+
+      // Main bar — white, semi-transparent so sky shows through
+      c.fillStyle='rgba(255,255,255,0.82)';
+      c.fillRect(x,y,bw,barH);
+
+      // Peak hold
+      if(!peaks[i]||val>peaks[i]){peaks[i]=val;peakTimers[i]=60;}
+      else{peakTimers[i]=(peakTimers[i]||0)-1;if(peakTimers[i]<=0)peaks[i]=Math.max(0,peaks[i]-0.008);}
+      const peakY=PAD_TOP+barAreaH-peaks[i]*barAreaH;
+      if(peaks[i]>0.01){
+        c.fillStyle='rgba(255,255,255,0.95)';
+        c.fillRect(x,peakY-1,bw,1);
+      }
+    }
+
+    // ── BASELINE RULE ─────────────────────────────────────────
+    c.strokeStyle='rgba(255,255,255,0.6)';c.lineWidth=1;
+    c.beginPath();c.moveTo(PAD_L,PAD_TOP+barAreaH+1);c.lineTo(W-PAD_R,PAD_TOP+barAreaH+1);c.stroke();
+
+    // ── FREQUENCY LABELS ──────────────────────────────────────
+    c.font="500 8px 'Inter',sans-serif";
+    c.fillStyle='rgba(255,255,255,0.5)';
+    c.textAlign='center';c.textBaseline='top';
+    const labels=[{hz:100,txt:'100'},{hz:250,txt:'250'},{hz:500,txt:'500'},{hz:1000,txt:'1k'},{hz:2000,txt:'2k'},{hz:4000,txt:'4k'}];
+    labels.forEach(lb=>{
+      const frac=Math.log(lb.hz/MIN_HZ)/Math.log(MAX_HZ/MIN_HZ);
+      const lx=PAD_L+frac*barAreaW;
+      c.fillText(lb.txt,lx,PAD_TOP+barAreaH+6);
+    });
+
+    // ── BPM — top left ────────────────────────────────────────
+    c.font=`300 ${Math.round(H*0.11)}px 'Inter',sans-serif`;
+    c.fillStyle='rgba(255,255,255,0.8)';
+    c.textAlign='left';c.textBaseline='bottom';
+    c.fillText(bpm,PAD_L,PAD_TOP-6);
+    c.font="500 8px 'Inter',sans-serif";
+    c.fillStyle='rgba(255,255,255,0.4)';
+    c.fillText('BPM',PAD_L+c.measureText(String(bpm)).width+4,PAD_TOP-10);
+
+    // ── HARMONY — top right ───────────────────────────────────
+    c.font="500 8px 'Inter',sans-serif";
+    c.fillStyle='rgba(255,255,255,0.55)';
+    c.textAlign='right';c.textBaseline='bottom';
+    c.fillText((s.harmony||'').toUpperCase(),W-PAD_R,PAD_TOP-6);
+
+    // ── BEAT FLASH on downbeat ────────────────────────────────
+    if(beatPhase<0.08){
+      c.fillStyle=`rgba(255,255,255,${(0.08-beatPhase)/0.08*0.12})`;
+      c.fillRect(0,0,W,H);
+    }
+
+    hvAnimFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function stopHvAnim(){
+  if(hvAnimFrame){cancelAnimationFrame(hvAnimFrame);hvAnimFrame=null;}
+  window._hvClock=null;
+}
+
+
+
+// ─── SKIN SWITCHER ───────────────────────────────────────────
+function setSkin(skin){
+  document.body.setAttribute('data-skin', skin);
+  document.querySelectorAll('.skin-btn').forEach(b=>b.classList.remove('active'));
+  const active = skin==='helvetica' ? $('skinBtnHelvetica') : $('skinBtnDefault');
+  if(active) active.classList.add('active');
+  if(skin==='helvetica'){
+    if(currentState) updateHvViz(currentState);
+  } else {
+    stopHvAnim();
+    const el=document.getElementById('hvViz');
+    if(el) el.innerHTML='';
+  }
+}
+
 </script>
+
+<div class="skin-toggle">
+  <button class="skin-btn" id="skinBtnDefault" onclick="setSkin('default')">Default</button>
+  <button class="skin-btn active" id="skinBtnHelvetica" onclick="setSkin('helvetica')">Helvetica</button>
+</div>
 </body>
 </html>
