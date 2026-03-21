@@ -27,8 +27,8 @@
   --font-mono:'IBM Plex Mono',monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:#B8B2A4;font-family:var(--font-ui);min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:24px 12px;}
-.chassis{width:100%;max-width:1180px;background:var(--body-bg);border-radius:16px;box-shadow:0 2px 0 #E8E2D6 inset,0 -2px 0 #A09888 inset,0 20px 60px rgba(0,0,0,0.45);overflow:hidden;}
+body{background:#B8B2A4;font-family:var(--font-ui);min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:0;}
+.chassis{width:100%;background:var(--body-bg);border-radius:0;box-shadow:0 20px 60px rgba(0,0,0,0.45);overflow:hidden;}
 
 /* COLOR STRIPES */
 .stripe{display:flex;height:5px;}
@@ -44,13 +44,21 @@ body{background:#B8B2A4;font-family:var(--font-ui);min-height:100vh;display:flex
 .port-status span{color:var(--green);}
 
 /* HEADER */
-.faceplate-top{padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid var(--rule);}
-.brand-block{display:flex;flex-direction:column;gap:3px;flex-shrink:0;}
-.woof-logo{font-family:var(--font-logo);font-size:52px;font-weight:800;line-height:1;letter-spacing:0.02em;background-color:#2479B5;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='56'%3E%3Cg opacity='0.9'%3E%3Cellipse cx='18' cy='13' rx='9' ry='6' fill='white'/%3E%3Cellipse cx='26' cy='9' rx='7' ry='5.5' fill='white'/%3E%3Cellipse cx='33' cy='12' rx='6' ry='4.5' fill='white'/%3E%3Cellipse cx='12' cy='15' rx='6' ry='4' fill='white'/%3E%3C/g%3E%3Cg opacity='0.72'%3E%3Cellipse cx='70' cy='35' rx='7' ry='5' fill='white'/%3E%3Cellipse cx='78' cy='30' rx='6' ry='5' fill='white'/%3E%3Cellipse cx='85' cy='33' rx='5' ry='3.5' fill='white'/%3E%3Cellipse cx='64' cy='36' rx='5' ry='3.5' fill='white'/%3E%3C/g%3E%3Cg opacity='0.6'%3E%3Cellipse cx='48' cy='21' rx='5.5' ry='3.5' fill='white'/%3E%3Cellipse cx='55' cy='17' rx='5' ry='3.5' fill='white'/%3E%3Cellipse cx='61' cy='20' rx='4' ry='3' fill='white'/%3E%3C/g%3E%3C/svg%3E");background-size:100px 56px;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.brand-sub{font-family:var(--font-logo);font-size:16px;font-weight:400;letter-spacing:0.1em;text-transform:uppercase;color:#2479B5;}
-.product-block{flex:1;padding-left:24px;border-left:2px solid var(--rule);display:flex;flex-direction:column;justify-content:center;gap:5px;}
-.product-name{font-family:var(--font-ui);font-size:34px;font-weight:900;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink);line-height:1;}
-.product-tagline{font-family:var(--font-mono);font-size:9px;color:var(--ink-faint);letter-spacing:0.05em;}
+.faceplate-top{padding:0;display:flex;align-items:stretch;justify-content:space-between;border-bottom:1px solid var(--rule);overflow:hidden;}
+.brand-block{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2px;flex-shrink:0;padding:20px 32px;background:var(--body-bg);}
+.globe-wrap{position:relative;display:flex;align-items:center;justify-content:center;}
+.globe-svg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:0;}
+.woof-logo{font-family:var(--font-logo);font-size:46px;font-weight:800;line-height:1;letter-spacing:0.02em;color:#fff;position:relative;z-index:1;padding:8px 22px;}
+.brand-sub{font-family:var(--font-ui);font-size:11px;font-weight:700;letter-spacing:0.45em;text-transform:uppercase;color:var(--orange);opacity:0.8;
+  display:flex;justify-content:space-between;width:180px;margin-top:4px;}
+.header-divider{width:5px;background:var(--ink);flex-shrink:0;align-self:stretch;}
+.product-block{flex:1;padding:16px 24px;display:flex;flex-direction:column;justify-content:center;gap:5px;position:relative;overflow:hidden;
+  background:linear-gradient(180deg,#2479B5 0%,#5BAEE8 60%,#A8D4F5 100%);}
+.product-block::before{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='90'%3E%3Cg opacity='0.55'%3E%3Cellipse cx='40' cy='28' rx='28' ry='16' fill='white'/%3E%3Cellipse cx='60' cy='20' rx='22' ry='14' fill='white'/%3E%3Cellipse cx='80' cy='26' rx='18' ry='12' fill='white'/%3E%3Cellipse cx='25' cy='32' rx='16' ry='10' fill='white'/%3E%3C/g%3E%3Cg opacity='0.4'%3E%3Cellipse cx='190' cy='55' rx='22' ry='13' fill='white'/%3E%3Cellipse cx='210' cy='47' rx='18' ry='12' fill='white'/%3E%3Cellipse cx='228' cy='53' rx='14' ry='10' fill='white'/%3E%3Cellipse cx='176' cy='58' rx='14' ry='9' fill='white'/%3E%3C/g%3E%3Cg opacity='0.3'%3E%3Cellipse cx='270' cy='22' rx='16' ry='10' fill='white'/%3E%3Cellipse cx='285' cy='16' rx='14' ry='9' fill='white'/%3E%3Cellipse cx='258' cy='25' rx='12' ry='7' fill='white'/%3E%3C/g%3E%3C/svg%3E");background-size:300px 90px;animation:cloudDrift 28s linear infinite;pointer-events:none;z-index:0;}
+.product-block::after{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='70'%3E%3Cg opacity='0.25'%3E%3Cellipse cx='80' cy='40' rx='24' ry='13' fill='white'/%3E%3Cellipse cx='98' cy='33' rx='19' ry='12' fill='white'/%3E%3Cellipse cx='115' cy='38' rx='15' ry='10' fill='white'/%3E%3Cellipse cx='65' cy='43' rx='14' ry='8' fill='white'/%3E%3C/g%3E%3C/svg%3E");background-size:200px 70px;animation:cloudDrift 42s linear infinite reverse;pointer-events:none;z-index:0;}
+@keyframes cloudDrift{from{background-position:0 0;}to{background-position:300px 0;}}
+.product-name{font-family:var(--font-ui);font-size:34px;font-weight:900;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink);line-height:1;position:relative;z-index:1;text-shadow:0 1px 0 rgba(255,255,255,0.3);}
+.product-tagline{font-family:var(--font-mono);font-size:9px;color:rgba(0,0,0,0.45);letter-spacing:0.05em;position:relative;z-index:1;}
 .knob-row{display:flex;gap:12px;align-items:center;}
 .knob-col{display:flex;flex-direction:column;align-items:center;}
 .knob-wrap{position:relative;width:38px;height:38px;}
@@ -176,11 +184,24 @@ input[type="range"]::-moz-range-thumb{width:14px;height:26px;background:linear-g
 .dc-val.c-purple{color:var(--purple);}
 .dc-sub{font-size:8px;color:var(--ink-faint);font-family:var(--font-mono);margin-top:1px;}
 
-/* FX PANEL */
-.fx-panel{grid-column:1/-1;border-top:1px solid var(--rule);}
-.fx-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px 20px;padding:16px 18px;}
-.fx-col{display:flex;flex-direction:column;gap:6px;}
-.fx-key{font-size:9px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-mid);}
+/* MIXER */
+.mixer-section{display:flex;border-top:1px solid var(--rule);}
+.mixer-channels{flex:1;padding:14px 20px 12px;display:flex;flex-direction:column;gap:0;overflow:hidden;}
+.mixer-strips{display:flex;gap:0;align-items:stretch;flex:1;}
+.mix-ch{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;padding:8px 8px;border-right:1px solid var(--rule);}
+.mix-ch.master{border-left:2px solid var(--ink);border-right:none;background:rgba(0,0,0,0.03);flex:0 0 80px;}
+.mix-ch-label{font-size:8px;font-weight:800;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-mid);}
+.mix-ch-label.master{color:var(--orange);}
+.mix-track{width:10px;height:90px;background:#0A0907;border:1px solid #2A2820;border-radius:5px;position:relative;cursor:pointer;box-shadow:inset 0 2px 4px rgba(0,0,0,0.6);}
+.mix-thumb{width:26px;height:12px;background:linear-gradient(180deg,#C8C0B0,#706860);border-radius:3px;position:absolute;left:50%;transform:translateX(-50%);cursor:grab;box-shadow:0 1px 0 rgba(255,255,255,0.3) inset,0 2px 4px rgba(0,0,0,0.5);}
+.mix-thumb:active{cursor:grabbing;}
+.mix-val{font-family:var(--font-mono);font-size:9px;font-weight:600;color:var(--ink-mid);min-width:24px;text-align:center;}
+.mix-pip{width:8px;height:8px;border-radius:50%;}
+.mix-level-btn{display:flex;flex-direction:column;gap:3px;align-items:center;}
+.mix-btn{font-size:7px;font-weight:800;letter-spacing:0.1em;padding:3px 10px;border:1px solid var(--rule);background:var(--panel-bg);color:var(--ink-mid);cursor:pointer;border-radius:2px;white-space:nowrap;}
+.mix-btn.active{background:var(--ink);color:var(--body-bg);border-color:var(--ink);}
+.mix-btn.active.hi{background:var(--orange);border-color:var(--orange);color:#fff;}
+.mixer-fx{flex:0 0 320px;padding:14px 24px 12px;border-left:2px solid var(--rule);display:flex;flex-direction:column;gap:0;}
 
 /* STATUS STRIP */
 .status-strip{background:var(--dark-bg);border-top:2px solid #000;padding:8px 20px;min-height:48px;display:flex;align-items:center;flex-wrap:wrap;gap:0;}
@@ -212,12 +233,13 @@ input[type="range"]::-moz-range-thumb{width:14px;height:26px;background:linear-g
   .chassis{border-radius:0;}
   .port-strip{padding:0 12px;gap:6px;}
   .port-tag{font-size:8px;padding:2px 6px;}
-  .faceplate-top{flex-direction:column;align-items:center;text-align:center;padding:14px;gap:10px;}
-  .woof-logo{font-size:38px;}
-  .product-block{padding-left:0;border-left:none;border-top:1px solid var(--rule);padding-top:10px;width:100%;align-items:center;}
+  .faceplate-top{flex-direction:column;align-items:stretch;}
+  .brand-block{padding:14px 16px 10px;text-align:center;align-items:center;}
+  .header-divider{width:100%;height:4px;align-self:auto;}
+  .product-block{padding:14px 16px;align-items:center;min-height:80px;}
   .product-name{font-size:22px;text-align:center;}
   .product-tagline{display:none;}
-  .knob-row{display:none;}
+  .knob-row{padding:12px 16px!important;justify-content:center;}
   .input-bar{padding:8px 12px;gap:6px;}
   .zip-input{width:72px;}
   .btn3d{font-size:9px;padding:7px 10px;}
@@ -244,22 +266,35 @@ input[type="range"]::-moz-range-thumb{width:14px;height:26px;background:linear-g
 </div>
 
 <div class="port-strip">
-  <span class="port-tag orange">OUTPUT</span>
-  <span class="port-tag dark">INPUT</span>
-  <span class="port-tag green">SYNC</span>
-  <span class="port-status">SYS <span id="engineStatus">IDLE</span></span>
+  <span class="port-tag orange" id="portStatus">● IDLE</span>
+  <span class="port-tag dark" id="portHarmony">—</span>
+  <span class="port-tag dark" id="portTimeSig">—</span>
+  <span class="port-tag dark" id="portLocation">NO ZIP</span>
+  <span class="port-status">ENGINE <span id="engineStatus">IDLE</span></span>
 </div>
 
 <div class="faceplate-top">
   <div class="brand-block">
-    <span class="woof-logo">WOOF.</span>
-    <span class="brand-sub">Systems</span>
+    <div class="globe-wrap">
+      <svg class="globe-svg" width="180" height="76" viewBox="0 0 180 76" xmlns="http://www.w3.org/2000/svg">
+        <!-- Main badge fill - orange -->
+        <path d="M16,0 L164,0 Q180,0 180,16 L180,60 Q180,76 164,76 L16,76 Q0,76 0,60 L0,16 Q0,0 16,0 Z" fill="#E8460A"/>
+        <!-- White inner border inset -->
+        <path d="M20,5 L160,5 Q175,5 175,20 L175,56 Q175,71 160,71 L20,71 Q5,71 5,56 L5,20 Q5,5 20,5 Z" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1.5"/>
+        <!-- Thin second inner border -->
+        <path d="M24,9 L156,9 Q170,9 170,23 L170,53 Q170,67 156,67 L24,67 Q10,67 10,53 L10,23 Q10,9 24,9 Z" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+      </svg>
+      <span class="woof-logo">WOOF.</span>
+    </div>
+    <span class="brand-sub"><span>I</span><span>N</span><span>S</span><span>T</span><span>R</span><span>U</span><span>M</span><span>E</span><span>N</span><span>T</span><span>S</span></span>
   </div>
+  <div class="header-divider"></div>
   <div class="product-block">
     <div class="product-name">Weatherman</div>
     <div class="product-tagline">WEATHER COMPOSER · AMBIENT SYSTEMS MODEL 01</div>
   </div>
-  <div class="knob-row">
+  <div class="header-divider"></div>
+  <div class="knob-row" style="padding:16px 24px;background:var(--body-bg);flex-shrink:0;">
     <div class="knob-col">
       <div class="knob-wrap">
         <input id="volKnob" type="range" min="0" max="1" step="0.01" value="0.75" class="knob-input"/>
@@ -376,15 +411,104 @@ input[type="range"]::-moz-range-thumb{width:14px;height:26px;background:linear-g
     </div>
   </div>
 
-  <!-- FX PANEL — full width -->
-  <div class="ctrl-panel fx-panel" style="border-right:none;border-top:1px solid var(--rule);">
-    <div class="ctrl-label">FX + Composition</div>
-    <div class="fx-grid">
-      <div class="fx-col"><span class="fx-key">Reverb</span><div class="sl-row"><input id="fxReverb" type="range" min="0" max="1" step="0.01" value="0.4"/><span class="sl-val" id="fxReverbVal">0.40</span></div></div>
-      <div class="fx-col"><span class="fx-key">Delay</span><div class="sl-row"><input id="fxDelay" type="range" min="0" max="1" step="0.01" value="0.4"/><span class="sl-val" id="fxDelayVal">0.40</span></div></div>
-      <div class="fx-col"><span class="fx-key">Filter</span><div class="sl-row"><input id="fxFilter" type="range" min="0" max="1" step="0.01" value="0.6"/><span class="sl-val" id="fxFilterVal">0.60</span></div></div>
-      <div class="fx-col"><span class="fx-key">Complexity</span><div class="sl-row"><input id="fxComplexity" type="range" min="0" max="1" step="0.01" value="0.6"/><span class="sl-val" id="fxComplexityVal">0.60</span></div></div>
-      <div class="fx-col"><span class="fx-key">Melody</span><div class="sl-row"><input id="fxMelody" type="range" min="0" max="1" step="0.01" value="0.85"/><span class="sl-val" id="fxMelodyVal">0.85</span></div></div>
+</div><!-- end control-section -->
+
+<!-- MIXER + FX PANEL — full width -->
+<div class="mixer-section">
+    <div class="mixer-channels">
+      <div class="ctrl-label">Mixer</div>
+      <div class="mixer-strips">
+
+        <!-- PAD -->
+        <div class="mix-ch">
+          <div class="mix-ch-label">Pad</div>
+          <div class="mix-level-btn" data-ch="mxPad">
+            <button class="mix-btn" data-val="1.0">HI</button>
+            <button class="mix-btn active" data-val="0.65">MID</button>
+            <button class="mix-btn" data-val="0.3">LO</button>
+            <button class="mix-btn" data-val="0">OFF</button>
+          </div>
+          <input type="hidden" id="mxPad" value="0.65"/>
+          <div class="mix-pip" style="background:var(--teal)"></div>
+        </div>
+
+        <!-- MELODY -->
+        <div class="mix-ch">
+          <div class="mix-ch-label">Melody</div>
+          <div class="mix-level-btn" data-ch="mxMelody">
+            <button class="mix-btn hi active" data-val="1.0">HI</button>
+            <button class="mix-btn" data-val="0.65">MID</button>
+            <button class="mix-btn" data-val="0.3">LO</button>
+            <button class="mix-btn" data-val="0">OFF</button>
+          </div>
+          <input type="hidden" id="mxMelody" value="1.0"/>
+          <div class="mix-pip" style="background:var(--yellow)"></div>
+        </div>
+
+        <!-- WIND -->
+        <div class="mix-ch">
+          <div class="mix-ch-label">Wind</div>
+          <div class="mix-level-btn" data-ch="mxWind">
+            <button class="mix-btn" data-val="1.0">HI</button>
+            <button class="mix-btn active" data-val="0.65">MID</button>
+            <button class="mix-btn" data-val="0.3">LO</button>
+            <button class="mix-btn" data-val="0">OFF</button>
+          </div>
+          <input type="hidden" id="mxWind" value="0.65"/>
+          <div class="mix-pip" style="background:var(--green)"></div>
+        </div>
+
+        <!-- EARTH -->
+        <div class="mix-ch">
+          <div class="mix-ch-label">Earth</div>
+          <div class="mix-level-btn" data-ch="mxBreath">
+            <button class="mix-btn" data-val="1.0">HI</button>
+            <button class="mix-btn active" data-val="0.65">MID</button>
+            <button class="mix-btn" data-val="0.3">LO</button>
+            <button class="mix-btn" data-val="0">OFF</button>
+          </div>
+          <input type="hidden" id="mxBreath" value="0.65"/>
+          <div class="mix-pip" style="background:#8B7355"></div>
+        </div>
+
+        <!-- PERC -->
+        <div class="mix-ch">
+          <div class="mix-ch-label">Perc</div>
+          <div class="mix-level-btn" data-ch="mxPerc">
+            <button class="mix-btn" data-val="1.0">HI</button>
+            <button class="mix-btn active" data-val="0.65">MID</button>
+            <button class="mix-btn" data-val="0.3">LO</button>
+            <button class="mix-btn" data-val="0">OFF</button>
+          </div>
+          <input type="hidden" id="mxPerc" value="0.65"/>
+          <div class="mix-pip" style="background:var(--orange)"></div>
+        </div>
+
+        <!-- MASTER -->
+        <div class="mix-ch master">
+          <div class="mix-ch-label master">Master</div>
+          <div class="mix-level-btn" data-ch="mxMaster">
+            <button class="mix-btn hi active" data-val="1.0">HI</button>
+            <button class="mix-btn" data-val="0.65">MID</button>
+            <button class="mix-btn" data-val="0.3">LO</button>
+            <button class="mix-btn" data-val="0">OFF</button>
+          </div>
+          <input type="hidden" id="mxMaster" value="1.0"/>
+          <div class="mix-pip" style="background:var(--orange)"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FX -->
+    <div class="mixer-fx">
+      <div class="ctrl-label">FX</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="sl-row"><span class="sl-key" style="width:72px;">Reverb</span><input id="fxReverb" type="range" min="0" max="1" step="0.01" value="0.65"/><span class="sl-val" id="fxReverbVal">0.65</span></div>
+        <div class="sl-row"><span class="sl-key" style="width:72px;">Delay</span><input id="fxDelay" type="range" min="0" max="1" step="0.01" value="0.4"/><span class="sl-val" id="fxDelayVal">0.40</span></div>
+        <div class="sl-row"><span class="sl-key" style="width:72px;">Filter</span><input id="fxFilter" type="range" min="0" max="1" step="0.01" value="0.6"/><span class="sl-val" id="fxFilterVal">0.60</span></div>
+        <div class="sl-row"><span class="sl-key" style="width:72px;">Complexity</span><input id="fxComplexity" type="range" min="0" max="1" step="0.01" value="0.6"/><span class="sl-val" id="fxComplexityVal">0.60</span></div>
+      </div>
     </div>
   </div>
 </div>
@@ -464,7 +588,7 @@ function interpretWeather(w){
   const isRaining=w.precipitation>0.05&&isRainCode;
   const isSnowing=w.precipitation>0.05&&isSnowCode;
   const isStormy=isStormCode||(w.wind>=28&&w.precipitation>0.4);
-  const warmth=clamp((w.temp+5)/35,0,1);
+  const warmth=clamp((w.temp*9/5+32-20)/80,0,1);
   const wind=clamp(w.wind/40,0,1);
   const wetness=clamp((w.humidity/100)*0.45+w.precipitation*0.55,0,1);
   const storm=clamp((isStormy?0.7:0)+w.wind/70+w.precipitation/8,0,1);
@@ -555,7 +679,8 @@ async function loadWeatherForZip(zip){
 function updateWeatherDisplay(w,s){
   $('locationValue').textContent=w.location;
   $('conditionValue').textContent=s.label;
-  $('tempValue').textContent=`${w.temp}°C`;
+  const tempF=Math.round(w.temp*9/5+32);
+  $('tempValue').textContent=`${tempF}°F`;
   $('tempMoodValue').textContent=s.harmony==='major'?'warm/bright':s.harmony==='minor'?'cool/dark':'neutral';
   $('windValue').textContent=`${w.wind} km/h`;
   $('humidityValue').textContent=`${w.humidity}%`;
@@ -624,16 +749,20 @@ function getFx(){
 function applyLiveFx(){
   if(!liveNodes)return;
   const fx=getFx();
-  const {ctx,gf,rvSend,dlySend,master,melodyBus}=liveNodes;
+  const {ctx,gf,rvSend,dlySend,master,melodyBus,mxPad,mxWind,mxBreath,mxPerc}=liveNodes;
   const now=ctx.currentTime;
-  // Filter — exponential curve for dramatic effect
   const base=currentState?(currentState.isStormy?600:currentState.isRaining?1000:currentState.isFoggy?500:currentState.isSunny?7000:3000):3000;
   const hz=fx.filter<0.5?150+(fx.filter/0.5)*(base-150):base+((fx.filter-0.5)/0.5)*(18000-base);
   gf.frequency.setTargetAtTime(hz,now,0.06);
   rvSend.gain.setTargetAtTime(fx.reverb*0.3,now,0.06);
   dlySend.gain.setTargetAtTime(fx.delay*0.2,now,0.06);
-  master.gain.setTargetAtTime(fx.vol*0.75,now,0.05);
-  if(melodyBus)melodyBus.gain.setTargetAtTime(fx.melody*0.8,now,0.06);
+  const mxMasterVal=parseFloat($('mxMaster')?.value??0.75);
+  master.gain.setTargetAtTime(fx.vol*mxMasterVal*0.75,now,0.05);
+  if(mxPad)    mxPad.gain.setTargetAtTime(parseFloat($('mxPad')?.value??0.7),now,0.06);
+  if(mxWind)   mxWind.gain.setTargetAtTime(parseFloat($('mxWind')?.value??0.6),now,0.06);
+  if(mxBreath) mxBreath.gain.setTargetAtTime(parseFloat($('mxBreath')?.value??0.6),now,0.06);
+  if(mxPerc)   mxPerc.gain.setTargetAtTime(parseFloat($('mxPerc')?.value??0.75),now,0.06);
+  if(melodyBus)melodyBus.gain.setTargetAtTime(parseFloat($('mxMelody')?.value??0.85)*0.3,now,0.06);
 }
 
 // ─── UPDATEINSTRUMENTREADOUT ─────────────────────────────────
@@ -652,6 +781,12 @@ function updateInstrumentReadout(s){
   $('screenGhost').textContent=s.label.toUpperCase();
   engineStatusEl.textContent=currentAudio?'RUNNING':'IDLE';
   engineStatusEl.style.color=currentAudio?'var(--green)':'#4A4840';
+  // Port strip live status
+  const ps=$('portStatus');
+  if(ps){ps.textContent=currentAudio?'● PLAYING':'● IDLE';ps.className=currentAudio?'port-tag green':'port-tag orange';}
+  const ph=$('portHarmony');if(ph)ph.textContent=s.harmony.toUpperCase();
+  const pt=$('portTimeSig');if(pt){const ts=computeTimeSignature(s);pt.textContent=ts.name;}
+  const pl=$('portLocation');if(pl&&currentWeather)pl.textContent=currentWeather.location.split(',')[0].toUpperCase();
 }
 
 function setBar(id,val,color){
@@ -848,18 +983,24 @@ function playWeatherSoundscape(state){
   gf.frequency.value=fx.filter<0.5?150+(fx.filter/0.5)*(base-150):base+((fx.filter-0.5)/0.5)*(18000-base);
   gf.Q.value=0.8;gf.connect(master);
 
-  // REVERB NETWORK
-  const rvSend=ctx.createGain();rvSend.gain.value=fx.reverb*0.28;
-  const rvReturn=ctx.createGain();rvReturn.gain.value=0.4;
-  const rv1=ctx.createDelay(2);rv1.delayTime.value=0.083;
-  const rv2=ctx.createDelay(2);rv2.delayTime.value=0.127;
-  const rv3=ctx.createDelay(2);rv3.delayTime.value=0.211;
-  const rvFB=ctx.createGain();rvFB.gain.value=0.22+fx.reverb*0.12;
-  const rvF=ctx.createBiquadFilter();rvF.type='lowpass';rvF.frequency.value=2400;
-  rvSend.connect(rv1);rvSend.connect(rv2);rvSend.connect(rv3);
-  rv1.connect(rvF);rv2.connect(rvF);rv3.connect(rvF);
-  rvF.connect(rvFB);rvFB.connect(rv1);rvFB.connect(rv2);
-  rvF.connect(rvReturn);rvReturn.connect(gf);
+  // REVERB — 6-tap network, single safe feedback path
+  const rvSend=ctx.createGain();rvSend.gain.value=fx.reverb*0.3;
+  const rvReturn=ctx.createGain();rvReturn.gain.value=0.5;
+  const rvTaps=[0.037,0.083,0.127,0.193,0.253,0.367];
+  const rvDelays=rvTaps.map(t=>{const d=ctx.createDelay(3);d.delayTime.value=t;return d;});
+  // Single feedback path — gain must stay well below 1/numTaps to avoid runaway
+  const rvFB=ctx.createGain();rvFB.gain.value=0.18+fx.reverb*0.08; // max ~0.26, safe
+  const rvF=ctx.createBiquadFilter();rvF.type='lowpass';rvF.frequency.value=3000;
+  const rvHP=ctx.createBiquadFilter();rvHP.type='highpass';rvHP.frequency.value=90;
+  // Fan out send to all taps
+  rvDelays.forEach(d=>rvSend.connect(d));
+  // Mix all taps through filter
+  rvDelays.forEach(d=>d.connect(rvF));
+  rvF.connect(rvHP);
+  // Single feedback loop back into ONLY first tap
+  rvHP.connect(rvFB);rvFB.connect(rvDelays[0]);
+  // Output
+  rvHP.connect(rvReturn);rvReturn.connect(gf);
 
   // DELAY
   const dlySend=ctx.createGain();dlySend.gain.value=fx.delay*0.18;
@@ -873,7 +1014,19 @@ function playWeatherSoundscape(state){
   // Store live nodes
   liveNodes={ctx,gf,rvSend,dlySend,master,melodyBus:null};
 
+  // MIXER CHANNEL GAINS — one per audio layer, stored for live slider control
+  const mxPadGain    = ctx.createGain(); mxPadGain.gain.value    = parseFloat($('mxPad')?.value??0.7);
+  const mxWindGain   = ctx.createGain(); mxWindGain.gain.value   = parseFloat($('mxWind')?.value??0.6);
+  const mxBreathGain = ctx.createGain(); mxBreathGain.gain.value = parseFloat($('mxBreath')?.value??0.6);
+  mxBreathGain.connect(gf); mxBreathGain.connect(rvSend);
+  const mxPercGain   = ctx.createGain(); mxPercGain.gain.value   = parseFloat($('mxPerc')?.value??0.75);
+  mxPercGain.connect(gf); // perc goes dry to output — no reverb/delay for tightness
+  liveNodes.mxPad=mxPadGain; liveNodes.mxWind=mxWindGain;
+  liveNodes.mxBreath=mxBreathGain; liveNodes.mxPerc=mxPercGain;
+
   function wire(n){n.connect(gf);n.connect(rvSend);n.connect(dlySend);}
+  // Percussion wires through perc bus (no reverb/delay — keeps perc tight)
+  function wirePerc(n){const g=ctx.createGain();g.gain.value=1;n.connect(mxPercGain);mxPercGain.connect(gf);}
 
   // PINK NOISE BUFFER
   const nbs=ctx.sampleRate*3;
@@ -942,8 +1095,8 @@ function playWeatherSoundscape(state){
   phaseTimer=setTimeout(nextPhase,pDurs[0]*1000);
   function pGain(){return{bloom:0.65,full:1,breathe:0.45,sparse:0.3}[phase]||0.6;}
 
-  // PAD
-  const padBus=ctx.createGain();padBus.gain.value=0;wire(padBus);
+  // PAD — routed through mxPadGain mixer channel (set up after mxPadGain is created)
+  const padBus=ctx.createGain();padBus.gain.value=0;
   const padF=ctx.createBiquadFilter();padF.type='lowpass';
   padF.frequency.value=700+state.brightness*1800;padF.Q.value=0.9;padF.connect(padBus);
   const fLFO=ctx.createOscillator();const fLFOG=ctx.createGain();
@@ -969,14 +1122,17 @@ function playWeatherSoundscape(state){
   }
   buildPad(chord);
   padBus.gain.setValueAtTime(0,ctx.currentTime);
-  padBus.gain.linearRampToValueAtTime(0.055,ctx.currentTime+2.5);
+  padBus.gain.linearRampToValueAtTime(0.18,ctx.currentTime+4.5);
+  // Route pad through mixer channel
+  padBus.connect(mxPadGain); mxPadGain.connect(gf); mxPadGain.connect(rvSend);
 
   // WIND
   const wSrc=ctx.createBufferSource();wSrc.buffer=nb;wSrc.loop=true;
   const wBP=ctx.createBiquadFilter();wBP.type='bandpass';wBP.frequency.value=280+state.wind*800;wBP.Q.value=0.6;
   const wHP=ctx.createBiquadFilter();wHP.type='highpass';wHP.frequency.value=120;
   const wGain=ctx.createGain();wGain.gain.value=clamp(0.005+state.wind*0.055,0,0.08);
-  wSrc.connect(wBP);wBP.connect(wHP);wHP.connect(wGain);wGain.connect(gf);wSrc.start();
+  wSrc.connect(wBP);wBP.connect(wHP);wHP.connect(wGain);
+  wGain.connect(mxWindGain); mxWindGain.connect(gf); wSrc.start();
   const wLFO=ctx.createOscillator();const wLFOG=ctx.createGain();
   wLFO.type='sine';wLFO.frequency.value=0.04+state.wind*0.14;wLFOG.gain.value=80+state.wind*160;
   wLFO.connect(wLFOG);wLFOG.connect(wBP.frequency);wLFO.start();
@@ -985,48 +1141,173 @@ function playWeatherSoundscape(state){
   const eSrc=ctx.createBufferSource();eSrc.buffer=nb;eSrc.loop=true;
   const eLP=ctx.createBiquadFilter();eLP.type='lowpass';eLP.frequency.value=80;
   const eGain=ctx.createGain();eGain.gain.value=0.01+state.storm*0.02;
-  eSrc.connect(eLP);eLP.connect(eGain);eGain.connect(gf);eSrc.start();
+  eSrc.connect(eLP);eLP.connect(eGain);eGain.connect(mxBreathGain);eSrc.start();
 
-  // MELODY BUS — clearly audible
-  const melodyBus=ctx.createGain();melodyBus.gain.value=fx.melody*0.8;
-  melodyBus.connect(gf);melodyBus.connect(rvSend);
+  // ORGANIC BREATH
+  const breathSrc=ctx.createBufferSource();breathSrc.buffer=nb;breathSrc.loop=true;
+  const breathBP=ctx.createBiquadFilter();breathBP.type='bandpass';
+  breathBP.frequency.value=320+state.warmth*200; // warmer weather = higher breath tone
+  breathBP.Q.value=0.4; // wide band = more natural, less tonal
+  const breathLP=ctx.createBiquadFilter();breathLP.type='lowpass';breathLP.frequency.value=700;
+  const breathGain=ctx.createGain();breathGain.gain.value=clamp(0.018+state.wetness*0.025,0,0.055);
+  // Slow amplitude LFO — makes it breathe rather than drone
+  const breathLFO=ctx.createOscillator();const breathLFOG=ctx.createGain();
+  breathLFO.type='sine';breathLFO.frequency.value=0.12+state.wind*0.08;
+  breathLFOG.gain.value=breathGain.gain.value*0.5;
+  breathLFO.connect(breathLFOG);breathLFOG.connect(breathGain.gain);
+  breathSrc.connect(breathBP);breathBP.connect(breathLP);breathLP.connect(breathGain);
+  breathGain.connect(mxBreathGain); mxBreathGain.connect(gf); mxBreathGain.connect(rvSend);
+  breathSrc.start();breathLFO.start();
+
+  // MELODY BUS — through mixer fader, then reverb + delay
+  const melodyBus=ctx.createGain();melodyBus.gain.value=parseFloat($('mxMelody')?.value??0.85)*0.3;
+  melodyBus.connect(gf);
+  melodyBus.connect(rvSend);
+  melodyBus.connect(dlySend);
   liveNodes.melodyBus=melodyBus;
 
-  // Melody phrase state
-  let phrasePos=0,phraseResting=false,phraseRestBeats=0;
-  let lastFreq=motif[0];
-
-  function nextMelodyFreq(){
-    const tones=chordTones(chord);
-    const pool=[...tones,motif[Math.floor(Math.random()*motif.length)]];
-    const sorted=[...pool].sort((a,b)=>Math.abs(a-lastFreq)-Math.abs(b-lastFreq));
-    const r=Math.random();
-    let f;
-    if(r<0.55)f=sorted[Math.floor(Math.random()*2)];      // stepwise
-    else if(r<0.82)f=motif[Math.floor(Math.random()*motif.length)]; // motif
-    else f=sorted[2+Math.floor(Math.random()*2)];          // leap
-    lastFreq=f;return f;
+  // Melody scale = chord tones ONLY across a singable 2-octave range
+  // Stepwise motion comes from moving between adjacent chord degrees, not chromatic passing tones
+  function getMelodyScale(){
+    const tones=chordTones(chord); // [root,3rd,5th,7th, root*2,3rd*2,5th*2]
+    // Use upper 4 chord tones (in melody register) + one octave up of root and 3rd
+    // All notes are guaranteed to be in the chord — no chromatic passing tones
+    const pool=[
+      tones[0],       // root (mid register)
+      tones[1],       // 3rd
+      tones[2],       // 5th
+      tones[3],       // 7th
+      tones[0]*2,     // root (upper octave)
+      tones[1]*2,     // 3rd (upper octave)
+      tones[2]*2,     // 5th (upper octave)
+    ];
+    return pool.filter(f=>f>180&&f<1800).sort((a,b)=>a-b);
   }
 
-  function playMelodyNote(){
-    if(phraseResting){phraseRestBeats--;if(phraseRestBeats<=0)phraseResting=false;return;}
-    if(phase==='sparse'&&Math.random()<0.25)return;
-    const freq=nextMelodyFreq();
-    if(!freq||freq<80||freq>6000)return;
-    const now=ctx.currentTime;
-    const osc=ctx.createOscillator();const g=ctx.createGain();const f=ctx.createBiquadFilter();
+  // Rhythmic durations in beats — simpler, more singable
+  // Mostly quarter (1) and half (2) notes, occasional dotted feel
+  // Less syncopation, more like a real vocal line
+  const NOTE_RHYTHMS=[
+    [2, 1, 1, 2],       // long-short-short-long — classic
+    [1, 1, 2, 2],       // walk up then hold
+    [2, 2, 1, 1, 2],    // held opening, resolve
+    [1, 2, 1, 2],       // alternating quarter-half
+    [4, 2],             // one long, one medium — breath
+    [1, 1, 1, 2],       // three quarters and hold
+    [2, 1, 2, 1],       // long-short pattern
+    [3, 1, 2],          // dotted half feel
+  ];
+
+  // Phrase contours — direction shapes for melody lines
+  function buildPhrase(scale, startFreq, contour){
+    const out=[];let cur=startFreq;
+    const sorted=[...scale].sort((a,b)=>a-b);
+    const idx=sorted.findIndex(f=>f>=cur*0.97);
+    let pos=Math.max(0,Math.min(idx,sorted.length-1));
+
+    for(let i=0;i<contour.length;i++){
+      out.push(sorted[clamp(pos,0,sorted.length-1)]);
+      const step=contour[i];
+      pos=clamp(pos+step,0,sorted.length-1);
+    }
+    return out;
+  }
+
+  // Contour patterns — direction of melody in scale steps
+  const CONTOURS={
+    major:[
+      [1,1,1,-1,0],    // rise and resolve
+      [2,-1,-1,1,0],   // arch
+      [1,-1,1,-1,0],   // wave
+      [-1,-1,2,-1],    // valley and rise
+    ],
+    minor:[
+      [-1,-1,1,1,0],   // descend then resolve up
+      [1,-1,-2,1],     // peak and fall
+      [-1,1,-1,1,-1],  // brooding wave
+    ],
+    suspended:[
+      [1,0,1,-1,0],    // ambiguous rise
+      [-1,1,1,-1],     // floating
+    ],
+  };
+
+  let melodyRunning=true;
+  const beatMs=60000/state.tempo;
+  const beatSec=beatMs/1000;
+
+  // Melody state — driven by sequencer clock, not setTimeout
+  // A "phrase" is a list of {freq, dur (in beats), rest (bool)} events
+  // We pre-generate one phrase at a time, then play through it step by step
+  let melPhrase=[];      // current phrase queue [{freq, durBeats}]
+  let melBeatCount=0;    // beats until next note fires
+  let melRestBeats=0;    // beats of silence between phrases
+  let melPhraseActive=false;
+
+  function generateMelPhrase(){
+    const scale=getMelodyScale();
+    if(!scale.length)return[];
+    const tones=chordTones(chord);
+    const startFreq=tones[Math.floor(Math.random()*3)];
+    const contourSet=CONTOURS[state.harmony]||CONTOURS.major;
+    const contour=contourSet[Math.floor(Math.random()*contourSet.length)];
+    const notes=buildPhrase(scale,startFreq,contour);
+    const rhythm=NOTE_RHYTHMS[Math.floor(Math.random()*NOTE_RHYTHMS.length)];
+    return notes.map((freq,i)=>({
+      freq,
+      durBeats: rhythm[i%rhythm.length],
+      rest: Math.random()<0.12&&i>0&&i<notes.length-1
+    }));
+  }
+
+  function playMelNote(freq, durBeats){
+    if(!melodyRunning||!freq||freq<150||freq>2000)return;
+    const t=ctx.currentTime;
+    const dur=durBeats*beatSec;
+    const atk=0.015;
+    const sus=Math.min(dur*0.85, dur-0.05);
+    const peak=0.055+state.brightness*0.02;
+
+    // Pure sine only — no harmonics, no overtones, no clashing
+    const osc=ctx.createOscillator();const g=ctx.createGain();
     osc.type='sine';osc.frequency.value=freq;
-    f.type='lowpass';f.frequency.value=5000+state.brightness*3000;
-    const atk=0.006+Math.random()*0.012;
-    const dec=0.9+Math.random()*(1.5+state.wetness*0.8);
-    const peak=0.10+state.brightness*0.05; // clearly audible
-    g.gain.setValueAtTime(0.0001,now);
-    g.gain.exponentialRampToValueAtTime(peak,now+atk);
-    g.gain.exponentialRampToValueAtTime(0.0001,now+atk+dec);
-    osc.connect(f);f.connect(g);g.connect(melodyBus);
-    osc.start(now);osc.stop(now+atk+dec+0.05);
-    phrasePos++;
-    if(phrasePos>=4){phrasePos=0;phraseResting=true;phraseRestBeats=Math.floor(Math.random()*3);}
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(peak,t+atk);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+sus);
+    osc.connect(g);g.connect(melodyBus);
+    osc.start(t);osc.stop(t+sus+0.05);
+  }
+
+  // Called every beat from sequencer
+  function tickMelody(){
+    if(!melodyRunning)return;
+
+    // Counting down rest between phrases
+    if(melRestBeats>0){melRestBeats--;return;}
+
+    // Start a new phrase if needed
+    if(!melPhraseActive||melPhrase.length===0){
+      melPhrase=generateMelPhrase();
+      melPhraseActive=true;
+      melBeatCount=0;
+    }
+
+    // Count down to next note
+    if(melBeatCount>0){melBeatCount--;return;}
+
+    // Fire next note
+    const event=melPhrase.shift();
+    if(!event){
+      // Phrase done — rest before next
+      melPhraseActive=false;
+      const sparseExtra=phase==='sparse'?4:0;
+      melRestBeats=2+Math.floor(Math.random()*4)+sparseExtra;
+      return;
+    }
+
+    if(!event.rest) playMelNote(event.freq, event.durBeats);
+    // Schedule when next note fires (in beats, rounded to nearest beat)
+    melBeatCount=Math.max(1,Math.round(event.durBeats))-1;
   }
 
   function playVibe(){
@@ -1042,34 +1323,8 @@ function playWeatherSoundscape(state){
     osc.connect(g);g.connect(melodyBus);osc.start(now);osc.stop(now+1.1);
   }
 
-  function playKick(){
-    const now=ctx.currentTime;
-    const osc=ctx.createOscillator();const g=ctx.createGain();
-    osc.type='sine';osc.frequency.setValueAtTime(chord[0],now);
-    osc.frequency.exponentialRampToValueAtTime(chord[0]*0.85,now+0.25);
-    const vol=phase==='sparse'?0.04:0.07+state.storm*0.03;
-    g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(vol,now+0.012);
-    g.gain.exponentialRampToValueAtTime(0.0001,now+0.45);
-    osc.connect(g);g.connect(gf);osc.start(now);osc.stop(now+0.5);
-  }
 
-  function playSubBass(){
-    if(state.harmony==='suspended')return;
-    const now=ctx.currentTime;
-    const osc=ctx.createOscillator();const g=ctx.createGain();
-    osc.type='sine';osc.frequency.value=chord[0]*0.25;
-    g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(0.055,now+0.005);
-    g.gain.exponentialRampToValueAtTime(0.0001,now+0.3);
-    osc.connect(g);g.connect(gf);osc.start(now);osc.stop(now+0.35);
-  }
-
-  function playHat(vol=0.008){
-    const now=ctx.currentTime;
-    const src=ctx.createBufferSource();src.buffer=nb;
-    const hpf=ctx.createBiquadFilter();hpf.type='highpass';hpf.frequency.value=5500-state.wetness*1200;
-    const g=ctx.createGain();g.gain.value=vol*pGain();
-    src.connect(hpf);hpf.connect(g);g.connect(gf);src.start(now);src.stop(now+0.035);
-  }
+  // ── PERCUSSION — defined below in groove section ─────────────
 
   function playShimmer(){
     if(phase==='sparse')return;
@@ -1089,11 +1344,11 @@ function playWeatherSoundscape(state){
     if(!freq)return;
     const now=ctx.currentTime;
     const osc=ctx.createOscillator();const g=ctx.createGain();
-    const flt=ctx.createBiquadFilter();flt.type='lowpass';flt.frequency.value=2200;
-    osc.type='sine';osc.frequency.setValueAtTime(freq,now);osc.frequency.exponentialRampToValueAtTime(freq*0.5,now+0.12);
-    g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(0.015+state.wetness*0.015,now+0.008);
-    g.gain.exponentialRampToValueAtTime(0.0001,now+0.18);
-    osc.connect(flt);flt.connect(g);g.connect(gf);g.connect(rvSend);osc.start(now);osc.stop(now+0.22);
+    const flt=ctx.createBiquadFilter();flt.type='lowpass';flt.frequency.value=2800;
+    osc.type='sine';osc.frequency.value=freq; // no pitch glide — stays in chord
+    g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(0.012+state.wetness*0.012,now+0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001,now+0.14);
+    osc.connect(flt);flt.connect(g);g.connect(gf);g.connect(rvSend);osc.start(now);osc.stop(now+0.18);
   }
 
   function playThunder(){
@@ -1111,24 +1366,185 @@ function playWeatherSoundscape(state){
     const tones=chordTones(chord);const freq=tones[2]*2;if(!freq)return;
     const now=ctx.currentTime;
     const osc=ctx.createOscillator();const g=ctx.createGain();
-    osc.type='sine';osc.frequency.setValueAtTime(freq,now);osc.frequency.exponentialRampToValueAtTime(freq*0.75,now+0.35);
-    g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(0.012,now+0.008);g.gain.exponentialRampToValueAtTime(0.0001,now+0.45);
-    osc.connect(g);g.connect(gf);g.connect(rvSend);osc.start(now);osc.stop(now+0.5);
+    osc.type='sine';osc.frequency.value=freq; // stay on chord tone, no glide
+    g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(0.010,now+0.008);g.gain.exponentialRampToValueAtTime(0.0001,now+0.5);
+    osc.connect(g);g.connect(gf);g.connect(rvSend);osc.start(now);osc.stop(now+0.55);
   }
 
-  // Dilla swing
-  const dillaSwing=state.wetness>0.4?60000/state.tempo/4*0.06:0;
+  // ── PERCUSSION FUNCTIONS ─────────────────────────────────────
+
+  function playKick(vol){
+    vol=vol??0.07+state.storm*0.03;
+    const now=ctx.currentTime;
+    const osc=ctx.createOscillator();const g=ctx.createGain();
+    osc.type='sine';
+    osc.frequency.setValueAtTime(90,now);
+    osc.frequency.exponentialRampToValueAtTime(38,now+0.12);
+    osc.frequency.exponentialRampToValueAtTime(30,now+0.35);
+    g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(vol,now+0.004);
+    g.gain.exponentialRampToValueAtTime(vol*0.3,now+0.06);
+    g.gain.exponentialRampToValueAtTime(0.0001,now+0.45);
+    osc.connect(g);g.connect(mxPercGain);osc.start(now);osc.stop(now+0.5);
+  }
+
+  function playSnare(vol=0.018,tone=180){
+    const now=ctx.currentTime;
+    const src=ctx.createBufferSource();src.buffer=nb;
+    const bhpf=ctx.createBiquadFilter();bhpf.type='highpass';bhpf.frequency.value=1800;
+    const blpf=ctx.createBiquadFilter();blpf.type='lowpass';blpf.frequency.value=6000;
+    const ng=ctx.createGain();
+    ng.gain.setValueAtTime(0.0001,now);ng.gain.exponentialRampToValueAtTime(vol,now+0.002);
+    ng.gain.exponentialRampToValueAtTime(0.0001,now+0.18);
+    src.connect(bhpf);bhpf.connect(blpf);blpf.connect(ng);ng.connect(mxPercGain);
+    src.start(now);src.stop(now+0.2);
+    const osc=ctx.createOscillator();const tg=ctx.createGain();
+    osc.type='triangle';osc.frequency.setValueAtTime(tone,now);osc.frequency.exponentialRampToValueAtTime(tone*0.5,now+0.08);
+    tg.gain.setValueAtTime(0.0001,now);tg.gain.exponentialRampToValueAtTime(vol*0.5,now+0.002);
+    tg.gain.exponentialRampToValueAtTime(0.0001,now+0.1);
+    osc.connect(tg);tg.connect(mxPercGain);osc.start(now);osc.stop(now+0.12);
+  }
+
+  function playGhost(offset=0){
+    const now=ctx.currentTime+offset;
+    const src=ctx.createBufferSource();src.buffer=nb;
+    const hpf=ctx.createBiquadFilter();hpf.type='highpass';hpf.frequency.value=3000;
+    const g=ctx.createGain();g.gain.value=0.003+Math.random()*0.003;
+    src.connect(hpf);hpf.connect(g);g.connect(mxPercGain);
+    src.start(now);src.stop(now+0.025);
+  }
+
+  function playHat(vol=0.010,open=false){
+    const now=ctx.currentTime;
+    const src=ctx.createBufferSource();src.buffer=nb;
+    const hpf=ctx.createBiquadFilter();hpf.type='highpass';hpf.frequency.value=6500-state.wetness*1500;
+    const lpf=ctx.createBiquadFilter();lpf.type='lowpass';lpf.frequency.value=open?18000:9000;
+    const g=ctx.createGain();
+    g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(vol,now+0.001);
+    g.gain.exponentialRampToValueAtTime(0.0001,now+(open?0.18:0.04));
+    src.connect(hpf);hpf.connect(lpf);lpf.connect(g);g.connect(mxPercGain);
+    src.start(now);src.stop(now+(open?0.22:0.05));
+  }
+
+  function playRim(){
+    const now=ctx.currentTime;
+    const osc=ctx.createOscillator();const g=ctx.createGain();
+    osc.type='square';osc.frequency.setValueAtTime(800,now);osc.frequency.exponentialRampToValueAtTime(300,now+0.04);
+    g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(0.014,now+0.001);
+    g.gain.exponentialRampToValueAtTime(0.0001,now+0.06);
+    osc.connect(g);g.connect(mxPercGain);osc.start(now);osc.stop(now+0.08);
+  }
+
+  function playSubBass(){
+    if(state.harmony==='suspended')return;
+    const now=ctx.currentTime;
+    const osc=ctx.createOscillator();const g=ctx.createGain();
+    osc.type='sine';osc.frequency.value=chord[0]*0.25;
+    g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(0.055,now+0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001,now+0.3);
+    osc.connect(g);g.connect(mxPercGain);osc.start(now);osc.stop(now+0.35);
+  }
+
+  // Dilla swing — ms nudge applied to non-downbeat hits
+  const sixMs=60000/state.tempo/4;
+  const dillaAmt=state.wetness>0.35?sixMs*0.065:sixMs*0.03; // wetter = more drunk
+
+  function dOff(cs){ // offset for Dilla feel — odd 16ths pushed slightly late
+    if(cs%4===0)return 0;                    // downbeats: on grid
+    if(cs%2===1)return dillaAmt;             // e and ah: late (drunk feel)
+    return dillaAmt*0.4;                     // upbeats: slightly late
+  }
+
+  // ── GROOVE PATTERNS (16-step, weather-driven) ─────────────────
+  // Each pattern is a 16-element array: 0=off, 1=normal, 2=accent, 0.5=ghost
+  function getGroovePatterns(timeSig, state){
+    const STEPS=timeSig.steps;
+
+    if(state.isStormy||state.storm>0.6){
+      // 5/4 STORM — relentless, chaotic
+      return{
+        kick: [2,0,0,0, 0,0,0,0, 0,0,0,0, 2,0,0,0, 0,0,0,0],
+        snare:[0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],
+        hat:  [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
+        ghost:[0,0.5,0,0.5,0,0.5,0,0.5,0,0.5,0,0.5,0,0.5,0,0.5,0,0.5,0,0.5],
+        open: [0,0,0,0, 0,0,0,1, 0,0,0,0, 0,0,0,1, 0,0,0,0],
+        rim:  [0,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+      };
+    }
+    if(state.isSnowing){
+      // 6/8 SNOW — gentle waltz
+      return{
+        kick: [2,0,0, 0,0,0, 1,0,0, 0,0,0],
+        snare:[0,0,0, 1,0,0, 0,0,0, 1,0,0],
+        hat:  [1,0,1, 0,1,0, 1,0,1, 0,1,0],
+        ghost:[0,0.5,0,0,0.5,0,0,0.5,0,0,0.5,0],
+        open: [0,0,0, 0,0,1, 0,0,0, 0,0,1],
+        rim:  [0,0,0, 0,1,0, 0,0,0, 0,1,0],
+      };
+    }
+    if(state.isRaining&&state.wetness>0.5){
+      // 7/8 RAIN — limping, irregular, J Dilla-influenced
+      return{
+        kick: [2,0,0, 0,0,0, 0,1,0, 0,0,0, 0,0],
+        snare:[0,0,0, 1,0,0, 0,0,0, 1,0,0, 0,0],
+        hat:  [1,0,1, 0,1,0, 1,0,1, 0,1,0, 1,0],
+        ghost:[0,0.5,0,0,0.5,0,0,0.5,0,0,0.5,0,0,0.5],
+        open: [0,0,0, 0,0,0, 1,0,0, 0,0,0, 0,1],
+        rim:  [0,0,0, 0,1,0, 0,0,0, 0,0,1, 0,0],
+      };
+    }
+    if(state.isFoggy||(!state.isDaytime&&state.brightness<0.25)){
+      // 3/4 FOG/NIGHT — minimal, brushed
+      return{
+        kick: [2,0,0,0, 0,0,0,0, 0,0,0,0],
+        snare:[0,0,0,0, 1,0,0,0, 0,0,0,0],
+        hat:  [1,0,1,0, 0,0,1,0, 1,0,0,0],
+        ghost:[0,0.5,0,0.5,0,0.5,0,0.5,0,0.5,0,0.5],
+        open: [0,0,0,0, 0,0,0,0, 0,0,0,1],
+        rim:  [0,0,0,0, 0,1,0,0, 0,0,0,0],
+      };
+    }
+    if(state.isSunny&&state.warmth>0.6){
+      // 4/4 SUNNY — bouncy, funky, Prince-inspired 16ths
+      return{
+        kick: [2,0,0,0.5,0,0,0,0, 1,0,0,0.5,0,0,0,0],
+        snare:[0,0,0,0, 1,0,0,0.5,0,0,0,0, 1,0,0,0],
+        hat:  [1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1],
+        ghost:[0,0.5,0,0,0.5,0,0.5,0,0,0.5,0,0,0.5,0,0.5,0],
+        open: [0,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,1,0],
+        rim:  [0,0,1,0, 0,1,0,0, 0,0,1,0, 0,1,0,0],
+      };
+    }
+    if(state.wind>0.6){
+      // 5/4 WINDY — restless
+      return{
+        kick: [2,0,0,0, 0,0,0,1, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+        snare:[0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],
+        hat:  [1,0,1,1, 0,1,0,1, 0,1,1,0, 1,0,1,1, 0,1,0,1],
+        ghost:[0.5,0,0,0.5,0,0,0.5,0,0,0.5,0,0,0.5,0,0,0.5,0,0,0.5,0],
+        open: [0,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0, 0,0,0,1],
+        rim:  [0,0,1,0, 0,0,1,0, 0,0,0,0, 0,1,0,0, 0,0,0,0],
+      };
+    }
+    // DEFAULT 4/4 — Dilla-influenced hip-hop feel
+    return{
+      kick: [2,0,0,0, 0,0,0.5,0, 1,0,0,0, 0.5,0,0,0],
+      snare:[0,0,0,0, 1,0,0,0.5,0,0,0,0, 1,0,0.5,0],
+      hat:  [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
+      ghost:[0,0.5,0,0.5,0,0.5,0,0.5,0,0.5,0,0.5,0,0.5,0,0.5],
+      open: [0,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],
+      rim:  [0,0,0,1, 0,0,0,0, 0,0,0,1, 0,0,0,0],
+    };
+  }
+
+  // Dilla swing — ms nudge applied to non-downbeat hits
 
   // SEQUENCER
-  const beatMs=60000/state.tempo;
-  const sixMs=beatMs/4;
   const STEPS=timeSig.steps;
+  const groove=getGroovePatterns(timeSig,state);
   const CHORD_CYCLE=STEPS*2;
-  const MELODY_CYCLE=4; // every beat
   const RADAR_CYCLE=STEPS+13;
   const HERMETO_CYCLE=Math.max(1,Math.round(STEPS/3));
 
-  // Show time sig
   $('hudCondition').textContent=`${state.label.toUpperCase()} • ${timeSig.name}`;
 
   let step=0;
@@ -1136,50 +1552,79 @@ function playWeatherSoundscape(state){
 
   const seqTimer=setInterval(()=>{
     const cs=step%STEPS;
+    const swingMs=dOff(cs);
 
-    // KICK
-    if(timeSig.kickOn.includes(cs)){
-      const dOff=cs===0?0:dillaSwing;
-      setTimeout(()=>{playKick();pulseVisual();},dOff);
-      if(cs===0){setTimeout(()=>playSubBass(),dOff+2);}
+    // ── KICK ──────────────────────────────────────────────────
+    const kv=groove.kick[cs]??0;
+    if(kv>0){
+      setTimeout(()=>{
+        playKick(kv===2?0.09+state.storm*0.04:0.055);
+        if(kv===2){playSubBass();pulseVisual();}
+      },swingMs);
     }
 
-    // HAT
-    if(timeSig.hatOn.includes(cs)){
-      const isUp=cs%4!==0;
-      const hOff=isUp?dillaSwing*0.8:0;
-      setTimeout(()=>playHat(isUp?0.007:0.012),hOff);
+    // ── SNARE ─────────────────────────────────────────────────
+    const sv=groove.snare[cs]??0;
+    if(sv>0){
+      setTimeout(()=>{
+        // Dilla: snares sometimes land slightly off — extra nudge on non-accents
+        playSnare(sv===2?0.026:sv===0.5?0.008:0.018);
+        if(sv>=1) pulseVisual();
+      },swingMs+(sv<1?dillaAmt*1.2:0));
     }
 
-    // SHIMMER on mid-bar
+    // ── GHOST HITS ────────────────────────────────────────────
+    const gv=groove.ghost[cs]??0;
+    if(gv>0&&Math.random()<0.65){
+      // Ghost hits: sometimes ahead, sometimes behind — Dilla's asymmetric feel
+      const ghostNudge=(Math.random()<0.5?-1:1)*dillaAmt*(0.3+Math.random()*0.5);
+      setTimeout(()=>playGhost(),Math.max(0,swingMs+ghostNudge));
+    }
+
+    // ── HATS ──────────────────────────────────────────────────
+    const hv=groove.hat[cs]??0;
+    if(hv>0){
+      setTimeout(()=>playHat(hv===2?0.015:0.009,false),swingMs);
+    }
+
+    // ── OPEN HAT ──────────────────────────────────────────────
+    const ov=groove.open[cs]??0;
+    if(ov>0){
+      setTimeout(()=>playHat(0.018,true),swingMs);
+    }
+
+    // ── RIM SHOT ──────────────────────────────────────────────
+    const rv=groove.rim[cs]??0;
+    if(rv>0){
+      setTimeout(()=>playRim(),swingMs+(Math.random()<0.4?dillaAmt*0.6:0));
+    }
+
+    // ── MELODY — tick on every beat, locked to sequencer clock ──
+    if(step%4===0&&step>=(STEPS*2))tickMelody();
+
+    // ── SHIMMER ───────────────────────────────────────────────
     if(cs===Math.floor(STEPS/2)&&state.brightness>0.25)playShimmer();
 
-    // RAIN
+    // ── RAIN ──────────────────────────────────────────────────
     if(state.isRaining&&cs%Math.max(2,Math.floor(STEPS/6))===1&&Math.random()<0.5+state.wetness*0.3)playRainDrop();
 
-    // THUNDER
+    // ── THUNDER ───────────────────────────────────────────────
     if(state.isStormy&&cs===STEPS-1&&Math.random()<0.12+state.storm*0.22)playThunder();
 
-    // MELODY — every beat unconditionally
-    if(step%MELODY_CYCLE===0)playMelodyNote();
-
-    // VIBE on beat 3 of every 2nd bar
+    // ── RADAR ─────────────────────────────────────────────────
     if(step%(STEPS*2)===Math.floor(STEPS*1.5)&&phase!=='sparse')playVibe();
-
-    // HERMETO polyrhythm
     if(step%HERMETO_CYCLE===0&&phase==='full')playVibe();
 
-    // RADAR
+    // ── RADAR ─────────────────────────────────────────────────
     if(step%RADAR_CYCLE===0&&state.wind>0.2)playRadarPing();
 
-    // CHORD CHANGE
+    // ── CHORD CHANGE ──────────────────────────────────────────
     if(step>0&&step%CHORD_CYCLE===0){
       chordIdx=(chordIdx+1)%progression.length;
       chord=progression[chordIdx];
       motif=buildMotif(chord);
       padVoices.forEach(v=>{try{v.stop(ctx.currentTime+2.5);}catch(e){}});
       setTimeout(()=>buildPad(chord),600);
-      // Chord stab
       if(phase!=='sparse'){
         chordTones(chord).slice(0,3).forEach((freq,i)=>{
           const n3=ctx.currentTime;
@@ -1192,9 +1637,7 @@ function playWeatherSoundscape(state){
       }
     }
 
-    // Phase-driven pad vol
-    padBus.gain.linearRampToValueAtTime(0.055*pGain(),ctx.currentTime+1.5);
-
+    padBus.gain.linearRampToValueAtTime(0.18*pGain(),ctx.currentTime+1.5);
     step++;
   },sixMs);
   timers.push(seqTimer);
@@ -1203,9 +1646,9 @@ function playWeatherSoundscape(state){
     stopAll:()=>{
       timers.forEach(clearInterval);
       clearTimeout(phaseTimer);
-      liveNodes=null;
-      [wSrc,eSrc].forEach(s=>{try{s.stop();}catch(e){}});
-      [fLFO,bLFO,wLFO].forEach(l=>{try{l.stop();}catch(e){}});
+      melodyRunning=false;
+      [wSrc,eSrc,breathSrc].forEach(s=>{try{s.stop();}catch(e){}});
+      [fLFO,bLFO,wLFO,breathLFO].forEach(l=>{try{l.stop();}catch(e){}});
       padVoices.forEach(v=>{try{v.stop();}catch(e){}});
       padBus.gain.setValueAtTime(0,ctx.currentTime);
       setTimeout(()=>{try{ctx.close();}catch(e){}},300);
@@ -1250,6 +1693,26 @@ function updateVolKnob(){
   $('volLabel').textContent=Math.round(parseFloat(volKnob.value)*100);
 }
 if(volKnob){volKnob.addEventListener('input',()=>{updateVolKnob();applyLiveFx();});updateVolKnob();}
+
+// Mixer level buttons — 4 states: HI / MID / LO / OFF
+document.querySelectorAll('.mix-level-btn').forEach(group=>{
+  group.querySelectorAll('.mix-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const chId=group.dataset.ch;
+      const val=parseFloat(btn.dataset.val);
+      // Update hidden input
+      const inp=$(chId); if(inp) inp.value=val;
+      // Update active state — HI gets orange highlight
+      group.querySelectorAll('.mix-btn').forEach(b=>{
+        b.classList.remove('active','hi');
+      });
+      btn.classList.add('active');
+      if(val===1.0) btn.classList.add('hi');
+      // Apply live
+      applyLiveFx();
+    });
+  });
+});
 
 // Sync both ZIP inputs
 $('zipInput').addEventListener('input',()=>$('zipInput2').value=$('zipInput').value);
