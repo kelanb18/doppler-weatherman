@@ -525,6 +525,42 @@ body[data-skin="brutal"] .ss-block{border-right:1px solid rgba(255,255,255,0.08)
 
 /* skin-toggle override for brutal */
 body[data-skin="brutal"] ~ .skin-toggle,.skin-toggle{background:rgba(0,0,0,0.75);}
+
+/* ── NEO-BRUTALISM MOBILE ───────────────────────────────── */
+@media (max-width:680px){
+  /* remove the offset shadow — it bleeds off-screen */
+  body[data-skin="brutal"] .chassis{box-shadow:none;border-left:none;border-right:none;border-top:none;}
+  /* faceplate: stack and center */
+  body[data-skin="brutal"] .faceplate-top{padding:16px 14px;gap:8px;}
+  body[data-skin="brutal"] .woof-logo{font-size:44px;text-shadow:3px 3px 0 var(--nb-red);}
+  body[data-skin="brutal"] .product-block{border-left:none;border-top:3px solid #000;padding-left:0;padding-top:10px;}
+  body[data-skin="brutal"] .product-name{font-size:28px;text-align:center;text-shadow:2px 2px 0 rgba(0,40,255,0.3);}
+  /* input bar */
+  body[data-skin="brutal"] .input-bar{padding:10px 12px;gap:6px;}
+  body[data-skin="brutal"] .zip-input{width:78px;font-size:16px;}
+  body[data-skin="brutal"] .btn3d{font-size:9px;padding:7px 11px;box-shadow:2px 2px 0 #000;}
+  body[data-skin="brutal"] .btn3d:active{transform:translate(2px,2px);}
+  /* screen borders */
+  body[data-skin="brutal"] .screen-row{border-left:none;border-right:none;}
+  body[data-skin="brutal"] .screen-outer{padding:3px;}
+  /* sidebar */
+  body[data-skin="brutal"] .screen-sidebar{border-left:none;border-top:3px solid #000;}
+  body[data-skin="brutal"] .bm-track{box-shadow:1px 1px 0 #000;}
+  /* control panels */
+  body[data-skin="brutal"] .ctrl-panel{border-right:none;border-bottom:2px solid #000;}
+  body[data-skin="brutal"] .ctrl-label::after{height:1px;}
+  /* sliders */
+  body[data-skin="brutal"] input[type="range"]{box-shadow:1px 1px 0 #000;}
+  /* fx grid — single column so values don't clip */
+  body[data-skin="brutal"] .fx-grid{grid-template-columns:1fr;gap:10px 0;padding:12px 14px;}
+  body[data-skin="brutal"] .fx-panel{border-top:2px solid #000;}
+  /* status strip */
+  body[data-skin="brutal"] .status-strip{border-top:2px solid #000;}
+  body[data-skin="brutal"] .ss-block{border-right:none;border-bottom:1px solid rgba(255,255,255,0.08);}
+  /* skin toggle: compact at bottom */
+  .skin-toggle{bottom:12px;right:12px;padding:5px 6px;gap:4px;}
+  .skin-btn{font-size:9px;padding:4px 9px;}
+}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
