@@ -527,6 +527,11 @@ body[data-skin="brutal"] .ss-block{border-right:1px solid rgba(255,255,255,0.08)
 
 /* skin-toggle override for brutal */
 body[data-skin="brutal"] ~ .skin-toggle,.skin-toggle{background:rgba(0,0,0,0.75);}
+/* Brutal skin — cloud/fog/drop tinted to read on chromatic dark skies */
+body[data-skin="brutal"] .cloud{background:rgba(200,180,255,0.09);}
+body[data-skin="brutal"] .fog-bank{background:rgba(180,150,240,0.1);}
+body[data-skin="brutal"] .drop{background:rgba(100,200,255,0.7);}
+body[data-skin="brutal"] .snow{background:rgba(220,210,255,0.85);}
 
 /* ── NEO-BRUTALISM MOBILE ───────────────────────────────── */
 @media (max-width:680px){
@@ -997,6 +1002,28 @@ function setBar(id,val,color){
 
 // ─── VISUALIZER ──────────────────────────────────────────────
 function getSkyGradient(s,w){
+  if(document.body.getAttribute('data-skin')==='brutal'){
+    // Chromatically charged darks — opponent-channel pairs that create
+    // perceptual vibration with the yellow (#FFE600) and red (#FF2D00) EQ bars.
+    // Principle: the visual system cannot fully resolve opponent-channel pairs
+    // (yellow-violet, red-cyan, warm-cold), generating involuntary afterimages.
+    if(!s.isDaytime) return s.isStormy
+      ?'linear-gradient(180deg,#00100A,#001E12)' // deep chrome-green — red/green opponent with red bars
+      :'linear-gradient(180deg,#05001E,#0E0038)'; // deep violet — yellow/violet complement, maximum vibration
+    const _n=new Date(),_sr=w?new Date(w.sunrise):new Date(),_ss=w?new Date(w.sunset):new Date();
+    const _p=Math.max(0,Math.min(1,(_n-_sr)/(_ss-_sr)));
+    if(_p<0.12)return'linear-gradient(180deg,#1C0018,#360010)'; // magenta→crimson: Bezold-Brücke warm induction
+    if(_p<0.25)return'linear-gradient(180deg,#0A001E,#1A000E)'; // violet→rose: hue perceived to shift with brightness
+    if(_p>0.88)return'linear-gradient(180deg,#180010,#2C001E)'; // crimson→violet: dusk afterimage sequence
+    if(_p>0.78)return'linear-gradient(180deg,#0E0008,#1E0016)'; // deep rose dusk
+    if(s.isStormy)return'linear-gradient(180deg,#001608,#002C12)'; // deep forest: red/green opponent, storm bars glow
+    if(s.isCloudy) return'linear-gradient(180deg,#03000E,#09001C)'; // near-black indigo
+    if(s.isRaining)return'linear-gradient(180deg,#00040C,#00081C)'; // deep blue-indigo: B-Y opponent, rain bars float
+    if(s.isSnowing)return'linear-gradient(180deg,#04000E,#0A001A)'; // dark violet-blue
+    if(s.isFoggy)  return'linear-gradient(180deg,#0E0A00,#1C1600)'; // dark olive: warm chromatic induction
+    if(s.isSunny)  return'linear-gradient(180deg,#040018,#0C002E)'; // deep violet midday sun: yellow bars ignite
+    return'linear-gradient(180deg,#04000E,#0C0022)'; // default deep blue-violet
+  }
   if(!s.isDaytime)return s.isStormy?'linear-gradient(180deg,#0A0814,#1A1428)':'linear-gradient(180deg,#040812,#0E1830)';
   const now=new Date();
   const sunrise=w?new Date(w.sunrise):new Date();
@@ -1094,11 +1121,19 @@ function updateVisualizer(s){
 
   // Sun/moon glow
   const sg=$('skyGlow');
-  sg.style.background=s.isDaytime&&s.isSunny
-    ?'radial-gradient(circle,rgba(255,230,100,1),rgba(255,180,40,0.4),transparent 70%)'
-    :s.isDaytime
-    ?'radial-gradient(circle,rgba(220,230,255,0.5),rgba(180,200,240,0.15),transparent 70%)'
-    :'radial-gradient(circle,rgba(230,240,255,0.4),rgba(180,200,255,0.15),transparent 70%)';
+  if(document.body.getAttribute('data-skin')==='brutal'){
+    sg.style.background=s.isDaytime&&s.isSunny
+      ?'radial-gradient(circle,rgba(255,220,0,0.95),rgba(255,120,0,0.3),transparent 70%)'
+      :s.isDaytime
+      ?'radial-gradient(circle,rgba(180,140,255,0.5),rgba(80,40,200,0.15),transparent 70%)'
+      :'radial-gradient(circle,rgba(210,180,255,0.65),rgba(120,80,220,0.25),transparent 70%)';
+  } else {
+    sg.style.background=s.isDaytime&&s.isSunny
+      ?'radial-gradient(circle,rgba(255,230,100,1),rgba(255,180,40,0.4),transparent 70%)'
+      :s.isDaytime
+      ?'radial-gradient(circle,rgba(220,230,255,0.5),rgba(180,200,240,0.15),transparent 70%)'
+      :'radial-gradient(circle,rgba(230,240,255,0.4),rgba(180,200,255,0.15),transparent 70%)';
+  }
   sg.style.width=sg.style.height=`${100+s.brightness*120}px`;
   sg.style.top=s.isDaytime?'30px':'20px';
   sg.style.opacity=Math.max(0.2,s.brightness);
@@ -1147,8 +1182,9 @@ function updateVisualizer(s){
   // Terrain
   const profile=getCityProfile(currentWeather?.location,currentWeather?.lat,currentWeather?.lon);
   const isNight=!s.isDaytime;
-  const tc=isNight?'#080A0C':'#141820';
-  const wc=isNight?'#0A1428':'#1A3050';
+  const _isBrutal=document.body.getAttribute('data-skin')==='brutal';
+  const tc=_isBrutal?(isNight?'#0C001A':'#001410'):isNight?'#080A0C':'#141820';
+  const wc=_isBrutal?(isNight?'#06001E':'#001828'):isNight?'#0A1428':'#1A3050';
   terrainLayer.innerHTML=getTerrainSVG(profile.terrain,tc,wc);
 
   // Lightning
@@ -1781,7 +1817,7 @@ function startHvAnim(){
 
     // ── BRUTAL VIZ BRANCH ────────────────────────────────────
     if(_skin==='brutal'){
-      c.fillStyle='rgba(0,0,0,0.36)';c.fillRect(0,0,W,H);
+      c.fillStyle='rgba(4,0,18,0.42)';c.fillRect(0,0,W,H);
       // beat flash
       if(beatPhase<0.06){c.fillStyle=`rgba(255,230,0,${(0.06-beatPhase)/0.06*0.3})`;c.fillRect(0,0,W,H);}
       const BP_L=12,BP_R=12,BP_TOP=38,BP_BOT=34;
