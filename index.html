@@ -647,9 +647,9 @@ body[data-skin="brutal"] .snow{background:rgba(220,210,255,0.85);}
           <span class="hud-condition" id="hudCondition">—</span>
           <span class="hud-bpm" id="hudBpm">— BPM</span>
         </div>
-            <!-- HV VISUALIZER -->
-      <div class="hv-viz" id="hvViz"></div>
     </div>
+    <!-- HV VISUALIZER — sibling of screen-hud so it shows in all skins -->
+    <div class="hv-viz" id="hvViz"></div>
   </div>
   <div class="screen-sidebar">
     <div class="sidebar-label">Atmosphere</div>
@@ -720,11 +720,15 @@ body[data-skin="brutal"] .snow{background:rgba(220,210,255,0.85);}
   <div class="ctrl-panel fx-panel" style="border-right:none;border-top:1px solid var(--rule);">
     <div class="ctrl-label">FX + Composition</div>
     <div class="fx-grid">
-      <div class="fx-col"><span class="fx-key">Reverb</span><div class="sl-row"><input id="fxReverb" type="range" min="0" max="1" step="0.01" value="0.4"/><span class="sl-val" id="fxReverbVal">0.40</span></div></div>
-      <div class="fx-col"><span class="fx-key">Delay</span><div class="sl-row"><input id="fxDelay" type="range" min="0" max="1" step="0.01" value="0.4"/><span class="sl-val" id="fxDelayVal">0.40</span></div></div>
-      <div class="fx-col"><span class="fx-key">Filter</span><div class="sl-row"><input id="fxFilter" type="range" min="0" max="1" step="0.01" value="0.6"/><span class="sl-val" id="fxFilterVal">0.60</span></div></div>
-      <div class="fx-col"><span class="fx-key">Complexity</span><div class="sl-row"><input id="fxComplexity" type="range" min="0" max="1" step="0.01" value="0.6"/><span class="sl-val" id="fxComplexityVal">0.60</span></div></div>
+      <div class="fx-col"><span class="fx-key">Reverb</span><div class="sl-row"><input id="fxReverb" type="range" min="0" max="1" step="0.01" value="0.35"/><span class="sl-val" id="fxReverbVal">0.35</span></div></div>
+      <div class="fx-col"><span class="fx-key">Echo</span><div class="sl-row"><input id="fxDelay" type="range" min="0" max="1" step="0.01" value="0.25"/><span class="sl-val" id="fxDelayVal">0.25</span></div></div>
+      <div class="fx-col"><span class="fx-key">Filter</span><div class="sl-row"><input id="fxFilter" type="range" min="0" max="1" step="0.01" value="0.55"/><span class="sl-val" id="fxFilterVal">0.55</span></div></div>
+      <div class="fx-col"><span class="fx-key">Drive</span><div class="sl-row"><input id="fxDrive" type="range" min="0" max="1" step="0.01" value="0.18"/><span class="sl-val" id="fxDriveVal">0.18</span></div></div>
       <div class="fx-col"><span class="fx-key">Melody</span><div class="sl-row"><input id="fxMelody" type="range" min="0" max="1" step="0.01" value="0.85"/><span class="sl-val" id="fxMelodyVal">0.85</span></div></div>
+      <div class="fx-col"><span class="fx-key">Harmony</span><div class="sl-row"><input id="fxHarmony" type="range" min="0" max="1" step="0.01" value="0.5"/><span class="sl-val" id="fxHarmonyVal">0.50</span></div></div>
+      <div class="fx-col"><span class="fx-key">Swing</span><div class="sl-row"><input id="fxSwing" type="range" min="0" max="1" step="0.01" value="0.3"/><span class="sl-val" id="fxSwingVal">0.30</span></div></div>
+      <div class="fx-col"><span class="fx-key">Crush</span><div class="sl-row"><input id="fxCrush" type="range" min="0" max="1" step="0.01" value="0"/><span class="sl-val" id="fxCrushVal">0.00</span></div></div>
+      <div class="fx-col"><span class="fx-key">Drift</span><div class="sl-row"><input id="fxDrift" type="range" min="0" max="1" step="0.01" value="0.35"/><span class="sl-val" id="fxDriftVal">0.35</span></div></div>
     </div>
   </div>
 </div>
@@ -783,13 +787,36 @@ function computeHarmony(s){
 }
 
 function computeTimeSignature(s){
-  if(s.isStormy||s.storm>0.65)return{steps:20,name:'5/4',kickOn:[0,12],snareOn:[8,16],hatOn:[2,4,6,8,10,12,14,16,18]};
-  if(s.isSnowing)return{steps:12,name:'6/8',kickOn:[0,6],snareOn:[4,10],hatOn:[1,3,5,7,9,11]};
-  if(s.isRaining&&s.wetness>0.6)return{steps:14,name:'7/8',kickOn:[0,8],snareOn:[4,11],hatOn:[1,3,5,7,9,11,13]};
-  if(s.isFoggy||(!s.isDaytime&&s.brightness<0.2))return{steps:12,name:'3/4',kickOn:[0],snareOn:[4,8],hatOn:[2,4,6,8,10]};
-  if(s.isSunny&&s.warmth>0.65)return{steps:16,name:'4/4',kickOn:[0,8],snareOn:[4,12],hatOn:[0,2,4,6,8,10,12,14]};
-  if(s.wind>0.65)return{steps:20,name:'5/4',kickOn:[0,10],snareOn:[5,15],hatOn:[0,2,4,6,8,10,12,14,16,18]};
-  return{steps:16,name:'4/4',kickOn:[0,8],snareOn:[4,12],hatOn:[0,2,4,6,8,10,12,14]};
+  // Each pattern: kick=strong hits, snare=backbeat, ghost=quiet fills (probabilistic),
+  //               hat=8th note grid, openHat=open hat positions, accentHat=loud downbeats
+  if(s.isStormy||s.storm>0.65)return{
+    steps:20,name:'5/4',
+    kickOn:[0,12,14],snareOn:[8,16],ghostOn:[2,5,10,18],
+    hatOn:[0,2,4,6,8,10,12,14,16,18],openHatOn:[6,14],accentHat:[0,8,12]};
+  if(s.isSnowing)return{
+    steps:12,name:'6/8',
+    kickOn:[0,6],snareOn:[4,10],ghostOn:[2,8],
+    hatOn:[0,1,2,3,4,5,6,7,8,9,10,11],openHatOn:[3,9],accentHat:[0,6]};
+  if(s.isRaining&&s.wetness>0.6)return{
+    steps:14,name:'7/8',
+    kickOn:[0,8,11],snareOn:[4,11],ghostOn:[2,6,13],
+    hatOn:[0,2,4,6,8,10,12],openHatOn:[4,12],accentHat:[0,8]};
+  if(s.isFoggy||(!s.isDaytime&&s.brightness<0.2))return{
+    steps:12,name:'3/4',
+    kickOn:[0,9],snareOn:[4,8],ghostOn:[2,6,10],
+    hatOn:[0,2,4,6,8,10],openHatOn:[4,10],accentHat:[0]};
+  if(s.isSunny&&s.warmth>0.65)return{
+    steps:16,name:'4/4',
+    kickOn:[0,8,10],snareOn:[4,12],ghostOn:[2,6,14],
+    hatOn:[0,2,4,6,8,10,12,14],openHatOn:[6,14],accentHat:[0,4,8,12]};
+  if(s.wind>0.65)return{
+    steps:20,name:'5/4',
+    kickOn:[0,10,13],snareOn:[5,15],ghostOn:[3,7,13,17],
+    hatOn:[0,2,4,6,8,10,12,14,16,18],openHatOn:[4,14],accentHat:[0,10]};
+  return{
+    steps:16,name:'4/4',
+    kickOn:[0,8,11],snareOn:[4,12],ghostOn:[2,6,14],
+    hatOn:[0,2,4,6,8,10,12,14],openHatOn:[6,14],accentHat:[0,4,8,12]};
 }
 
 function interpretWeather(w){
@@ -952,11 +979,15 @@ function pulseVisual(){
 // ─── FX PARAMS ───────────────────────────────────────────────
 function getFx(){
   return{
-    reverb:parseFloat($('fxReverb')?.value??0.4),
-    delay:parseFloat($('fxDelay')?.value??0.4),
-    filter:parseFloat($('fxFilter')?.value??0.6),
-    complexity:parseFloat($('fxComplexity')?.value??0.6),
+    reverb:parseFloat($('fxReverb')?.value??0.35),
+    delay:parseFloat($('fxDelay')?.value??0.25),
+    filter:parseFloat($('fxFilter')?.value??0.55),
+    drive:parseFloat($('fxDrive')?.value??0.18),
     melody:parseFloat($('fxMelody')?.value??0.85),
+    harmony:parseFloat($('fxHarmony')?.value??0.5),
+    swing:parseFloat($('fxSwing')?.value??0.3),
+    crush:parseFloat($('fxCrush')?.value??0),
+    drift:parseFloat($('fxDrift')?.value??0.35),
     vol:parseFloat($('volKnob')?.value??0.75),
   };
 }
@@ -964,16 +995,47 @@ function getFx(){
 function applyLiveFx(){
   if(!liveNodes)return;
   const fx=getFx();
-  const {ctx,gf,rvSend,dlySend,master,melodyBus}=liveNodes;
+  const {ctx,gf,rvSend,dlySend,master,melodyBus,harmonicBus,tapeSat,dustyLP,wowLFOG,flutterLFOG,dlyFB,crushNode}=liveNodes;
   const now=ctx.currentTime;
-  // Filter — exponential curve for dramatic effect
-  const base=currentState?(currentState.isStormy?600:currentState.isRaining?1000:currentState.isFoggy?500:currentState.isSunny?7000:3000):3000;
-  const hz=fx.filter<0.5?150+(fx.filter/0.5)*(base-150):base+((fx.filter-0.5)/0.5)*(18000-base);
-  gf.frequency.setTargetAtTime(hz,now,0.06);
-  rvSend.gain.setTargetAtTime(fx.reverb*0.3,now,0.06);
-  dlySend.gain.setTargetAtTime(fx.delay*0.2,now,0.06);
+  // Filter — full logarithmic sweep 80Hz to 20kHz (dramatic at both extremes)
+  const hz=80*Math.pow(250,fx.filter);
+  liveNodes.filterBase=hz;
+  gf.frequency.setTargetAtTime(hz,now,0.08);
+  // Reverb — 0 (dead dry) to enormous (0→0.88 send gain)
+  rvSend.gain.setTargetAtTime(fx.reverb*0.88,now,0.09);
+  // Echo — delay send + self-oscillating feedback at high values
+  dlySend.gain.setTargetAtTime(fx.delay*0.55,now,0.09);
+  if(dlyFB)dlyFB.gain.setTargetAtTime(Math.min(0.82,0.12+fx.delay*0.72),now,0.09);
+  // Drive — tanh saturation (clean to crunchy to smashed) + dusty LP compresses down
+  if(tapeSat){
+    const drv=0.4+fx.drive*13;
+    const sc=new Float32Array(256);
+    for(let i=0;i<256;i++){const x=(i*2/255)-1;sc[i]=Math.tanh(x*drv)/Math.tanh(drv);}
+    tapeSat.curve=sc;
+  }
+  if(dustyLP)dustyLP.frequency.setTargetAtTime(Math.max(3200,9000-fx.drive*5800),now,0.12);
+  // Crush — live bitcrusher (0=bypass, 1=2-bit destruction)
+  if(crushNode){
+    if(fx.crush>0.02){
+      const bits=Math.max(2,Math.round(8-fx.crush*6));
+      const steps=Math.pow(2,bits);
+      const cc=new Float32Array(256);
+      for(let i=0;i<256;i++){const x=(i*2/255)-1;cc[i]=Math.round(x*steps)/steps;}
+      crushNode.curve=cc;
+    }else{
+      const cc=new Float32Array(256);for(let i=0;i<256;i++)cc[i]=(i*2/255)-1;
+      crushNode.curve=cc;
+    }
+  }
+  // Drift — wow/flutter warble depth (subtle→woozy pitch-sick)
+  if(wowLFOG)wowLFOG.gain.setTargetAtTime(fx.drift*0.009,now,0.15);
+  if(flutterLFOG)flutterLFOG.gain.setTargetAtTime(fx.drift*0.003,now,0.15);
+  // Volume
   master.gain.setTargetAtTime(fx.vol*0.75,now,0.05);
-  if(melodyBus)melodyBus.gain.setTargetAtTime(fx.melody*0.8,now,0.06);
+  // Melody bus
+  if(melodyBus)melodyBus.gain.setTargetAtTime(fx.melody*1.1,now,0.07);
+  // Harmony/counterpoint bus
+  if(harmonicBus)harmonicBus.gain.setTargetAtTime(fx.harmony*0.72,now,0.07);
 }
 
 // ─── UPDATEINSTRUMENTREADOUT ─────────────────────────────────
@@ -1221,8 +1283,7 @@ function playWeatherSoundscape(state){
 
   // GLOBAL FILTER
   const gf=ctx.createBiquadFilter();gf.type='lowpass';
-  const base=state.isStormy?600:state.isRaining?1000:state.isFoggy?500:state.isSunny?7000:3000;
-  gf.frequency.value=fx.filter<0.5?150+(fx.filter/0.5)*(base-150):base+((fx.filter-0.5)/0.5)*(18000-base);
+  gf.frequency.value=80*Math.pow(250,fx.filter); // logarithmic sweep 80Hz–20kHz
   gf.Q.value=0.8;
   // ── TAPE CHAIN: dusty lo-fi LP → tanh saturation → wow/flutter warble → master ──
   const dustyLP=ctx.createBiquadFilter();dustyLP.type='lowpass';dustyLP.frequency.value=8500;dustyLP.Q.value=0.5;
@@ -1235,7 +1296,10 @@ function playWeatherSoundscape(state){
   const flutterLFO=ctx.createOscillator();const flutterLFOG=ctx.createGain();
   flutterLFO.type='sine';flutterLFO.frequency.value=1.1+Math.random()*0.3;flutterLFOG.gain.value=0.0004;
   flutterLFO.connect(flutterLFOG);flutterLFOG.connect(warbleDelay.delayTime);flutterLFO.start();
-  gf.connect(dustyLP);dustyLP.connect(tapeSat);tapeSat.connect(warbleDelay);warbleDelay.connect(master);
+  // Bitcrusher (bypass by default, updated live via applyLiveFx)
+  const crushNode=ctx.createWaveShaper();
+  {const cc=new Float32Array(256);for(let i=0;i<256;i++)cc[i]=(i*2/255)-1;crushNode.curve=cc;}
+  gf.connect(crushNode);crushNode.connect(dustyLP);dustyLP.connect(tapeSat);tapeSat.connect(warbleDelay);warbleDelay.connect(master);
 
   // REVERB NETWORK
   const rvSend=ctx.createGain();rvSend.gain.value=fx.reverb*0.28;
@@ -1285,7 +1349,7 @@ function playWeatherSoundscape(state){
   } else {bcInput.connect(gf);}
 
   // Store live nodes
-  liveNodes={ctx,gf,rvSend,dlySend,master,melodyBus:null,analyser,dlyFB,dlyNode,bcInput,getDelayFB,dustyLP,tapeSat,warbleDelay,wowLFO,flutterLFO};
+  liveNodes={ctx,gf,rvSend,dlySend,master,melodyBus:null,harmonicBus:null,analyser,dlyFB,dlyNode,bcInput,getDelayFB,dustyLP,tapeSat,warbleDelay,wowLFO,flutterLFO,wowLFOG,flutterLFOG,crushNode,filterBase:gf.frequency.value};
 
   function wire(n){n.connect(gf);n.connect(rvSend);n.connect(dlySend);}
 
@@ -1356,10 +1420,11 @@ function playWeatherSoundscape(state){
   phaseTimer=setTimeout(nextPhase,pDurs[0]*1000);
   function pGain(){return{bloom:0.65,full:1,breathe:0.45,sparse:0.3}[phase]||0.6;}
 
-  // PAD
+  // PAD — HPF at 220Hz clears sub/kick space, LP shapes tone
   const padBus=ctx.createGain();padBus.gain.value=0;wire(padBus);
+  const padHPF=ctx.createBiquadFilter();padHPF.type='highpass';padHPF.frequency.value=220;padHPF.connect(padBus);
   const padF=ctx.createBiquadFilter();padF.type='lowpass';
-  padF.frequency.value=700+state.brightness*1800;padF.Q.value=0.9;padF.connect(padBus);
+  padF.frequency.value=700+state.brightness*1800;padF.Q.value=0.9;padF.connect(padHPF);
   const fLFO=ctx.createOscillator();const fLFOG=ctx.createGain();
   fLFO.type='sine';fLFO.frequency.value=0.015+state.wind*0.03;
   fLFOG.gain.value=200+state.brightness*300;
@@ -1406,9 +1471,61 @@ function playWeatherSoundscape(state){
   melodyBus.connect(gf);melodyBus.connect(rvSend);
   liveNodes.melodyBus=melodyBus;
 
+  // COUNTERPOINT BUS — separate voice in bass/mid register
+  const harmonicBus=ctx.createGain();harmonicBus.gain.value=(fx.harmony??0.5)*0.72;
+  harmonicBus.connect(gf);harmonicBus.connect(rvSend);
+  liveNodes.harmonicBus=harmonicBus;
+
   // Melody phrase state
   let phrasePos=0,phraseResting=false,phraseRestBeats=0;
   let lastFreq=motif[0];
+
+  // Counterpoint state
+  let cpFreq=chord[0]*1.5; // start on 5th
+  let cpPhrasePos=0,cpRestBeats=0;
+
+  function cpChordTones(){
+    const r=chord[0];
+    const third=r*(state.harmony==='major'?1.26:1.189); // major or minor third
+    const fifth=r*1.5;
+    const seventh=r*(state.harmony==='major'?1.875:1.781);
+    return[r,third,fifth,seventh,r*2,r*0.75]; // include sub-octave for depth
+  }
+
+  function playCounterpoint(){
+    if(cpRestBeats>0){cpRestBeats--;return;}
+    const tones=cpChordTones();
+    // Contrary motion: if cp has been high (above 5th), guide it down; if low, guide up
+    const cpHigh=cpFreq>chord[0]*1.55;
+    const cpLow=cpFreq<chord[0]*1.05;
+    const preferred=cpHigh?tones.filter(f=>f<=cpFreq*0.98):cpLow?tones.filter(f=>f>=cpFreq*1.02):tones;
+    // Avoid parallel 5th or octave with last melody note
+    const safe=(preferred.length>0?preferred:tones).filter(f=>{
+      const ratio=lastFreq/f;
+      const isP5=Math.abs(ratio-1.5)<0.09||Math.abs(ratio-0.667)<0.09;
+      const isP8=Math.abs(ratio-2)<0.09||Math.abs(ratio-0.5)<0.09;
+      return !isP5&&!isP8;
+    });
+    const pool=safe.length>0?safe:(preferred.length>0?preferred:tones);
+    const nextF=pool[Math.floor(Math.random()*pool.length)];
+    if(!nextF||nextF<50||nextF>900)return;
+    cpFreq=nextF;
+    const now=ctx.currentTime;
+    const osc=ctx.createOscillator();const g=ctx.createGain();
+    osc.type=state.harmony==='minor'?'triangle':'sine';
+    osc.frequency.value=cpFreq;
+    osc.detune.value=(Math.random()-0.5)*10; // subtle warm detuning
+    const att=0.04+Math.random()*0.05;
+    const dec=1.6+Math.random()*2.2;
+    const peak=(0.05+state.brightness*0.02)*pGain();
+    g.gain.setValueAtTime(0.0001,now);
+    g.gain.exponentialRampToValueAtTime(peak,now+att);
+    g.gain.exponentialRampToValueAtTime(0.0001,now+att+dec);
+    osc.connect(g);g.connect(harmonicBus);
+    osc.start(now);osc.stop(now+att+dec+0.1);
+    cpPhrasePos++;
+    if(cpPhrasePos>=3){cpPhrasePos=0;cpRestBeats=1+Math.floor(Math.random()*3);}
+  }
 
   function nextMelodyFreq(){
     const tones=chordTones(chord);
@@ -1456,25 +1573,25 @@ function playWeatherSoundscape(state){
     osc.connect(g);g.connect(melodyBus);osc.start(now);osc.stop(now+1.1);
   }
 
-  function playKick(){
+  function playKick(vel=1){
     const now=ctx.currentTime;
-    // Deep boom bap body: 150Hz→48Hz exponential sweep (no harmonic dependency)
+    // Deep boom bap body: 150Hz→48Hz exponential sweep
     const osc=ctx.createOscillator();const g=ctx.createGain();
     osc.type='sine';
     osc.frequency.setValueAtTime(150,now);
     osc.frequency.exponentialRampToValueAtTime(48,now+0.38);
-    const vol=phase==='sparse'?0.14:0.22+state.storm*0.06;
+    const vol=(phase==='sparse'?0.12:0.20+state.storm*0.06)*vel;
     g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(vol,now+0.006);
     g.gain.exponentialRampToValueAtTime(0.0001,now+0.45);
     osc.connect(g);g.connect(gf);osc.start(now);osc.stop(now+0.5);
-    // Click transient: 6ms noise burst filtered for snap
+    // Click transient: 6ms noise burst for punch
     const n=Math.floor(ctx.sampleRate*0.006);
     const clkBuf=ctx.createBuffer(1,n,ctx.sampleRate);
     const clkD=clkBuf.getChannelData(0);
     for(let i=0;i<n;i++)clkD[i]=(Math.random()*2-1)*Math.pow(1-i/n,2);
     const clk=ctx.createBufferSource();clk.buffer=clkBuf;
     const clkHP=ctx.createBiquadFilter();clkHP.type='highpass';clkHP.frequency.value=5000;
-    const clkG=ctx.createGain();clkG.gain.setValueAtTime(0.18,now);clkG.gain.exponentialRampToValueAtTime(0.0001,now+0.006);
+    const clkG=ctx.createGain();clkG.gain.setValueAtTime(0.16*vel,now);clkG.gain.exponentialRampToValueAtTime(0.0001,now+0.006);
     clk.connect(clkHP);clkHP.connect(clkG);clkG.connect(gf);clk.start(now);
   }
 
@@ -1488,12 +1605,20 @@ function playWeatherSoundscape(state){
     osc.connect(g);g.connect(gf);osc.start(now);osc.stop(now+0.35);
   }
 
-  function playHat(vol=0.008){
+  function playHat(vol=0.008,open=false){
     const now=ctx.currentTime;
     const src=ctx.createBufferSource();src.buffer=nb;
-    const hpf=ctx.createBiquadFilter();hpf.type='highpass';hpf.frequency.value=5500-state.wetness*1200;
-    const g=ctx.createGain();g.gain.value=vol*pGain();
-    src.connect(hpf);hpf.connect(g);g.connect(gf);src.start(now);src.stop(now+0.035);
+    const hpf=ctx.createBiquadFilter();hpf.type='highpass';
+    hpf.frequency.value=open?2800:6200-state.wetness*1400;
+    const g=ctx.createGain();
+    if(open){
+      g.gain.setValueAtTime(vol*pGain()*1.8,now);
+      g.gain.exponentialRampToValueAtTime(0.0001,now+0.24);
+    }else{
+      g.gain.value=vol*pGain();
+    }
+    src.connect(hpf);hpf.connect(g);g.connect(gf);
+    src.start(now);src.stop(now+(open?0.28:0.042));
   }
 
   function playSnare(vel=1){
@@ -1560,8 +1685,7 @@ function playWeatherSoundscape(state){
     osc.connect(g);g.connect(gf);g.connect(rvSend);osc.start(now);osc.stop(now+0.5);
   }
 
-  // Dilla swing
-  const dillaSwing=state.wetness>0.4?60000/state.tempo/4*0.06:0;
+  // Swing is now live — read from slider each step
 
   // ARPEGGIATOR — sunny/bright, plays broken chord tones on upbeats
   const ARP_PATTERNS={major:[0,2,1,3,2,4,1,3],minor:[0,1,3,1,0,2,3,2],suspended:[0,3,1,2,3,0,2,1]};
@@ -1580,13 +1704,13 @@ function playWeatherSoundscape(state){
   // FILTER SWELL — slow autonomous LFO on global filter
   let swellTimer=null;
   function startFilterSwell(){
-    const baseF=state.isStormy?600:state.isRaining?1200:state.isFoggy?400:state.isSunny?5000:2500;
-    const depth=state.isStormy?800:state.isFoggy?600:1500;
+    const swellDepth=state.isStormy?0.08:state.isFoggy?0.06:0.04; // as fraction of base freq
     const rate=state.isStormy?0.8:state.isFoggy?0.05:state.isSunny?0.15:0.1;
     let ph=0;
     swellTimer=setInterval(()=>{
       ph+=rate*0.05;
-      gf.frequency.setTargetAtTime(Math.max(100,baseF+Math.sin(ph)*depth),ctx.currentTime,0.3);
+      const baseF=liveNodes?.filterBase??2000;
+      gf.frequency.setTargetAtTime(Math.max(80,baseF*(1+Math.sin(ph)*swellDepth)),ctx.currentTime,0.35);
     },50);
   }
   startFilterSwell();
@@ -1621,39 +1745,53 @@ function playWeatherSoundscape(state){
   const seqTimer=setInterval(()=>{
     const cs=step%STEPS;
 
-    // KICK
+    // Live swing amount — slider-driven, full range from straight to deep shuffle
+    const swingMs=getFx().swing*(60000/state.tempo/4)*0.32;
+
+    // KICK — velocity and humanization vary
     if(timeSig.kickOn.includes(cs)){
-      const dOff=cs===0?0:dillaSwing;
-      setTimeout(()=>{playKick();pulseVisual();},dOff);
+      const kickVel=cs===0?1.0:0.68+Math.random()*0.28;
+      const dOff=cs===0?0:swingMs*0.55+Math.random()*9;
+      setTimeout(()=>{playKick(kickVel);pulseVisual();},dOff);
       if(cs===0){setTimeout(()=>playSubBass(),dOff+2);}
     }
 
-    // HAT
-    if(timeSig.hatOn.includes(cs)){
-      const isUp=cs%4!==0;
-      const hOff=isUp?dillaSwing*0.8:0;
-      setTimeout(()=>playHat(isUp?0.007:0.012),hOff);
-    }
-
-    // SNARE
+    // SNARE — main backbeat hits
     if(timeSig.snareOn&&timeSig.snareOn.includes(cs)){
-      setTimeout(()=>playSnare(phase==='full'?1:0.75),dillaSwing*0.5);
+      const sVel=0.80+Math.random()*0.20;
+      setTimeout(()=>playSnare(sVel),swingMs*0.45+Math.random()*8);
     }
 
-    // ARPEGGIATOR — on sunny/bright, upbeat hats
+    // GHOST SNARE — probabilistic quiet fills between snare hits
+    if(timeSig.ghostOn&&timeSig.ghostOn.includes(cs)&&Math.random()<0.58){
+      const gVel=0.06+Math.random()*0.14;
+      setTimeout(()=>playSnare(gVel),Math.random()*14);
+    }
+
+    // HAT — open hats on specific positions, accented downbeats
+    if(timeSig.hatOn.includes(cs)){
+      const isOpen=timeSig.openHatOn&&timeSig.openHatOn.includes(cs);
+      const isAccent=timeSig.accentHat&&timeSig.accentHat.includes(cs);
+      const isUp=cs%4!==0;
+      const hVol=isAccent?0.019:isOpen?0.014:isUp?0.007:0.011;
+      const hOff=isUp?(swingMs*0.85+Math.random()*6):Math.random()*4;
+      setTimeout(()=>playHat(hVol,isOpen),hOff);
+    }
+
+    // ARPEGGIATOR — on sunny/bright, upbeat positions
     if((state.isSunny||state.brightness>0.5)&&phase!=='sparse'){
       if(timeSig.hatOn.includes(cs)&&cs%4!==0){
         const arpPat=ARP_PATTERNS[state.harmony]||ARP_PATTERNS.major;
         const tones=chordTones(chord);
         const freq=tones[arpPat[cs%arpPat.length]%tones.length];
-        if(freq) setTimeout(()=>playArpNote(freq),dillaSwing*0.3);
+        if(freq) setTimeout(()=>playArpNote(freq),swingMs*0.3);
       }
     }
 
     // EFFECT SWELL TICK
     tickEffectSwell();
 
-    // BITCRUSHED SNARE — extra grit layer during storm/rain
+    // BITCRUSHED GRIT LAYER — storm/rain only
     if(bcAmt>0.05&&timeSig.kickOn.includes(cs)&&cs!==0){
       setTimeout(()=>{
         const now=ctx.currentTime;
@@ -1664,7 +1802,7 @@ function playWeatherSoundscape(state){
         g2.gain.exponentialRampToValueAtTime(0.0001,now+0.1);
         src2.connect(hp2);hp2.connect(g2);g2.connect(bcInput);
         src2.start(now);src2.stop(now+0.12);
-      },dillaSwing);
+      },swingMs);
     }
 
     // SHIMMER on mid-bar
@@ -1676,8 +1814,10 @@ function playWeatherSoundscape(state){
     // THUNDER
     if(state.isStormy&&cs===STEPS-1&&Math.random()<0.12+state.storm*0.22)playThunder();
 
-    // MELODY — every beat unconditionally
+    // MELODY — every beat
     if(step%MELODY_CYCLE===0)playMelodyNote();
+    // COUNTERPOINT — half-note rhythm (contrary motion, chord-aware)
+    if(step%(MELODY_CYCLE*2)===0)playCounterpoint();
 
     // VIBE on beat 3 of every 2nd bar
     if(step%(STEPS*2)===Math.floor(STEPS*1.5)&&phase!=='sparse')playVibe();
@@ -1693,6 +1833,7 @@ function playWeatherSoundscape(state){
       chordIdx=(chordIdx+1)%progression.length;
       chord=progression[chordIdx];
       motif=buildMotif(chord);
+      cpFreq=chord[0]*1.5; // reset counterpoint to 5th of new chord on change
       padVoices.forEach(v=>{try{v.stop(ctx.currentTime+2.5);}catch(e){}});
       setTimeout(()=>buildPad(chord),600);
       // Chord stab
@@ -1772,7 +1913,7 @@ $('resetToWeatherBtn2').addEventListener('click',resetToWeather);
   });
 });
 
-['fxReverb','fxDelay','fxFilter','fxComplexity','fxMelody'].forEach(id=>{
+['fxReverb','fxDelay','fxFilter','fxDrive','fxMelody','fxHarmony','fxSwing','fxCrush','fxDrift'].forEach(id=>{
   const el=$(id),valEl=$(id+'Val');
   if(el&&valEl)el.addEventListener('input',()=>{valEl.textContent=parseFloat(el.value).toFixed(2);applyLiveFx();});
 });
