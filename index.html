@@ -261,18 +261,49 @@ body[data-skin="brutal"] .ls-arrow{color:rgba(0,0,0,0.2);}
   .product-tagline{display:none;}
   .knob-row{display:none;}
   .input-bar{padding:8px 12px;gap:6px;}
-  .zip-input{width:72px;}
+  .zip-input{width:68px;}
   .btn3d{font-size:9px;padding:7px 10px;}
+  /* "Reset to Weather" too long — hide on mobile, duplicate in control panel */
+  #resetToWeatherBtn{display:none;}
+  .sep{display:none;}
+  .ibar-status{min-width:0;width:100%;margin-top:2px;}
   .body{grid-template-columns:1fr;}
-  .screen{min-height:200px;}
+  .screen{min-height:180px;}
   .readout-block{display:none;}
   .control-section{grid-template-columns:1fr;}
-  .ctrl-panel{padding:12px;border-right:none;border-bottom:1px solid var(--rule);}
-  .sl-key{width:48px;font-size:8px;}
-  .status-strip{padding:8px 12px;}
+  .ctrl-panel{padding:12px 14px;border-right:none;border-bottom:1px solid var(--rule);}
+  /* Atmosphere sliders — label on top row, slider full width below */
+  .slider-list .sl-row{flex-wrap:wrap;gap:2px 8px;align-items:center;}
+  .slider-list .sl-pip{display:none;}
+  .slider-list .sl-key{width:auto;flex:1;font-size:8px;order:1;}
+  .slider-list .sl-val{width:auto;text-align:right;order:2;}
+  .slider-list .sl-row input[type="range"]{width:100%;flex:0 0 100%;order:3;margin:0;}
+  /* FX sliders stay side-by-side (label is above via flex-col) */
+  .fx-col .sl-row{flex-wrap:nowrap;gap:8px;align-items:center;}
+  .fx-col .sl-row input[type="range"]{flex:1;}
+  .fx-col .sl-val{width:28px;}
+  /* Atmosphere sidebar — compact row of bars */
+  .screen-sidebar{padding:8px 14px;gap:6px;}
+  .sidebar-label{margin-bottom:0;}
+  .bar-meters{gap:4px;}
+  .bm-track{height:56px;}
+  .bm-col{gap:3px;}
+  .bm-label{font-size:7px;}
+  /* Status strip */
+  .status-strip{padding:8px 12px;flex-wrap:wrap;}
   .ss-block{padding:4px 10px;border-right:none;border-bottom:1px solid rgba(255,255,255,0.06);width:50%;}
   .ss-bpm{margin-left:0;width:100%;justify-content:center;padding:6px 0;}
-  .fx-grid{gap:8px;padding:10px 12px;}
+  /* FX grid — vertical stack on mobile */
+  .fx-grid{flex-direction:column;overflow-x:visible;gap:6px;padding:10px 14px;}
+  .fx-col{width:100%;flex:none;}
+  /* Live sheet */
+  .ls-row{gap:12px;flex-wrap:wrap;}
+  .ls-prog{gap:4px;flex-wrap:wrap;}
+  .ls-chord{font-size:9px;padding:3px 7px;}
+  /* Onboarding modal */
+  .ob-body{padding:16px 16px 20px;}
+  .ob-header{padding:16px 16px 14px;}
+  .ob-title{font-size:20px;}
 }
 
 /* ── HELVETICA SKIN ──────────────────────────────────── */
@@ -601,9 +632,13 @@ body[data-skin="brutal"] .snow{background:rgba(220,210,255,0.85);}
   body[data-skin="brutal"] .ctrl-label::after{height:1px;}
   /* sliders */
   body[data-skin="brutal"] input[type="range"]{box-shadow:1px 1px 0 #000;}
-  /* fx grid — single column so values don't clip */
-  body[data-skin="brutal"] .fx-grid{grid-template-columns:1fr;gap:10px 0;padding:12px 14px;}
+  /* fx grid — vertical stack so values don't clip */
+  body[data-skin="brutal"] .fx-grid{flex-direction:column;overflow-x:visible;gap:8px;padding:12px 14px;}
+  body[data-skin="brutal"] .fx-col{width:100%;flex:none;}
   body[data-skin="brutal"] .fx-panel{border-top:2px solid #000;}
+  /* atmosphere sliders */
+  body[data-skin="brutal"] .sl-pip{display:none;}
+  body[data-skin="brutal"] .sl-row input[type="range"]{box-shadow:1px 1px 0 #000;}
   /* status strip */
   body[data-skin="brutal"] .status-strip{border-top:2px solid #000;}
   body[data-skin="brutal"] .ss-block{border-right:none;border-bottom:1px solid rgba(255,255,255,0.08);}
