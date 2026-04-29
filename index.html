@@ -868,6 +868,7 @@ let currentAudio = null;
 let currentWeather = null;
 let currentState = null;
 let usingManualState = false;
+let _pendingSharedFx = null; // FX values from a share URL, applied once after weather loads
 let liveNodes = null;
 let lightningTimer = null;
 let liveSheetData = {rootName:'—',modeName:'—',timeSig:'—',progression:[],chordIdx:0,lastMelodyNote:'—'};
@@ -1469,6 +1470,11 @@ function freqToNoteName(hz){
 // Set weather-driven FX defaults at playback start
 function setWeatherFxDefaults(s){
   if(usingManualState)return;
+  if(_pendingSharedFx){
+    const fx=_pendingSharedFx;_pendingSharedFx=null;
+    fx.forEach(([id,v])=>{const e=$(id);if(e)e.value=String(v);const ve=$(id+'Val');if(ve)ve.textContent=Number(v).toFixed(2);});
+    return;
+  }
   const defs=s.isStormy
     ?{fxReverb:0.72,fxDelay:0.58,fxFilter:0.22,fxDrive:0.48,fxCrush:0.32,fxDrift:0.68,fxWah:0,fxChorus:0.2,fxFuzz:0.28}
     :s.isSnowing
@@ -2275,10 +2281,17 @@ function loadShareURL(){
     const obj=JSON.parse(atob(location.hash.slice(7)));
     if(obj.skin)document.body.dataset.skin=obj.skin;
     if(obj.zip){$('zipInput').value=obj.zip;try{$('zipInput2').value=obj.zip;}catch(e){}}
-    if(obj.w){['warmthSlider','windSlider','wetnessSlider','stormSlider','brightnessSlider'].forEach((id,i)=>{const e=$(id);if(e){e.value=String(obj.w[i]);}const v=$(id+'Value');if(v)v.textContent=Number(obj.w[i]).toFixed(2);});}
-    if(obj.fx){['fxReverb','fxDelay','fxFilter','fxDrive','fxMelody','fxHarmony','fxWah','fxChorus','fxFuzz','fxCrush','fxDrift','fxSwing','fxVol'].forEach((id,i)=>{if(obj.fx[i]==null)return;const e=$(id);if(e)e.value=String(obj.fx[i]);const v=$(id+'Val');if(v)v.textContent=Number(obj.fx[i]).toFixed(2);});}
-    if(obj.manual){usingManualState=true;state=stateFromSliders();updateVisuals(state);}
-    else if(obj.zip){setTimeout(()=>loadWeatherForZip(obj.zip),400);}
+    // Store FX to restore after weather loads (weather load triggers setWeatherFxDefaults which would overwrite them)
+    if(obj.fx){
+      const fxIds=['fxReverb','fxDelay','fxFilter','fxDrive','fxMelody','fxHarmony','fxWah','fxChorus','fxFuzz','fxCrush','fxDrift','fxSwing','fxVol'];
+      _pendingSharedFx=fxIds.map((id,i)=>obj.fx[i]!=null?[id,obj.fx[i]]:null).filter(Boolean);
+    }
+    if(obj.manual){
+      if(obj.w){['warmthSlider','windSlider','wetnessSlider','stormSlider','brightnessSlider'].forEach((id,i)=>{const e=$(id);if(e)e.value=String(obj.w[i]);const v=$(id+'Value');if(v)v.textContent=Number(obj.w[i]).toFixed(2);});}
+      usingManualState=true;state=stateFromSliders();updateVisuals(state);
+    } else if(obj.zip){
+      setTimeout(()=>loadWeatherForZip(obj.zip),400);
+    }
   }catch(e){}
 }
 
