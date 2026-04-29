@@ -214,7 +214,13 @@ input[type="range"]::-moz-range-thumb{width:14px;height:26px;background:linear-g
 .ob-cta:hover{background:#C83A00;transform:translateY(-1px);}
 .ob-cta:active{transform:translateY(0);}
 body[data-skin="brutal"] .ob-modal{border-radius:0;border:3px solid #000;box-shadow:10px 10px 0 #000;}
-body[data-skin="brutal"] .ob-cta{border-radius:0;box-shadow:3px 3px 0 #000;}
+body[data-skin="brutal"] .ob-header{background:var(--nb-yellow);border-bottom:3px solid #000;}
+body[data-skin="brutal"] .ob-title{font-family:var(--nb-font);font-size:28px;font-weight:900;color:#000;letter-spacing:0.01em;}
+body[data-skin="brutal"] .ob-sub{font-family:var(--nb-font);font-size:9px;font-weight:700;color:rgba(0,0,0,0.55);letter-spacing:0.18em;}
+body[data-skin="brutal"] .ob-num{font-family:var(--nb-font);font-weight:900;color:#000;background:var(--nb-yellow);}
+body[data-skin="brutal"] .ob-step-text{font-family:var(--nb-font);color:#111;}
+body[data-skin="brutal"] .ob-step-text strong{font-family:var(--nb-font);color:#000;}
+body[data-skin="brutal"] .ob-cta{font-family:var(--nb-font);border-radius:0;border:3px solid #000;box-shadow:3px 3px 0 #000;background:var(--nb-red);}
 body[data-skin="brutal"] .live-sheet{background:var(--nb-yellow);border-top:2px solid #000;}
 body[data-skin="brutal"] .ls-label{color:rgba(0,0,0,0.4);}
 body[data-skin="brutal"] .ls-sublabel{color:rgba(0,0,0,0.3);}
@@ -251,28 +257,41 @@ body[data-skin="brutal"] .ls-arrow{color:rgba(0,0,0,0.2);}
 }
 @media (max-width:680px){
   body{padding:0;}
-  .chassis{border-radius:0;}
+  .chassis{border-radius:0;max-width:100vw;overflow-x:hidden;}
   .port-strip{padding:0 12px;gap:6px;}
   .port-tag{font-size:8px;padding:2px 6px;}
-  .faceplate-top{flex-direction:column;align-items:center;text-align:center;padding:14px;gap:10px;}
+  .faceplate-top{flex-direction:column;align-items:center;text-align:center;padding:14px;gap:10px;min-width:0;}
   .woof-logo{font-size:38px;}
   .product-block{padding-left:0;border-left:none;border-top:1px solid var(--rule);padding-top:10px;width:100%;align-items:center;}
   .product-name{font-size:22px;text-align:center;}
   .product-tagline{display:none;}
   .knob-row{display:none;}
-  .input-bar{padding:8px 12px;gap:6px;}
+  .input-bar{padding:8px 12px;gap:6px;min-width:0;}
   .zip-input{width:72px;}
   .btn3d{font-size:9px;padding:7px 10px;}
   .body{grid-template-columns:1fr;}
   .screen{min-height:200px;}
+  .screen-outer,.screen-sidebar{min-width:0;max-width:100%;}
   .readout-block{display:none;}
   .control-section{grid-template-columns:1fr;}
-  .ctrl-panel{padding:12px;border-right:none;border-bottom:1px solid var(--rule);}
-  .sl-key{width:48px;font-size:8px;}
+  .ctrl-panel{padding:12px;border-right:none;border-bottom:1px solid var(--rule);min-width:0;max-width:100%;}
+  /* atmosphere bars — full width, visible */
+  .bar-meters{gap:4px;min-width:0;overflow:hidden;}
+  .bm-col{min-width:0;flex:1;gap:3px;}
+  .bm-track{max-width:none;width:100%;height:56px;}
+  /* atmosphere sliders — range on own line */
+  .sl-row{flex-wrap:wrap;gap:2px 8px;align-items:center;}
+  .sl-pip{display:none;}
+  .sl-key{width:auto;flex:1;font-size:8px;order:1;}
+  .sl-val{width:auto;text-align:right;order:2;}
+  .sl-row input[type="range"]{width:100%;flex:0 0 100%;order:3;margin:0;min-width:0;}
   .status-strip{padding:8px 12px;}
   .ss-block{padding:4px 10px;border-right:none;border-bottom:1px solid rgba(255,255,255,0.06);width:50%;}
   .ss-bpm{margin-left:0;width:100%;justify-content:center;padding:6px 0;}
-  .fx-grid{gap:8px;padding:10px 12px;}
+  /* FX grid — single column stack */
+  .fx-grid{flex-direction:column;overflow-x:visible;gap:6px;padding:10px 14px;}
+  .fx-col{width:100%;flex:none;min-width:0;}
+  .fx-panel{min-width:0;max-width:100%;}
 }
 
 /* ── HELVETICA SKIN ──────────────────────────────────── */
@@ -601,8 +620,8 @@ body[data-skin="brutal"] .snow{background:rgba(220,210,255,0.85);}
   body[data-skin="brutal"] .ctrl-label::after{height:1px;}
   /* sliders */
   body[data-skin="brutal"] input[type="range"]{box-shadow:1px 1px 0 #000;}
-  /* fx grid — single column so values don't clip */
-  body[data-skin="brutal"] .fx-grid{grid-template-columns:1fr;gap:10px 0;padding:12px 14px;}
+  /* fx grid — single column stack */
+  body[data-skin="brutal"] .fx-grid{flex-direction:column;overflow-x:visible;gap:8px;padding:12px 14px;}
   body[data-skin="brutal"] .fx-panel{border-top:2px solid #000;}
   /* status strip */
   body[data-skin="brutal"] .status-strip{border-top:2px solid #000;}
