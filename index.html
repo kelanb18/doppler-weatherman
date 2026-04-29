@@ -460,7 +460,7 @@ body[data-skin="helvetica"] .screen::before{display:none;}
 .skin-btn.active{background:rgba(255,255,255,0.18);color:#fff;border-color:rgba(255,255,255,0.4);}
 
 /* ── NEO-BRUTALISM SKIN ─────────────────────────────────── */
-body[data-skin="brutal"]{background:#FFE600;--nb-bg:#FFFFFF;--nb-ink:#000000;--nb-yellow:#FFE600;--nb-red:#FF2D00;--nb-blue:#0028FF;--nb-green:#00BB44;--nb-font:'Space Grotesk',sans-serif;}
+body[data-skin="brutal"]{background:#1A1A1A;--nb-bg:#F4F0E8;--nb-ink:#0D0D0D;--nb-yellow:#E8C840;--nb-red:#C8440A;--nb-blue:#1840B0;--nb-green:#1A6B3A;--nb-font:'Space Grotesk',sans-serif;}
 
 /* chassis */
 body[data-skin="brutal"] .chassis{background:var(--nb-bg);border-radius:0;border:3px solid #000;box-shadow:10px 10px 0 #000;}
@@ -503,7 +503,7 @@ body[data-skin="brutal"] .knob-static{background:#333;border-radius:50%;box-shad
 body[data-skin="brutal"] .knob-label{font-family:var(--nb-font);color:#000;font-weight:700;font-size:8px;letter-spacing:0.12em;}
 
 /* input bar */
-body[data-skin="brutal"] .input-bar{background:#fff;border-bottom:3px solid #000;padding:12px 20px;}
+body[data-skin="brutal"] .input-bar{background:var(--nb-bg);border-bottom:3px solid #000;padding:12px 20px;}
 body[data-skin="brutal"] .ibar-label{font-family:var(--nb-font);color:#000;font-weight:700;font-size:10px;letter-spacing:0.2em;}
 body[data-skin="brutal"] .zip-input{background:var(--nb-yellow);border:2px solid #000;color:#000;font-family:var(--nb-font);font-size:18px;font-weight:700;letter-spacing:0.04em;box-shadow:3px 3px 0 #000;}
 body[data-skin="brutal"] .zip-input:focus{outline:none;border-color:var(--nb-red);}
@@ -512,8 +512,8 @@ body[data-skin="brutal"] .btn3d:active{transform:translate(3px,3px);box-shadow:0
 body[data-skin="brutal"] .btn3d.dark{background:#000;color:var(--nb-yellow);}
 body[data-skin="brutal"] .btn3d.dark:hover{background:#222;}
 body[data-skin="brutal"] .btn3d.orange{background:var(--nb-red);color:#fff;border-color:#000;}
-body[data-skin="brutal"] .btn3d.orange:hover{background:#CC1500;}
-body[data-skin="brutal"] .btn3d.gray{background:#fff;color:#000;border-color:#000;}
+body[data-skin="brutal"] .btn3d.orange:hover{background:#9E3508;}
+body[data-skin="brutal"] .btn3d.gray{background:var(--nb-bg);color:#000;border-color:#000;}
 body[data-skin="brutal"] .btn3d.gray:hover{background:var(--nb-yellow);}
 body[data-skin="brutal"] .ibar-status{font-family:var(--nb-font);color:var(--nb-blue);font-size:10px;font-weight:600;}
 body[data-skin="brutal"] .sep{background:#000;width:2px;}
@@ -525,14 +525,14 @@ body[data-skin="brutal"] .screen::after{background:repeating-linear-gradient(0de
 body[data-skin="brutal"] .screen-ghost{font-family:var(--nb-font);font-weight:700;color:rgba(255,255,255,0.05);letter-spacing:0.1em;}
 body[data-skin="brutal"] .hud-coords{font-family:'IBM Plex Mono',monospace;color:rgba(255,255,255,0.22);}
 body[data-skin="brutal"] .hud-badge{font-family:var(--nb-font);font-weight:700;letter-spacing:0.14em;border-radius:0;border-width:2px;}
-body[data-skin="brutal"] .hud-badge.major{color:var(--nb-yellow);border-color:var(--nb-yellow);background:rgba(255,230,0,0.12);}
+body[data-skin="brutal"] .hud-badge.major{color:var(--nb-yellow);border-color:var(--nb-yellow);background:rgba(232,200,64,0.12);}
 body[data-skin="brutal"] .hud-badge.minor{color:#7DF9FF;border-color:#7DF9FF;background:rgba(125,249,255,0.08);}
 body[data-skin="brutal"] .hud-badge.suspended{color:rgba(255,255,255,0.5);border-color:rgba(255,255,255,0.2);background:transparent;}
 body[data-skin="brutal"] .hud-condition{font-family:var(--nb-font);font-weight:700;color:#fff;letter-spacing:0.16em;}
 body[data-skin="brutal"] .hud-bpm{font-family:'IBM Plex Mono',monospace;color:var(--nb-red);}
 
 /* sidebar */
-body[data-skin="brutal"] .screen-sidebar{background:#fff;border-left:3px solid #000;}
+body[data-skin="brutal"] .screen-sidebar{background:var(--nb-bg);border-left:3px solid #000;}
 body[data-skin="brutal"] .sidebar-label{font-family:var(--nb-font);font-size:9px;font-weight:700;letter-spacing:0.2em;color:#000;}
 body[data-skin="brutal"] .bm-track{background:#f0f0f0;border:2px solid #000;box-shadow:2px 2px 0 #000;}
 body[data-skin="brutal"] #warmthBar{background:var(--nb-red);}
@@ -661,6 +661,7 @@ body[data-skin="brutal"] .snow{background:rgba(220,210,255,0.85);}
         <div class="ob-step"><div class="ob-num">3</div><div class="ob-step-text"><strong>Cook up a storm</strong> — drag the atmosphere sliders to push temperature, wind, rain, and storm intensity however you like. Hit Apply Manual.</div></div>
         <div class="ob-step"><div class="ob-num">4</div><div class="ob-step-text"><strong>Shape the sound</strong> with the FX panel: reverb, echo, filter, drive, wah, chorus, fuzz, and more. Every slider is live.</div></div>
         <div class="ob-step"><div class="ob-num">5</div><div class="ob-step-text"><strong>Play along</strong> using the Live Sheet — it shows the current chord progression and last melody note so you can jam on any instrument.</div></div>
+        <div class="ob-step"><div class="ob-num">6</div><div class="ob-step-text"><strong>Share your sounding</strong> — hit ↗ Share to copy a link that locks in your exact ZIP, atmosphere, and every FX setting. Anyone who opens it hears exactly what you built.</div></div>
       </div>
       <button class="ob-cta" id="obClose">Fire it up →</button>
     </div>
