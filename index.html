@@ -188,8 +188,8 @@ input[type="range"]::-moz-range-thumb{width:14px;height:26px;background:linear-g
 
 /* FX PANEL */
 .fx-panel{grid-column:1/-1;border-top:1px solid var(--rule);}
-.fx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;padding:12px 18px;}
-.fx-col{display:flex;flex-direction:column;gap:6px;min-width:0;}
+.fx-grid{display:flex;flex-direction:column;gap:8px;padding:12px 18px;}
+.fx-col{display:flex;flex-direction:column;gap:4px;min-width:0;}
 .fx-key{font-size:9px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-mid);}
 
 /* LIVE SHEET */
@@ -297,9 +297,7 @@ body[data-skin="brutal"] .ls-arrow{color:rgba(0,0,0,0.2);}
   .status-strip{padding:8px 12px;}
   .ss-block{padding:4px 10px;border-right:none;border-bottom:1px solid rgba(255,255,255,0.06);width:50%;}
   .ss-bpm{margin-left:0;width:100%;justify-content:center;padding:6px 0;}
-  /* FX grid — single column stack */
-  .fx-grid{grid-template-columns:1fr;gap:6px;padding:10px 14px;}
-  .fx-col{min-width:0;}
+  .fx-grid{gap:6px;padding:10px 14px;}
   .fx-panel{min-width:0;max-width:100%;}
 }
 
@@ -629,8 +627,7 @@ body[data-skin="brutal"] .snow{background:rgba(220,210,255,0.85);}
   body[data-skin="brutal"] .ctrl-label::after{height:1px;}
   /* sliders */
   body[data-skin="brutal"] input[type="range"]{box-shadow:1px 1px 0 #000;}
-  /* fx grid — single column stack */
-  body[data-skin="brutal"] .fx-grid{grid-template-columns:1fr;gap:8px;padding:12px 14px;}
+  body[data-skin="brutal"] .fx-grid{gap:8px;padding:12px 14px;}
   body[data-skin="brutal"] .fx-panel{border-top:2px solid #000;}
   /* status strip */
   body[data-skin="brutal"] .status-strip{border-top:2px solid #000;}
@@ -2494,17 +2491,17 @@ function startHvAnim(){
     // This IS the background — replace the flat #F5F5F3
     let skyTop, skyBot;
     if(!s.isDaytime){
-      skyTop='#0D1520'; skyBot='#1A2535'; // deep night navy
+      skyTop='#06070A'; skyBot='#0C0E14'; // deep night — near black, slight blue
     } else if(s.isStormy){
-      skyTop='#3A3C48'; skyBot='#5A5C6A'; // stormy grey-purple
+      skyTop='#0C0C10'; skyBot='#141418'; // stormy — dark grey-purple
     } else if(s.isRaining){
-      skyTop='#7A8FA8'; skyBot='#A8BAC8'; // rain blue-grey
+      skyTop='#080C14'; skyBot='#0E1420'; // rain — dark blue-grey
     } else if(s.isFoggy){
-      skyTop='#C0C8C8'; skyBot='#D8DCDC'; // fog pale teal-grey
+      skyTop='#0C0C0C'; skyBot='#141414'; // fog — dark neutral
     } else if(s.isSunny&&s.isDaytime){
-      skyTop='#5AA0D8'; skyBot='#A8D0F0'; // clear blue sky
+      skyTop='#100C06'; skyBot='#1A1208'; // sunny — dark amber
     } else {
-      skyTop='#8AA8C0'; skyBot='#B8CCDA'; // partly cloudy
+      skyTop='#0A0C0E'; skyBot='#121416'; // partly cloudy — dark cool
     }
     const skyGrad=c.createLinearGradient(0,0,0,H);
     skyGrad.addColorStop(0,skyTop);
@@ -2514,7 +2511,7 @@ function startHvAnim(){
     // ── CLOUDS ────────────────────────────────────────────────
     if(!s.isStormy&&!s.isRaining){
       const cloudCount=s.isSunny?2:s.isCloudy?6:4;
-      c.fillStyle='rgba(255,255,255,0.22)';
+      c.fillStyle='rgba(255,255,255,0.06)';
       for(let i=0;i<cloudCount;i++){
         const cx=((i/cloudCount)*W+(wallT*18*(0.4+wind*0.3)+i*197))%W;
         const cy=H*0.08+i*H*0.06;
@@ -2526,7 +2523,7 @@ function startHvAnim(){
 
     // ── STORM CLOUDS ──────────────────────────────────────────
     if(s.isStormy){
-      c.fillStyle='rgba(0,0,0,0.3)';
+      c.fillStyle='rgba(0,0,0,0.5)';
       for(let i=0;i<5;i++){
         const cx=((i/5)*W+(wallT*8+i*211))%W;
         const cy=H*0.06+i*H*0.05;
@@ -2647,27 +2644,28 @@ function startHvAnim(){
       const x=PAD_L+i*barW;
       const y=PAD_TOP+barAreaH-barH;
 
-      // Main bar — white, semi-transparent so sky shows through
-      c.fillStyle='rgba(255,255,255,0.82)';
+      // Main bar — teal, brighter at higher levels
+      const alpha=0.55+val*0.4;
+      c.fillStyle=`rgba(0,144,158,${alpha})`;
       c.fillRect(x,y,bw,barH);
 
-      // Peak hold
+      // Peak hold — orange accent
       if(!peaks[i]||val>peaks[i]){peaks[i]=val;peakTimers[i]=60;}
       else{peakTimers[i]=(peakTimers[i]||0)-1;if(peakTimers[i]<=0)peaks[i]=Math.max(0,peaks[i]-0.008);}
       const peakY=PAD_TOP+barAreaH-peaks[i]*barAreaH;
       if(peaks[i]>0.01){
-        c.fillStyle='rgba(255,255,255,0.95)';
+        c.fillStyle='rgba(232,70,10,0.9)';
         c.fillRect(x,peakY-1,bw,1);
       }
     }
 
     // ── BASELINE RULE ─────────────────────────────────────────
-    c.strokeStyle='rgba(255,255,255,0.6)';c.lineWidth=1;
+    c.strokeStyle='rgba(0,144,158,0.35)';c.lineWidth=1;
     c.beginPath();c.moveTo(PAD_L,PAD_TOP+barAreaH+1);c.lineTo(W-PAD_R,PAD_TOP+barAreaH+1);c.stroke();
 
     // ── FREQUENCY LABELS ──────────────────────────────────────
     c.font="500 8px 'Inter',sans-serif";
-    c.fillStyle='rgba(255,255,255,0.5)';
+    c.fillStyle='rgba(0,144,158,0.5)';
     c.textAlign='center';c.textBaseline='top';
     const labels=[{hz:100,txt:'100'},{hz:250,txt:'250'},{hz:500,txt:'500'},{hz:1000,txt:'1k'},{hz:2000,txt:'2k'},{hz:4000,txt:'4k'}];
     labels.forEach(lb=>{
@@ -2678,22 +2676,22 @@ function startHvAnim(){
 
     // ── BPM — top left ────────────────────────────────────────
     c.font=`300 ${Math.round(H*0.11)}px 'Inter',sans-serif`;
-    c.fillStyle='rgba(255,255,255,0.8)';
+    c.fillStyle='rgba(0,144,158,0.85)';
     c.textAlign='left';c.textBaseline='bottom';
     c.fillText(bpm,PAD_L,PAD_TOP-6);
     c.font="500 8px 'Inter',sans-serif";
-    c.fillStyle='rgba(255,255,255,0.4)';
+    c.fillStyle='rgba(0,144,158,0.45)';
     c.fillText('BPM',PAD_L+c.measureText(String(bpm)).width+4,PAD_TOP-10);
 
     // ── HARMONY — top right ───────────────────────────────────
     c.font="500 8px 'Inter',sans-serif";
-    c.fillStyle='rgba(255,255,255,0.55)';
+    c.fillStyle='rgba(232,70,10,0.65)';
     c.textAlign='right';c.textBaseline='bottom';
     c.fillText((s.harmony||'').toUpperCase(),W-PAD_R,PAD_TOP-6);
 
     // ── BEAT FLASH on downbeat ────────────────────────────────
     if(beatPhase<0.08){
-      c.fillStyle=`rgba(255,255,255,${(0.08-beatPhase)/0.08*0.12})`;
+      c.fillStyle=`rgba(0,144,158,${(0.08-beatPhase)/0.08*0.08})`;
       c.fillRect(0,0,W,H);
     }
 
