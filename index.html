@@ -2081,6 +2081,8 @@ function playWeatherSoundscape(state){
 
   const seqTimer=setInterval(()=>{
     const cs=step%STEPS;
+    // Expose beat grid for drum pad quantization (every 16th note)
+    window._beatRef={audioTime:ctx.currentTime,sixSec:sixMs/1000,bpm:state.tempo};
 
     // Live swing amount — slider + genre base (jazz/lofi add natural swing)
     const swingMs=(getFx().swing+genreBaseSwing*0.5)*(60000/state.tempo/4)*0.32;
@@ -2395,9 +2397,21 @@ function triggerDrum(idx,el){
   const now=audioCtx.currentTime+(audioCtx.outputLatency||audioCtx.baseLatency||0)+0.004;
   const out=liveNodes.master;
   const bpm=currentState?.tempo||90;
-  const qn=60/bpm; // quarter note delay time
-  // Shared delay send for all sounds
-  const dly=audioCtx.createDelay(4);dly.delayTime.value=qn;
+  const qn=60/bpm;
+  // Quantize delay time to beat grid: snap echo to next beat boundary
+  const ref=window._beatRef;
+  let dlyTime=qn;
+  if(ref&&ref.sixSec>0){
+    const elapsed=audioCtx.currentTime-ref.audioTime;
+    const phase=elapsed%ref.sixSec;
+    const toNextSix=ref.sixSec-phase;
+    // How many 16ths in a QN
+    const sixPerQn=Math.round(qn/ref.sixSec);
+    dlyTime=toNextSix+(sixPerQn-1)*ref.sixSec;
+    if(dlyTime<qn*0.5)dlyTime+=ref.sixSec;
+  }
+  // Shared delay send
+  const dly=audioCtx.createDelay(4);dly.delayTime.value=dlyTime;
   const dlyG=audioCtx.createGain();dlyG.gain.value=0.30;
   dly.connect(dlyG);dlyG.connect(out);
   function withDelay(node){node.connect(dly);node.connect(out);}
@@ -2407,77 +2421,88 @@ function triggerDrum(idx,el){
     const d=buf.getChannelData(0);for(let i=0;i<len;i++)d[i]=Math.random()*2-1;
     const src=audioCtx.createBufferSource();src.buffer=buf;return src;
   }
+  // Derive in-key frequencies from live chord context
+  const liveCtx=window._liveChordCtx;
+  const root=liveCtx?.rootHz||220;
+  const modeIntervals=liveCtx?.mode||[0,2,4,5,7,9,11];
+  // Build one octave of scale tones starting from root
+  const scHz=modeIntervals.map(s=>root*Math.pow(2,s/12));
   switch(idx){
-    case 0:{ // Thump — deep resonant sub with rumble tail
+    case 0:{ // Thump — deep sub kick, rooted in key
       const o=audioCtx.createOscillator(),g=audioCtx.createGain();
       const f=audioCtx.createBiquadFilter();f.type='lowpass';f.frequency.value=120;f.Q.value=8;
-      o.type='sine';o.frequency.setValueAtTime(90,now);o.frequency.exponentialRampToValueAtTime(28,now+0.18);
+      const hi=Math.max(root/2,55),lo=Math.max(root/6,22);
+      o.type='sine';o.frequency.setValueAtTime(hi,now);o.frequency.exponentialRampToValueAtTime(lo,now+0.18);
       g.gain.setValueAtTime(0.9,now);g.gain.exponentialRampToValueAtTime(0.0001,now+0.55);
       o.connect(f);f.connect(g);withDelay(g);o.start(now);o.stop(now+0.6);break;
     }
-    case 1:{ // Spark — FM zap / laser descend
+    case 1:{ // Spark — FM sweep descending from 8x root to root
       const mod=audioCtx.createOscillator(),car=audioCtx.createOscillator();
       const modG=audioCtx.createGain(),g=audioCtx.createGain();
-      mod.frequency.setValueAtTime(800,now);mod.frequency.exponentialRampToValueAtTime(40,now+0.18);
-      modG.gain.setValueAtTime(1200,now);modG.gain.exponentialRampToValueAtTime(20,now+0.18);
-      car.frequency.setValueAtTime(440,now);car.frequency.exponentialRampToValueAtTime(55,now+0.18);
+      const carHi=root*8,carLo=root;
+      mod.frequency.setValueAtTime(carHi,now);mod.frequency.exponentialRampToValueAtTime(carLo/4,now+0.18);
+      modG.gain.setValueAtTime(carHi*1.5,now);modG.gain.exponentialRampToValueAtTime(20,now+0.18);
+      car.frequency.setValueAtTime(carHi,now);car.frequency.exponentialRampToValueAtTime(carLo,now+0.18);
       mod.connect(modG);modG.connect(car.frequency);
       g.gain.setValueAtTime(0.5,now);g.gain.exponentialRampToValueAtTime(0.0001,now+0.2);
       car.connect(g);withDelay(g);mod.start(now);car.start(now);mod.stop(now+0.2);car.stop(now+0.2);break;
     }
-    case 2:{ // Glass — high sine bell, long shimmer
-      const freqs=[1047,1319,1568];
-      freqs.forEach((fr,i)=>{
+    case 2:{ // Glass — bell cluster on tonic, major-3rd, 5th of scale
+      const degrees=[0,Math.min(2,scHz.length-1),Math.min(4,scHz.length-1)];
+      degrees.forEach((d,i)=>{
+        const fr=scHz[d]*4;
         const o=audioCtx.createOscillator(),g=audioCtx.createGain();
-        o.type='sine';o.frequency.value=fr*(1+i*0.002);
+        o.type='sine';o.frequency.value=fr*(1+i*0.001);
         g.gain.setValueAtTime(0.0001,now+i*0.008);
-        g.gain.exponentialRampToValueAtTime(0.22-i*0.04,now+i*0.008+0.01);
+        g.gain.exponentialRampToValueAtTime(0.22-i*0.05,now+i*0.008+0.01);
         g.gain.exponentialRampToValueAtTime(0.0001,now+1.4);
         o.connect(g);withDelay(g);o.start(now);o.stop(now+1.5);
       });break;
     }
-    case 3:{ // Pulse — tabla-like: sine with resonant snap
+    case 3:{ // Pulse — tabla: pitch drop from 5th to root, in key
       const o=audioCtx.createOscillator(),g=audioCtx.createGain();
-      const f=audioCtx.createBiquadFilter();f.type='bandpass';f.frequency.value=320;f.Q.value=12;
+      const fifth=scHz[Math.min(4,scHz.length-1)]*2;
+      const f=audioCtx.createBiquadFilter();f.type='bandpass';f.frequency.value=fifth;f.Q.value=12;
       o.type='triangle';
-      o.frequency.setValueAtTime(380,now);o.frequency.exponentialRampToValueAtTime(160,now+0.06);
+      o.frequency.setValueAtTime(fifth,now);o.frequency.exponentialRampToValueAtTime(scHz[0],now+0.06);
       g.gain.setValueAtTime(0.7,now);g.gain.exponentialRampToValueAtTime(0.0001,now+0.22);
       o.connect(f);f.connect(g);withDelay(g);o.start(now);o.stop(now+0.25);
       const nb=noise(0.015),ng=audioCtx.createGain();
       ng.gain.setValueAtTime(0.4,now);ng.gain.exponentialRampToValueAtTime(0.0001,now+0.015);
       nb.connect(ng);ng.connect(out);nb.start(now);nb.stop(now+0.015);break;
     }
-    case 4:{ // Whomp — sub wobble / bass synth hit
+    case 4:{ // Whomp — sub wobble on root
       const o=audioCtx.createOscillator(),g=audioCtx.createGain();
       const lfo=audioCtx.createOscillator(),lfoG=audioCtx.createGain();
-      o.type='sawtooth';o.frequency.setValueAtTime(120,now);
-      o.frequency.exponentialRampToValueAtTime(40,now+0.35);
-      lfo.frequency.value=6;lfoG.gain.value=30;
+      const subRoot=root/2;
+      o.type='sawtooth';o.frequency.setValueAtTime(subRoot*1.5,now);
+      o.frequency.exponentialRampToValueAtTime(subRoot/2,now+0.35);
+      lfo.frequency.value=6;lfoG.gain.value=subRoot*0.25;
       lfo.connect(lfoG);lfoG.connect(o.frequency);
-      const filt=audioCtx.createBiquadFilter();filt.type='lowpass';filt.frequency.setValueAtTime(800,now);
-      filt.frequency.exponentialRampToValueAtTime(60,now+0.35);
+      const filt=audioCtx.createBiquadFilter();filt.type='lowpass';filt.frequency.setValueAtTime(subRoot*8,now);
+      filt.frequency.exponentialRampToValueAtTime(subRoot,now+0.35);
       g.gain.setValueAtTime(0.75,now);g.gain.exponentialRampToValueAtTime(0.0001,now+0.4);
       o.connect(filt);filt.connect(g);withDelay(g);
       lfo.start(now);o.start(now);lfo.stop(now+0.4);o.stop(now+0.4);break;
     }
-    case 5:{ // Metal — detuned square clang (like a radiator pipe)
-      [[220,0],[220,18],[330,8]].forEach(([fr,det])=>{
+    case 5:{ // Metal — tonic+3rd+5th slightly detuned for clang
+      [[scHz[0]*2,0],[scHz[Math.min(2,scHz.length-1)]*2,14],[scHz[Math.min(4,scHz.length-1)]*2,8]].forEach(([fr,det])=>{
         const o=audioCtx.createOscillator(),g=audioCtx.createGain();
         o.type='square';o.frequency.value=fr;o.detune.value=det;
-        g.gain.setValueAtTime(0.14,now);g.gain.exponentialRampToValueAtTime(0.0001,now+0.7);
+        g.gain.setValueAtTime(0.12,now);g.gain.exponentialRampToValueAtTime(0.0001,now+0.7);
         o.connect(g);withDelay(g);o.start(now);o.stop(now+0.8);
       });break;
     }
-    case 6:{ // Rasp — gritty bandpass noise burst with a growl
+    case 6:{ // Rasp — bandpass noise, no fixed pitch
       const nb=noise(0.28);
-      const f1=audioCtx.createBiquadFilter();f1.type='bandpass';f1.frequency.value=280;f1.Q.value=3;
-      const f2=audioCtx.createBiquadFilter();f2.type='peaking';f2.frequency.value=900;f2.gain.value=12;
+      const f1=audioCtx.createBiquadFilter();f1.type='bandpass';f1.frequency.value=root*1.3;f1.Q.value=3;
+      const f2=audioCtx.createBiquadFilter();f2.type='peaking';f2.frequency.value=root*4;f2.gain.value=12;
       const g=audioCtx.createGain();
       g.gain.setValueAtTime(0.6,now);g.gain.exponentialRampToValueAtTime(0.0001,now+0.28);
       nb.connect(f1);f1.connect(f2);f2.connect(g);withDelay(g);nb.start(now);nb.stop(now+0.3);break;
     }
-    case 7:{ // Crystal — FM bell cluster, ethereal shimmer
-      [[528,3.5],[792,7],[1056,14]].forEach(([cfr,ratio])=>{
+    case 7:{ // Crystal — FM bells on root octaves + scale 5th
+      [[scHz[0]*4,3.5],[scHz[Math.min(4,scHz.length-1)]*4,7],[scHz[0]*8,14]].forEach(([cfr,ratio])=>{
         const mod=audioCtx.createOscillator(),car=audioCtx.createOscillator();
         const mG=audioCtx.createGain(),g=audioCtx.createGain();
         mod.frequency.value=cfr;mG.gain.value=cfr*ratio;
@@ -2603,19 +2628,26 @@ function startHvAnim(){
       // Weather-driven color palette
       let vizLo,vizHi,vizHot,vizFlash;
       if(s.isStormy){
-        vizLo='#881100';vizHi='#FF3300';vizHot='#FF8800';vizFlash='rgba(255,60,0,';
+        // Electric crimson → hot magenta — harsh, electric, lightning
+        vizLo='#2D0010';vizHi='#FF1744';vizHot='#FF6E8A';vizFlash='rgba(255,23,68,';
       } else if(s.isRaining){
-        vizLo='#112266';vizHi='#3366FF';vizHot='#66AAFF';vizFlash='rgba(50,100,255,';
+        // Deep navy → electric cobalt → ice — cinematic rain
+        vizLo='#001A3D';vizHi='#2979FF';vizHot='#82B1FF';vizFlash='rgba(41,121,255,';
       } else if(s.isSnowing){
-        vizLo='#336688';vizHi='#AADDFF';vizHot='#EEEEFF';vizFlash='rgba(180,220,255,';
+        // Midnight → lavender ice → near-white — crystalline
+        vizLo='#0D0D2B';vizHi='#B8C4FF';vizHot='#EEF0FF';vizFlash='rgba(184,196,255,';
       } else if(s.isFoggy){
-        vizLo='#334455';vizHi='#667788';vizHot='#99AABB';vizFlash='rgba(120,160,180,';
+        // Deep slate → bioluminescent teal — mysterious haze
+        vizLo='#0A1520';vizHi='#00BCD4';vizHot='#80DEEA';vizFlash='rgba(0,188,212,';
       } else if(s.isSunny&&s.isDaytime){
-        vizLo='#AA4400';vizHi='#FF9900';vizHot='#FFDD00';vizFlash='rgba(255,160,0,';
+        // Electric emerald → mint — vivid clear-sky energy
+        vizLo='#002211';vizHi='#00E676';vizHot='#69FFAC';vizFlash='rgba(0,230,118,';
       } else if(!s.isDaytime){
-        vizLo='#220044';vizHi='#6622BB';vizHot='#AA55FF';vizFlash='rgba(120,50,220,';
+        // Deep indigo → electric violet — midnight atmosphere
+        vizLo='#0D0020';vizHi='#7C4DFF';vizHot='#B388FF';vizFlash='rgba(124,77,255,';
       } else {
-        vizLo='#1A3A55';vizHi='#3377AA';vizHot='#66BBDD';vizFlash='rgba(60,140,200,';
+        // Deep ocean → electric cyan — clear overcast day
+        vizLo='#0A2030';vizHi='#00ACC1';vizHot='#4DD0E1';vizFlash='rgba(0,172,193,';
       }
       if(beatPhase<0.06){c.fillStyle=`${vizFlash}${(0.06-beatPhase)/0.06*0.18})`;c.fillRect(0,0,W,H);}
       const BP_L=12,BP_R=12,BP_TOP=38,BP_BOT=34;
