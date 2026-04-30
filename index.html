@@ -460,7 +460,7 @@ body[data-skin="helvetica"] .screen::before{display:none;}
 .skin-btn.active{background:rgba(255,255,255,0.18);color:#fff;border-color:rgba(255,255,255,0.4);}
 
 /* ── NEO-BRUTALISM SKIN ─────────────────────────────────── */
-body[data-skin="brutal"]{background:#1A1A1A;--nb-bg:#F4F0E8;--nb-ink:#0D0D0D;--nb-yellow:#E8C840;--nb-red:#C8440A;--nb-blue:#1840B0;--nb-green:#1A6B3A;--nb-font:'Space Grotesk',sans-serif;}
+body[data-skin="brutal"]{background:#000000;--nb-bg:#FFFFFF;--nb-ink:#000000;--nb-yellow:#DDE4FF;--nb-red:#E63333;--nb-blue:#2B5EFF;--nb-green:#00A854;--nb-font:'Space Grotesk',sans-serif;}
 
 /* chassis */
 body[data-skin="brutal"] .chassis{background:var(--nb-bg);border-radius:0;border:3px solid #000;box-shadow:10px 10px 0 #000;}
@@ -2266,13 +2266,10 @@ $('resetToWeatherBtn2').addEventListener('click',resetToWeather);
 // ─── SHARE URL ───────────────────────────────────────────────
 function buildShareURL(){
   const fxIds=['fxReverb','fxDelay','fxFilter','fxDrive','fxMelody','fxHarmony','fxWah','fxChorus','fxFuzz','fxCrush','fxDrift','fxSwing','fxVol'];
-  const obj={
-    zip:$('zipInput').value,
-    w:[...['warmthSlider','windSlider','wetnessSlider','stormSlider','brightnessSlider']].map(id=>{const e=$(id);return e?Math.round(parseFloat(e.value)*100)/100:0.5;}),
-    fx:fxIds.map(id=>{const e=$(id);return e?Math.round(parseFloat(e.value)*100)/100:null;}).filter(v=>v!==null),
-    skin:document.body.dataset.skin||'default',
-    manual:!!usingManualState,
-  };
+  const fx=fxIds.map(id=>{const e=$(id);return e?Math.round(parseFloat(e.value)*100)/100:null;}).filter(v=>v!==null);
+  const w=['warmthSlider','windSlider','wetnessSlider','stormSlider','brightnessSlider'].map(id=>{const e=$(id);return e?Math.round(parseFloat(e.value)*100)/100:0.5;});
+  // Always mark manual:true so the recipient's FX and atmosphere are restored exactly as shared
+  const obj={zip:$('zipInput').value,w,fx,skin:document.body.dataset.skin||'default',manual:true};
   return location.origin+location.pathname+'#state='+btoa(JSON.stringify(obj));
 }
 
@@ -2282,15 +2279,22 @@ function loadShareURL(){
     const obj=JSON.parse(atob(location.hash.slice(7)));
     if(obj.skin)document.body.dataset.skin=obj.skin;
     if(obj.zip){$('zipInput').value=obj.zip;try{$('zipInput2').value=obj.zip;}catch(e){}}
-    // Store FX to restore after weather loads (weather load triggers setWeatherFxDefaults which would overwrite them)
+    const fxIds=['fxReverb','fxDelay','fxFilter','fxDrive','fxMelody','fxHarmony','fxWah','fxChorus','fxFuzz','fxCrush','fxDrift','fxSwing','fxVol'];
     if(obj.fx){
-      const fxIds=['fxReverb','fxDelay','fxFilter','fxDrive','fxMelody','fxHarmony','fxWah','fxChorus','fxFuzz','fxCrush','fxDrift','fxSwing','fxVol'];
+      // Apply FX to sliders immediately so user sees them
+      fxIds.forEach((id,i)=>{
+        if(obj.fx[i]==null)return;
+        const e=$(id);if(e)e.value=String(obj.fx[i]);
+        const ve=$(id+'Val');if(ve)ve.textContent=Number(obj.fx[i]).toFixed(2);
+      });
+      // Also store so setWeatherFxDefaults (called on Play) uses these instead of weather defaults
       _pendingSharedFx=fxIds.map((id,i)=>obj.fx[i]!=null?[id,obj.fx[i]]:null).filter(Boolean);
     }
     if(obj.manual){
       if(obj.w){['warmthSlider','windSlider','wetnessSlider','stormSlider','brightnessSlider'].forEach((id,i)=>{const e=$(id);if(e)e.value=String(obj.w[i]);const v=$(id+'Value');if(v)v.textContent=Number(obj.w[i]).toFixed(2);});}
       usingManualState=true;state=stateFromSliders();updateVisuals(state);
     } else if(obj.zip){
+      // Load live weather for the ZIP, FX will be preserved via _pendingSharedFx
       setTimeout(()=>loadWeatherForZip(obj.zip),400);
     }
   }catch(e){}
