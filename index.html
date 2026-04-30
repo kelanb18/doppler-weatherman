@@ -208,6 +208,11 @@ input[type="range"]::-moz-range-thumb{width:14px;height:26px;background:linear-g
 .ls-chord.active{background:var(--orange);color:#fff;transform:scale(1.08);}
 .ls-chord.next{background:rgba(232,70,10,0.15);color:var(--orange);}
 .ls-arrow{font-family:var(--font-mono);font-size:9px;color:rgba(255,255,255,0.14);}
+button.ls-chord{border:none;cursor:pointer;}
+.ls-caret{font-size:7px;opacity:0.5;margin-left:2px;}
+.chord-picker{position:absolute;background:#1A1814;border:1px solid #3A3830;border-radius:5px;padding:5px;display:grid;grid-template-columns:repeat(4,1fr);gap:3px;z-index:9000;box-shadow:0 8px 24px rgba(0,0,0,0.7);min-width:180px;}
+.chord-option{font-family:var(--font-mono);font-size:9px;font-weight:700;padding:5px 8px;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.08);border-radius:3px;cursor:pointer;text-align:center;transition:background 0.1s;}
+.chord-option:hover,.chord-option.selected{background:var(--orange);color:#fff;border-color:var(--orange);}
 
 /* ONBOARDING MODAL */
 .ob-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:9999;display:flex;align-items:center;justify-content:center;padding:12px;}
@@ -241,6 +246,9 @@ body[data-skin="brutal"] .ls-chord{background:rgba(0,0,0,0.08);color:rgba(0,0,0,
 body[data-skin="brutal"] .ls-chord.active{background:#000;color:var(--nb-yellow);}
 body[data-skin="brutal"] .ls-chord.next{background:rgba(0,0,0,0.15);color:#000;}
 body[data-skin="brutal"] .ls-arrow{color:rgba(0,0,0,0.2);}
+body[data-skin="brutal"] .chord-picker{background:var(--nb-bg);border:2px solid #000;border-radius:0;box-shadow:4px 4px 0 #000;}
+body[data-skin="brutal"] .chord-option{background:transparent;color:#000;border:1px solid rgba(0,0,0,0.2);border-radius:0;font-family:var(--nb-font);}
+body[data-skin="brutal"] .chord-option:hover,body[data-skin="brutal"] .chord-option.selected{background:#000;color:var(--nb-yellow);border-color:#000;}
 
 /* STATUS STRIP */
 .status-strip{background:var(--dark-bg);border-top:2px solid #000;padding:8px 20px;min-height:48px;display:flex;align-items:center;flex-wrap:wrap;gap:0;}
@@ -496,6 +504,26 @@ body[data-skin="brutal"] .snow{background:rgba(220,210,255,0.85);}
   .skin-toggle{bottom:12px;right:12px;padding:5px 6px;gap:4px;}
   .skin-btn{font-size:9px;padding:4px 9px;}
 }
+/* DRUM PAD */
+.drum-section{background:var(--dark-bg);border-top:1px solid var(--rule);padding:14px 18px 16px;}
+.drum-header{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.drum-label{font-size:8px;font-weight:800;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-faint);}
+.drum-hint{font-size:8px;font-family:var(--font-mono);color:var(--ink-faint);opacity:0.55;}
+.drum-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.drum-pad{background:#141210;border:1px solid #2A2820;border-radius:5px;padding:14px 6px 10px;cursor:pointer;user-select:none;transition:background 0.04s,transform 0.04s,border-color 0.04s;display:flex;flex-direction:column;align-items:center;gap:4px;-webkit-tap-highlight-color:transparent;}
+.drum-pad:active,.drum-pad.hit{background:var(--orange);border-color:var(--orange);transform:scale(0.94);}
+.drum-pad-name{font-family:var(--font-ui);font-size:9px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.45);pointer-events:none;}
+.drum-pad.hit .drum-pad-name{color:#fff;}
+.drum-pad-key{font-family:var(--font-mono);font-size:8px;color:rgba(255,255,255,0.18);background:rgba(255,255,255,0.05);padding:1px 5px;border-radius:2px;pointer-events:none;}
+body[data-skin="brutal"] .drum-section{background:var(--nb-yellow);border-top:2px solid #000;}
+body[data-skin="brutal"] .drum-label{color:#000;}
+body[data-skin="brutal"] .drum-hint{color:rgba(0,0,0,0.4);}
+body[data-skin="brutal"] .drum-pad{background:var(--nb-bg);border:2px solid #000;border-radius:0;box-shadow:3px 3px 0 #000;transition:transform 0.04s,box-shadow 0.04s;}
+body[data-skin="brutal"] .drum-pad:active,body[data-skin="brutal"] .drum-pad.hit{background:var(--nb-blue);border-color:#000;transform:translate(3px,3px);box-shadow:0 0 0 #000;}
+body[data-skin="brutal"] .drum-pad-name{color:#000;}
+body[data-skin="brutal"] .drum-pad.hit .drum-pad-name{color:#fff;}
+body[data-skin="brutal"] .drum-pad-key{color:rgba(0,0,0,0.3);background:rgba(0,0,0,0.06);}
+@media(max-width:680px){.drum-grid{grid-template-columns:repeat(4,1fr);gap:4px;}.drum-pad{padding:12px 4px 8px;}}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -712,6 +740,23 @@ body[data-skin="brutal"] .snow{background:rgba(220,210,255,0.85);}
   </div>
 </div>
 
+<!-- DRUM PAD -->
+<div class="drum-section">
+  <div class="drum-header">
+    <span class="drum-label">Drum Pad</span>
+    <span class="drum-hint">click or press 1–8</span>
+  </div>
+  <div class="drum-grid">
+    <div class="drum-pad" data-drum="kick" onclick="triggerDrum('kick',this)"><span class="drum-pad-name">Kick</span><span class="drum-pad-key">1</span></div>
+    <div class="drum-pad" data-drum="snare" onclick="triggerDrum('snare',this)"><span class="drum-pad-name">Snare</span><span class="drum-pad-key">2</span></div>
+    <div class="drum-pad" data-drum="hihat" onclick="triggerDrum('hihat',this)"><span class="drum-pad-name">Hi-Hat</span><span class="drum-pad-key">3</span></div>
+    <div class="drum-pad" data-drum="openhat" onclick="triggerDrum('openhat',this)"><span class="drum-pad-name">Open HH</span><span class="drum-pad-key">4</span></div>
+    <div class="drum-pad" data-drum="clap" onclick="triggerDrum('clap',this)"><span class="drum-pad-name">Clap</span><span class="drum-pad-key">5</span></div>
+    <div class="drum-pad" data-drum="tom" onclick="triggerDrum('tom',this)"><span class="drum-pad-name">Tom</span><span class="drum-pad-key">6</span></div>
+    <div class="drum-pad" data-drum="rim" onclick="triggerDrum('rim',this)"><span class="drum-pad-name">Rim</span><span class="drum-pad-key">7</span></div>
+    <div class="drum-pad" data-drum="cowbell" onclick="triggerDrum('cowbell',this)"><span class="drum-pad-name">Cowbell</span><span class="drum-pad-key">8</span></div>
+  </div>
+</div>
 <div class="status-strip">
   <div class="ss-block"><span class="ss-key">Harmony</span><span class="ss-val teal" id="harmonyValue">—</span></div>
   <div class="ss-block"><span class="ss-key">Pulse</span><span class="ss-val yellow" id="pulseValue">—</span></div>
@@ -1316,10 +1361,32 @@ function updateLiveSheet(){
   if(melEl)melEl.textContent=d.lastMelodyNote;
   if(progEl&&d.progression.length){
     progEl.innerHTML=d.progression.map((ch,i)=>{
-      const cls=i===d.chordIdx?'ls-chord active':i===(d.chordIdx+1)%d.progression.length?'ls-chord next':'ls-chord';
-      return`<span class="${cls}">${ch}</span><span class="ls-arrow">${i<d.progression.length-1?' → ':''}</span>`;
+      const cls=i===d.chordIdx?'active':i===(d.chordIdx+1)%d.progression.length?'next':'';
+      return`<button class="ls-chord${cls?' '+cls:''}" onclick="toggleChordPicker(this,${i})">${ch}<span class="ls-caret">▾</span></button>${i<d.progression.length-1?'<span class="ls-arrow"> → </span>':''}`;
     }).join('');
   }
+}
+
+function toggleChordPicker(btn,idx){
+  const existing=document.querySelector('.chord-picker');
+  if(existing){const wasThis=existing.dataset.idx===String(idx);existing.remove();if(wasThis)return;}
+  const ctx=window._liveChordCtx;if(!ctx)return;
+  const avail=liveSheetData.availableChords||[];
+  const picker=document.createElement('div');
+  picker.className='chord-picker';picker.dataset.idx=idx;
+  picker.innerHTML=avail.map(c=>`<button class="chord-option${c.name===liveSheetData.progression[idx]?' selected':''}" onclick="selectChord(${idx},${c.deg},'${c.name}')">${c.name}</button>`).join('');
+  const r=btn.getBoundingClientRect();
+  picker.style.cssText=`position:fixed;top:${r.bottom+4}px;left:${Math.max(4,r.left)}px;`;
+  document.body.appendChild(picker);
+  setTimeout(()=>document.addEventListener('click',function close(e){if(!picker.contains(e.target)&&e.target!==btn){picker.remove();document.removeEventListener('click',close);}},),10);
+}
+function selectChord(idx,deg,name){
+  const ctx=window._liveChordCtx;if(!ctx)return;
+  ctx.progression[idx]=ctx.buildChord(deg);
+  ctx.progDeg[idx]=deg;
+  liveSheetData.progression[idx]=name;
+  document.querySelector('.chord-picker')?.remove();
+  updateLiveSheet();
 }
 
 function freqToNoteName(hz){
@@ -1580,6 +1647,8 @@ function playWeatherSoundscape(state){
   // Populate live sheet with chord names
   liveSheetData.progression=progDeg.map(d=>chordNameForDeg(scaleName,d,rootHz));
   liveSheetData.chordIdx=0;
+  liveSheetData.availableChords=Array.from({length:mode.length},(_,i)=>({deg:i,name:chordNameForDeg(scaleName,i,rootHz)}));
+  window._liveChordCtx={progression,buildChord,mode,scaleName,rootHz,progDeg:progDeg.slice()};
   updateLiveSheet();
 
   function buildMotif(ch){
@@ -2209,6 +2278,105 @@ if(volKnob){volKnob.addEventListener('input',()=>{updateVolKnob();applyLiveFx();
 // Sync both ZIP inputs
 $('zipInput').addEventListener('input',()=>$('zipInput2').value=$('zipInput').value);
 $('zipInput2').addEventListener('input',()=>$('zipInput').value=$('zipInput2').value);
+
+// ─── DRUM PAD ────────────────────────────────────────────────
+function triggerDrum(type,el){
+  const audioCtx=liveNodes?.ctx;
+  if(!audioCtx)return;
+  const now=audioCtx.currentTime;
+  const out=liveNodes.master;
+  function noise(dur){
+    const len=Math.ceil(audioCtx.sampleRate*dur);
+    const buf=audioCtx.createBuffer(1,len,audioCtx.sampleRate);
+    const d=buf.getChannelData(0);for(let i=0;i<len;i++)d[i]=Math.random()*2-1;
+    const src=audioCtx.createBufferSource();src.buffer=buf;return src;
+  }
+  switch(type){
+    case'kick':{
+      const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+      o.connect(g);g.connect(out);
+      o.frequency.setValueAtTime(155,now);o.frequency.exponentialRampToValueAtTime(42,now+0.12);
+      g.gain.setValueAtTime(1.0,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.38);
+      o.start(now);o.stop(now+0.38);
+      const nb=noise(0.02),ng=audioCtx.createGain(),nf=audioCtx.createBiquadFilter();
+      nf.type='lowpass';nf.frequency.value=180;nb.connect(nf);nf.connect(ng);ng.connect(out);
+      ng.gain.setValueAtTime(0.28,now);ng.gain.exponentialRampToValueAtTime(0.001,now+0.02);
+      nb.start(now);nb.stop(now+0.02);break;
+    }
+    case'snare':{
+      const o=audioCtx.createOscillator(),og=audioCtx.createGain();
+      o.connect(og);og.connect(out);
+      o.frequency.setValueAtTime(215,now);o.frequency.exponentialRampToValueAtTime(145,now+0.1);
+      og.gain.setValueAtTime(0.32,now);og.gain.exponentialRampToValueAtTime(0.001,now+0.1);
+      o.start(now);o.stop(now+0.1);
+      const nb=noise(0.18),nf=audioCtx.createBiquadFilter(),ng=audioCtx.createGain();
+      nf.type='bandpass';nf.frequency.value=2500;nf.Q.value=0.5;
+      nb.connect(nf);nf.connect(ng);ng.connect(out);
+      ng.gain.setValueAtTime(0.55,now);ng.gain.exponentialRampToValueAtTime(0.001,now+0.18);
+      nb.start(now);nb.stop(now+0.18);break;
+    }
+    case'hihat':{
+      const nb=noise(0.06),nf=audioCtx.createBiquadFilter(),ng=audioCtx.createGain();
+      nf.type='highpass';nf.frequency.value=7200;
+      nb.connect(nf);nf.connect(ng);ng.connect(out);
+      ng.gain.setValueAtTime(0.38,now);ng.gain.exponentialRampToValueAtTime(0.001,now+0.06);
+      nb.start(now);nb.stop(now+0.06);break;
+    }
+    case'openhat':{
+      const nb=noise(0.38),nf=audioCtx.createBiquadFilter(),ng=audioCtx.createGain();
+      nf.type='highpass';nf.frequency.value=6500;
+      nb.connect(nf);nf.connect(ng);ng.connect(out);
+      ng.gain.setValueAtTime(0.36,now);ng.gain.exponentialRampToValueAtTime(0.001,now+0.38);
+      nb.start(now);nb.stop(now+0.38);break;
+    }
+    case'clap':{
+      [0,0.011,0.022].forEach((d,i)=>{
+        const nb=noise(0.12),nf=audioCtx.createBiquadFilter(),ng=audioCtx.createGain();
+        nf.type='bandpass';nf.frequency.value=1200;nf.Q.value=0.4;
+        nb.connect(nf);nf.connect(ng);ng.connect(out);
+        ng.gain.setValueAtTime(0.44-i*0.07,now+d);
+        ng.gain.exponentialRampToValueAtTime(0.001,now+d+(i===2?0.16:0.05));
+        nb.start(now+d);nb.stop(now+d+0.16);
+      });break;
+    }
+    case'tom':{
+      const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+      o.connect(g);g.connect(out);
+      o.frequency.setValueAtTime(210,now);o.frequency.exponentialRampToValueAtTime(75,now+0.24);
+      g.gain.setValueAtTime(0.75,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.28);
+      o.start(now);o.stop(now+0.28);break;
+    }
+    case'rim':{
+      const o=audioCtx.createOscillator(),og=audioCtx.createGain();
+      o.type='triangle';o.frequency.value=400;o.connect(og);og.connect(out);
+      og.gain.setValueAtTime(0.5,now);og.gain.exponentialRampToValueAtTime(0.001,now+0.025);
+      o.start(now);o.stop(now+0.025);
+      const nb=noise(0.025),nf=audioCtx.createBiquadFilter(),ng=audioCtx.createGain();
+      nf.type='bandpass';nf.frequency.value=4000;nf.Q.value=2;
+      nb.connect(nf);nf.connect(ng);ng.connect(out);
+      ng.gain.setValueAtTime(0.32,now);ng.gain.exponentialRampToValueAtTime(0.001,now+0.025);
+      nb.start(now);nb.stop(now+0.025);break;
+    }
+    case'cowbell':{
+      [562,845].forEach(freq=>{
+        const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+        o.type='square';o.frequency.value=freq;o.connect(g);g.connect(out);
+        g.gain.setValueAtTime(0.16,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.48);
+        o.start(now);o.stop(now+0.48);
+      });break;
+    }
+  }
+  if(el){el.classList.add('hit');setTimeout(()=>el.classList.remove('hit'),80);}
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.isContentEditable)return;
+  const keys={'1':'kick','2':'snare','3':'hihat','4':'openhat','5':'clap','6':'tom','7':'rim','8':'cowbell'};
+  const type=keys[e.key];if(!type)return;
+  e.preventDefault();
+  const pad=document.querySelector(`.drum-pad[data-drum="${type}"]`);
+  triggerDrum(type,pad);
+});
 
 // ─── INIT ────────────────────────────────────────────────────
 document.body.setAttribute('data-skin','brutal');
