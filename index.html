@@ -509,6 +509,10 @@ body[data-skin="brutal"] .snow{background:rgba(220,210,255,0.85);}
 .drum-header{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
 .drum-label{font-size:8px;font-weight:800;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-faint);}
 .drum-hint{font-size:8px;font-family:var(--font-mono);color:var(--ink-faint);opacity:0.55;}
+.drum-mode-btn{margin-left:auto;font-family:var(--font-ui);font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;background:transparent;border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.45);cursor:pointer;border-radius:3px;transition:all 0.1s;}
+.drum-mode-btn:hover,.drum-mode-btn.active{background:var(--teal);border-color:var(--teal);color:#fff;}
+body[data-skin="brutal"] .drum-mode-btn{border:2px solid #000;color:#000;border-radius:0;background:transparent;}
+body[data-skin="brutal"] .drum-mode-btn:hover,body[data-skin="brutal"] .drum-mode-btn.active{background:var(--nb-blue);color:#fff;border-color:#000;}
 .drum-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
 .drum-pad{background:#141210;border:1px solid #2A2820;border-radius:5px;padding:14px 6px 10px;cursor:pointer;user-select:none;transition:background 0.04s,transform 0.04s,border-color 0.04s;display:flex;flex-direction:column;align-items:center;gap:4px;-webkit-tap-highlight-color:transparent;}
 .drum-pad:active,.drum-pad.hit{background:var(--orange);border-color:var(--orange);transform:scale(0.94);}
@@ -741,18 +745,19 @@ body[data-skin="brutal"] .drum-pad-key{color:rgba(0,0,0,0.3);background:rgba(0,0
 <!-- DRUM PAD -->
 <div class="drum-section">
   <div class="drum-header">
-    <span class="drum-label">Drum Pad</span>
-    <span class="drum-hint">click or press 1–8</span>
+    <span class="drum-label" id="drumSectionLabel">Drum Pad</span>
+    <span class="drum-hint" id="drumHint">click or press 1–8</span>
+    <button class="drum-mode-btn" id="drumModeBtn" onclick="togglePadMode()">⌨ Keys</button>
   </div>
-  <div class="drum-grid">
-    <div class="drum-pad" data-drum="kick" onclick="triggerDrum('kick',this)"><span class="drum-pad-name">Kick</span><span class="drum-pad-key">1</span></div>
-    <div class="drum-pad" data-drum="snare" onclick="triggerDrum('snare',this)"><span class="drum-pad-name">Snare</span><span class="drum-pad-key">2</span></div>
-    <div class="drum-pad" data-drum="hihat" onclick="triggerDrum('hihat',this)"><span class="drum-pad-name">Hi-Hat</span><span class="drum-pad-key">3</span></div>
-    <div class="drum-pad" data-drum="openhat" onclick="triggerDrum('openhat',this)"><span class="drum-pad-name">Open HH</span><span class="drum-pad-key">4</span></div>
-    <div class="drum-pad" data-drum="clap" onclick="triggerDrum('clap',this)"><span class="drum-pad-name">Clap</span><span class="drum-pad-key">5</span></div>
-    <div class="drum-pad" data-drum="tom" onclick="triggerDrum('tom',this)"><span class="drum-pad-name">Tom</span><span class="drum-pad-key">6</span></div>
-    <div class="drum-pad" data-drum="rim" onclick="triggerDrum('rim',this)"><span class="drum-pad-name">Rim</span><span class="drum-pad-key">7</span></div>
-    <div class="drum-pad" data-drum="cowbell" onclick="triggerDrum('cowbell',this)"><span class="drum-pad-name">Cowbell</span><span class="drum-pad-key">8</span></div>
+  <div class="drum-grid" id="drumGrid">
+    <div class="drum-pad" data-pad="0" onclick="hitPad(0,this)"><span class="drum-pad-name" id="pn0">Thump</span><span class="drum-pad-key">1</span></div>
+    <div class="drum-pad" data-pad="1" onclick="hitPad(1,this)"><span class="drum-pad-name" id="pn1">Spark</span><span class="drum-pad-key">2</span></div>
+    <div class="drum-pad" data-pad="2" onclick="hitPad(2,this)"><span class="drum-pad-name" id="pn2">Glass</span><span class="drum-pad-key">3</span></div>
+    <div class="drum-pad" data-pad="3" onclick="hitPad(3,this)"><span class="drum-pad-name" id="pn3">Pulse</span><span class="drum-pad-key">4</span></div>
+    <div class="drum-pad" data-pad="4" onclick="hitPad(4,this)"><span class="drum-pad-name" id="pn4">Whomp</span><span class="drum-pad-key">5</span></div>
+    <div class="drum-pad" data-pad="5" onclick="hitPad(5,this)"><span class="drum-pad-name" id="pn5">Metal</span><span class="drum-pad-key">6</span></div>
+    <div class="drum-pad" data-pad="6" onclick="hitPad(6,this)"><span class="drum-pad-name" id="pn6">Rasp</span><span class="drum-pad-key">7</span></div>
+    <div class="drum-pad" data-pad="7" onclick="hitPad(7,this)"><span class="drum-pad-name" id="pn7">Crystal</span><span class="drum-pad-key">8</span></div>
   </div>
 </div>
 <div class="status-strip">
@@ -2324,102 +2329,177 @@ $('zipInput').addEventListener('input',()=>$('zipInput2').value=$('zipInput').va
 $('zipInput2').addEventListener('input',()=>$('zipInput').value=$('zipInput2').value);
 
 // ─── DRUM PAD ────────────────────────────────────────────────
-function triggerDrum(type,el){
-  const audioCtx=liveNodes?.ctx;
-  if(!audioCtx)return;
-  const now=audioCtx.currentTime;
+// ── PAD MODE: 'drum' or 'keys' ───────────────────────────────
+let padMode='drum';
+const DRUM_NAMES=['Thump','Spark','Glass','Pulse','Whomp','Metal','Rasp','Crystal'];
+function togglePadMode(){
+  padMode=padMode==='drum'?'keys':'drum';
+  const btn=document.getElementById('drumModeBtn');
+  const lbl=document.getElementById('drumSectionLabel');
+  const hint=document.getElementById('drumHint');
+  if(btn){btn.textContent=padMode==='drum'?'⌨ Keys':'🥁 Drums';btn.classList.toggle('active',padMode==='keys');}
+  if(lbl)lbl.textContent=padMode==='drum'?'Drum Pad':'Key Pad';
+  if(hint)hint.textContent=padMode==='drum'?'click or press 1–8':'plays scale notes · 1–8';
+  updatePadLabels();
+}
+function updatePadLabels(){
+  if(padMode==='drum'){
+    DRUM_NAMES.forEach((n,i)=>{const e=document.getElementById('pn'+i);if(e)e.textContent=n;});
+  } else {
+    const notes=getKeyNotes();
+    notes.forEach((hz,i)=>{const e=document.getElementById('pn'+i);if(e)e.textContent=freqToNoteName(hz)||'—';});
+  }
+}
+function getKeyNotes(){
+  const ctx=window._liveChordCtx;
+  if(ctx){
+    const{mode,rootHz}=ctx;
+    const ext=[...mode,...mode.map(s=>s+12)];
+    return ext.slice(0,8).map(s=>rootHz*Math.pow(2,s/12));
+  }
+  const root=220;
+  return[0,2,4,5,7,9,11,12].map(s=>root*Math.pow(2,s/12));
+}
+function hitPad(idx,el){
+  if(padMode==='keys'){playKeyNote(idx,el);}else{triggerDrum(idx,el);}
+}
+function playKeyNote(idx,el){
+  const audioCtx=liveNodes?.ctx;if(!audioCtx)return;
+  audioCtx.resume();
+  const now=audioCtx.currentTime+(audioCtx.outputLatency||audioCtx.baseLatency||0)+0.005;
+  const notes=getKeyNotes();
+  const freq=notes[idx]||220;
   const out=liveNodes.master;
+  // Route through quarter-note delay
+  const bpm=currentState?.tempo||90;
+  const qn=60/bpm;
+  const dly=audioCtx.createDelay(4);dly.delayTime.value=qn;
+  const dlyG=audioCtx.createGain();dlyG.gain.value=0.28;
+  const dryG=audioCtx.createGain();dryG.gain.value=1.0;
+  dly.connect(dlyG);dlyG.connect(out);
+  // Plucked sine tone
+  const osc=audioCtx.createOscillator();const g=audioCtx.createGain();
+  osc.type='sine';osc.frequency.value=freq;
+  g.gain.setValueAtTime(0.0001,now);
+  g.gain.exponentialRampToValueAtTime(0.55,now+0.008);
+  g.gain.exponentialRampToValueAtTime(0.0001,now+1.2);
+  osc.connect(g);g.connect(dryG);dryG.connect(out);g.connect(dly);
+  osc.start(now);osc.stop(now+1.3);
+  if(el){el.classList.add('hit');setTimeout(()=>el.classList.remove('hit'),120);}
+  updatePadLabels();
+}
+function triggerDrum(idx,el){
+  const audioCtx=liveNodes?.ctx;if(!audioCtx)return;
+  audioCtx.resume();
+  // Schedule slightly ahead to eliminate latency
+  const now=audioCtx.currentTime+(audioCtx.outputLatency||audioCtx.baseLatency||0)+0.004;
+  const out=liveNodes.master;
+  const bpm=currentState?.tempo||90;
+  const qn=60/bpm; // quarter note delay time
+  // Shared delay send for all sounds
+  const dly=audioCtx.createDelay(4);dly.delayTime.value=qn;
+  const dlyG=audioCtx.createGain();dlyG.gain.value=0.30;
+  dly.connect(dlyG);dlyG.connect(out);
+  function withDelay(node){node.connect(dly);node.connect(out);}
   function noise(dur){
     const len=Math.ceil(audioCtx.sampleRate*dur);
     const buf=audioCtx.createBuffer(1,len,audioCtx.sampleRate);
     const d=buf.getChannelData(0);for(let i=0;i<len;i++)d[i]=Math.random()*2-1;
     const src=audioCtx.createBufferSource();src.buffer=buf;return src;
   }
-  switch(type){
-    case'kick':{
+  switch(idx){
+    case 0:{ // Thump — deep resonant sub with rumble tail
       const o=audioCtx.createOscillator(),g=audioCtx.createGain();
-      o.connect(g);g.connect(out);
-      o.frequency.setValueAtTime(155,now);o.frequency.exponentialRampToValueAtTime(42,now+0.12);
-      g.gain.setValueAtTime(1.0,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.38);
-      o.start(now);o.stop(now+0.38);
-      const nb=noise(0.02),ng=audioCtx.createGain(),nf=audioCtx.createBiquadFilter();
-      nf.type='lowpass';nf.frequency.value=180;nb.connect(nf);nf.connect(ng);ng.connect(out);
-      ng.gain.setValueAtTime(0.28,now);ng.gain.exponentialRampToValueAtTime(0.001,now+0.02);
-      nb.start(now);nb.stop(now+0.02);break;
+      const f=audioCtx.createBiquadFilter();f.type='lowpass';f.frequency.value=120;f.Q.value=8;
+      o.type='sine';o.frequency.setValueAtTime(90,now);o.frequency.exponentialRampToValueAtTime(28,now+0.18);
+      g.gain.setValueAtTime(0.9,now);g.gain.exponentialRampToValueAtTime(0.0001,now+0.55);
+      o.connect(f);f.connect(g);withDelay(g);o.start(now);o.stop(now+0.6);break;
     }
-    case'snare':{
-      const o=audioCtx.createOscillator(),og=audioCtx.createGain();
-      o.connect(og);og.connect(out);
-      o.frequency.setValueAtTime(215,now);o.frequency.exponentialRampToValueAtTime(145,now+0.1);
-      og.gain.setValueAtTime(0.32,now);og.gain.exponentialRampToValueAtTime(0.001,now+0.1);
-      o.start(now);o.stop(now+0.1);
-      const nb=noise(0.18),nf=audioCtx.createBiquadFilter(),ng=audioCtx.createGain();
-      nf.type='bandpass';nf.frequency.value=2500;nf.Q.value=0.5;
-      nb.connect(nf);nf.connect(ng);ng.connect(out);
-      ng.gain.setValueAtTime(0.55,now);ng.gain.exponentialRampToValueAtTime(0.001,now+0.18);
-      nb.start(now);nb.stop(now+0.18);break;
+    case 1:{ // Spark — FM zap / laser descend
+      const mod=audioCtx.createOscillator(),car=audioCtx.createOscillator();
+      const modG=audioCtx.createGain(),g=audioCtx.createGain();
+      mod.frequency.setValueAtTime(800,now);mod.frequency.exponentialRampToValueAtTime(40,now+0.18);
+      modG.gain.setValueAtTime(1200,now);modG.gain.exponentialRampToValueAtTime(20,now+0.18);
+      car.frequency.setValueAtTime(440,now);car.frequency.exponentialRampToValueAtTime(55,now+0.18);
+      mod.connect(modG);modG.connect(car.frequency);
+      g.gain.setValueAtTime(0.5,now);g.gain.exponentialRampToValueAtTime(0.0001,now+0.2);
+      car.connect(g);withDelay(g);mod.start(now);car.start(now);mod.stop(now+0.2);car.stop(now+0.2);break;
     }
-    case'hihat':{
-      const nb=noise(0.06),nf=audioCtx.createBiquadFilter(),ng=audioCtx.createGain();
-      nf.type='highpass';nf.frequency.value=7200;
-      nb.connect(nf);nf.connect(ng);ng.connect(out);
-      ng.gain.setValueAtTime(0.38,now);ng.gain.exponentialRampToValueAtTime(0.001,now+0.06);
-      nb.start(now);nb.stop(now+0.06);break;
-    }
-    case'openhat':{
-      const nb=noise(0.38),nf=audioCtx.createBiquadFilter(),ng=audioCtx.createGain();
-      nf.type='highpass';nf.frequency.value=6500;
-      nb.connect(nf);nf.connect(ng);ng.connect(out);
-      ng.gain.setValueAtTime(0.36,now);ng.gain.exponentialRampToValueAtTime(0.001,now+0.38);
-      nb.start(now);nb.stop(now+0.38);break;
-    }
-    case'clap':{
-      [0,0.011,0.022].forEach((d,i)=>{
-        const nb=noise(0.12),nf=audioCtx.createBiquadFilter(),ng=audioCtx.createGain();
-        nf.type='bandpass';nf.frequency.value=1200;nf.Q.value=0.4;
-        nb.connect(nf);nf.connect(ng);ng.connect(out);
-        ng.gain.setValueAtTime(0.44-i*0.07,now+d);
-        ng.gain.exponentialRampToValueAtTime(0.001,now+d+(i===2?0.16:0.05));
-        nb.start(now+d);nb.stop(now+d+0.16);
+    case 2:{ // Glass — high sine bell, long shimmer
+      const freqs=[1047,1319,1568];
+      freqs.forEach((fr,i)=>{
+        const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+        o.type='sine';o.frequency.value=fr*(1+i*0.002);
+        g.gain.setValueAtTime(0.0001,now+i*0.008);
+        g.gain.exponentialRampToValueAtTime(0.22-i*0.04,now+i*0.008+0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001,now+1.4);
+        o.connect(g);withDelay(g);o.start(now);o.stop(now+1.5);
       });break;
     }
-    case'tom':{
+    case 3:{ // Pulse — tabla-like: sine with resonant snap
       const o=audioCtx.createOscillator(),g=audioCtx.createGain();
-      o.connect(g);g.connect(out);
-      o.frequency.setValueAtTime(210,now);o.frequency.exponentialRampToValueAtTime(75,now+0.24);
-      g.gain.setValueAtTime(0.75,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.28);
-      o.start(now);o.stop(now+0.28);break;
+      const f=audioCtx.createBiquadFilter();f.type='bandpass';f.frequency.value=320;f.Q.value=12;
+      o.type='triangle';
+      o.frequency.setValueAtTime(380,now);o.frequency.exponentialRampToValueAtTime(160,now+0.06);
+      g.gain.setValueAtTime(0.7,now);g.gain.exponentialRampToValueAtTime(0.0001,now+0.22);
+      o.connect(f);f.connect(g);withDelay(g);o.start(now);o.stop(now+0.25);
+      const nb=noise(0.015),ng=audioCtx.createGain();
+      ng.gain.setValueAtTime(0.4,now);ng.gain.exponentialRampToValueAtTime(0.0001,now+0.015);
+      nb.connect(ng);ng.connect(out);nb.start(now);nb.stop(now+0.015);break;
     }
-    case'rim':{
-      const o=audioCtx.createOscillator(),og=audioCtx.createGain();
-      o.type='triangle';o.frequency.value=400;o.connect(og);og.connect(out);
-      og.gain.setValueAtTime(0.5,now);og.gain.exponentialRampToValueAtTime(0.001,now+0.025);
-      o.start(now);o.stop(now+0.025);
-      const nb=noise(0.025),nf=audioCtx.createBiquadFilter(),ng=audioCtx.createGain();
-      nf.type='bandpass';nf.frequency.value=4000;nf.Q.value=2;
-      nb.connect(nf);nf.connect(ng);ng.connect(out);
-      ng.gain.setValueAtTime(0.32,now);ng.gain.exponentialRampToValueAtTime(0.001,now+0.025);
-      nb.start(now);nb.stop(now+0.025);break;
+    case 4:{ // Whomp — sub wobble / bass synth hit
+      const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+      const lfo=audioCtx.createOscillator(),lfoG=audioCtx.createGain();
+      o.type='sawtooth';o.frequency.setValueAtTime(120,now);
+      o.frequency.exponentialRampToValueAtTime(40,now+0.35);
+      lfo.frequency.value=6;lfoG.gain.value=30;
+      lfo.connect(lfoG);lfoG.connect(o.frequency);
+      const filt=audioCtx.createBiquadFilter();filt.type='lowpass';filt.frequency.setValueAtTime(800,now);
+      filt.frequency.exponentialRampToValueAtTime(60,now+0.35);
+      g.gain.setValueAtTime(0.75,now);g.gain.exponentialRampToValueAtTime(0.0001,now+0.4);
+      o.connect(filt);filt.connect(g);withDelay(g);
+      lfo.start(now);o.start(now);lfo.stop(now+0.4);o.stop(now+0.4);break;
     }
-    case'cowbell':{
-      [562,845].forEach(freq=>{
+    case 5:{ // Metal — detuned square clang (like a radiator pipe)
+      [[220,0],[220,18],[330,8]].forEach(([fr,det])=>{
         const o=audioCtx.createOscillator(),g=audioCtx.createGain();
-        o.type='square';o.frequency.value=freq;o.connect(g);g.connect(out);
-        g.gain.setValueAtTime(0.16,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.48);
-        o.start(now);o.stop(now+0.48);
+        o.type='square';o.frequency.value=fr;o.detune.value=det;
+        g.gain.setValueAtTime(0.14,now);g.gain.exponentialRampToValueAtTime(0.0001,now+0.7);
+        o.connect(g);withDelay(g);o.start(now);o.stop(now+0.8);
+      });break;
+    }
+    case 6:{ // Rasp — gritty bandpass noise burst with a growl
+      const nb=noise(0.28);
+      const f1=audioCtx.createBiquadFilter();f1.type='bandpass';f1.frequency.value=280;f1.Q.value=3;
+      const f2=audioCtx.createBiquadFilter();f2.type='peaking';f2.frequency.value=900;f2.gain.value=12;
+      const g=audioCtx.createGain();
+      g.gain.setValueAtTime(0.6,now);g.gain.exponentialRampToValueAtTime(0.0001,now+0.28);
+      nb.connect(f1);f1.connect(f2);f2.connect(g);withDelay(g);nb.start(now);nb.stop(now+0.3);break;
+    }
+    case 7:{ // Crystal — FM bell cluster, ethereal shimmer
+      [[528,3.5],[792,7],[1056,14]].forEach(([cfr,ratio])=>{
+        const mod=audioCtx.createOscillator(),car=audioCtx.createOscillator();
+        const mG=audioCtx.createGain(),g=audioCtx.createGain();
+        mod.frequency.value=cfr;mG.gain.value=cfr*ratio;
+        car.frequency.value=cfr;
+        mod.connect(mG);mG.connect(car.frequency);
+        g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(0.14,now+0.015);
+        g.gain.exponentialRampToValueAtTime(0.0001,now+1.8);
+        car.connect(g);withDelay(g);
+        mod.start(now);car.start(now);mod.stop(now+1.9);car.stop(now+1.9);
       });break;
     }
   }
-  if(el){el.classList.add('hit');setTimeout(()=>el.classList.remove('hit'),80);}
+  if(el){el.classList.add('hit');setTimeout(()=>el.classList.remove('hit'),90);}
 }
 
 document.addEventListener('keydown',e=>{
   if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.isContentEditable)return;
-  const keys={'1':'kick','2':'snare','3':'hihat','4':'openhat','5':'clap','6':'tom','7':'rim','8':'cowbell'};
-  const type=keys[e.key];if(!type)return;
+  const idx=parseInt(e.key)-1;
+  if(isNaN(idx)||idx<0||idx>7)return;
   e.preventDefault();
-  const pad=document.querySelector(`.drum-pad[data-drum="${type}"]`);
-  triggerDrum(type,pad);
+  const pad=document.querySelector(`.drum-pad[data-pad="${idx}"]`);
+  hitPad(idx,pad);
 });
 
 // ─── INIT ────────────────────────────────────────────────────
