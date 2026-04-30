@@ -599,11 +599,9 @@ body[data-skin="brutal"] .drum-pad-key{color:rgba(0,0,0,0.3);background:rgba(0,0
     <button class="zip-chip" onclick="loadWeatherForZip('10001')">NYC</button>
     <button class="zip-chip" onclick="loadWeatherForZip('90001')">LA</button>
     <button class="zip-chip" onclick="loadWeatherForZip('60601')">Chicago</button>
-    <button class="zip-chip" onclick="loadWeatherForZip('77001')">Houston</button>
     <button class="zip-chip" onclick="loadWeatherForZip('85001')">Phoenix</button>
     <button class="zip-chip" onclick="loadWeatherForZip('33139')">Miami</button>
     <button class="zip-chip" onclick="loadWeatherForZip('98101')">Seattle</button>
-    <button class="zip-chip" onclick="loadWeatherForZip('70112')">New Orleans</button>
   </div>
   <div class="sep"></div>
   <button class="btn3d orange wide" id="playBtn">▶ Play</button>
@@ -825,10 +823,10 @@ function computeGenreWeights(s){
     industrial: Math.pow(clamp(s.storm,0,1),1.0)*0.92 + Math.max(0,0.4-s.warmth)*0.08,
     ambient:    Math.pow(clamp(1-s.brightness,0,1),2.2)*0.38 + clamp(s.wetness*(1-s.storm)*0.6,0,1)*0.22 + clamp(0.55-s.wind,0,1)*0.10,
     classical:  clamp(s.wetness-0.05,0,1)*clamp(0.55-s.warmth,0,1)*2.4*clamp(1-s.storm*2.2,0,1),
-    tropical:   s.warmth*s.brightness*clamp(s.wind*1.3+0.25,0,1)*1.1,
+    tropical:   s.warmth*s.brightness*clamp(s.wetness*1.8+0.08,0,1)*clamp(s.wind*1.0+0.3,0,1),
     jazz:       night*clamp(1-s.storm*2,0,1)*(0.30+s.warmth*0.70),
     lofi:       clamp(s.wetness*0.9,0,1)*clamp(1-s.storm*1.5,0,1)*clamp(1-s.brightness*1.1,0,1)*1.2,
-    electronic: 0.22,
+    electronic: 0.22 + clamp((s.warmth-0.5)*0.4*(1-Math.min(s.wetness*2,1)),0,0.3),
   };
   const total=Object.values(w).reduce((a,b)=>a+b,0)||1;
   Object.keys(w).forEach(k=>w[k]=Math.max(0,w[k])/total);
@@ -1740,6 +1738,8 @@ function playWeatherSoundscape(state){
 
   // Melody phrase state
   let phrasePos=0,phraseResting=false,phraseRestBeats=0;
+  let phraseLen=4+Math.floor(Math.random()*4); // 4-7 notes per phrase
+  let phraseNotes=[];
   let lastFreq=motif[0];
 
   // Counterpoint state
@@ -1802,37 +1802,81 @@ function playWeatherSoundscape(state){
 
   function nextMelodyFreq(){
     const tones=chordTones(chord);
-    const pool=[...tones,motif[Math.floor(Math.random()*motif.length)]];
-    const sorted=[...pool].sort((a,b)=>Math.abs(a-lastFreq)-Math.abs(b-lastFreq));
-    const r=Math.random();
-    let f;
-    if(r<0.55)f=sorted[Math.floor(Math.random()*2)];      // stepwise
-    else if(r<0.82)f=motif[Math.floor(Math.random()*motif.length)]; // motif
-    else f=sorted[2+Math.floor(Math.random()*2)];          // leap
-    lastFreq=f;return f;
+    const pool=[...new Set([...tones,motif[Math.floor(Math.random()*motif.length)]])];
+    // Phrase contour: rise first half, fall second half → arc shape
+    const progress=phraseLen>1?phrasePos/(phraseLen-1):0.5;
+    const wantUp=progress<0.5;
+    // Score each candidate
+    const scored=pool.map(f=>{
+      let sc=0;
+      const semis=Math.abs(Math.log2(f/lastFreq))*12;
+      // Strongly prefer small steps (vocal character)
+      if(semis<=2)sc+=5; else if(semis<=4)sc+=3; else if(semis<=7)sc+=1; else sc-=3;
+      // Avoid exact repetition
+      if(semis<0.5)sc-=6;
+      // Contour: reward movement in the desired direction
+      if(wantUp&&f>lastFreq)sc+=3; else if(!wantUp&&f<lastFreq)sc+=3;
+      // Chord tones are stable
+      if(tones.includes(f))sc+=1;
+      // Near phrase end: lean toward root/fifth for resolution
+      if(phrasePos>=phraseLen-2){
+        const ri=Math.abs(Math.log2(f/chord[1]))*12%12;
+        if(ri<1.5||Math.abs(ri-7)<1.5)sc+=4;
+      }
+      return{f,sc};
+    });
+    scored.sort((a,b)=>b.sc-a.sc);
+    const pick=scored[Math.random()<0.72?0:Math.floor(Math.random()*Math.min(3,scored.length))];
+    lastFreq=pick.f;
+    phraseNotes.push(pick.f);
+    return pick.f;
   }
 
   function playMelodyNote(){
-    if(phraseResting){phraseRestBeats--;if(phraseRestBeats<=0)phraseResting=false;return;}
-    if(phase==='sparse'&&Math.random()<0.25)return;
+    if(phraseResting){
+      phraseRestBeats--;
+      if(phraseRestBeats<=0){
+        phraseResting=false;
+        phraseLen=3+Math.floor(Math.random()*5); // 3-7 notes next phrase
+        phraseNotes=[];
+      }
+      return;
+    }
+    if(phase==='sparse'&&Math.random()<0.35)return;
     const freq=nextMelodyFreq();
     if(!freq||freq<80||freq>6000)return;
     const now=ctx.currentTime;
-    const osc=ctx.createOscillator();const g=ctx.createGain();const f=ctx.createBiquadFilter();
+    const osc=ctx.createOscillator();const g=ctx.createGain();const filt=ctx.createBiquadFilter();
     osc.type=vp.melType;osc.frequency.value=freq;
-    f.type='lowpass';f.frequency.value=vp.melFilter+state.brightness*1500;
-    const atk=vp.melAtk+Math.random()*0.008;
-    const dec=vp.melDecMin+Math.random()*vp.melDecRng;
-    const peak=vp.melPeak+state.brightness*0.03;
+    filt.type='lowpass';filt.frequency.value=vp.melFilter+state.brightness*1500;
+    const atk=vp.melAtk+Math.random()*0.012;
+    // Mid-phrase notes held longer for legato phrasing
+    const progress=phraseLen>1?phrasePos/(phraseLen-1):0.5;
+    const lenMult=(progress>0.2&&progress<0.8)?1.35+Math.random()*0.4:1.0;
+    const dec=(vp.melDecMin+Math.random()*vp.melDecRng)*lenMult;
+    const peak=(vp.melPeak+state.brightness*0.03)*pGain();
+    // Vibrato on sustained mid-phrase notes
+    if(dec>0.7&&Math.random()<0.55){
+      const vibOsc=ctx.createOscillator();const vibG=ctx.createGain();
+      vibOsc.frequency.value=4.8+Math.random()*2;
+      vibG.gain.value=5+Math.random()*9;
+      vibOsc.connect(vibG);vibG.connect(osc.detune);
+      vibOsc.start(now+atk*1.5);vibOsc.stop(now+atk+dec);
+    }
     g.gain.setValueAtTime(0.0001,now);
     g.gain.exponentialRampToValueAtTime(peak,now+atk);
     g.gain.exponentialRampToValueAtTime(0.0001,now+atk+dec);
-    osc.connect(f);f.connect(g);g.connect(melodyBus);
+    osc.connect(filt);filt.connect(g);g.connect(melodyBus);
     osc.start(now);osc.stop(now+atk+dec+0.05);
     liveSheetData.lastMelodyNote=freqToNoteName(freq);
     updateLiveSheet();
     phrasePos++;
-    if(phrasePos>=4){phrasePos=0;phraseResting=true;phraseRestBeats=Math.floor(Math.random()*3);}
+    if(phrasePos>=phraseLen){
+      phrasePos=0;phraseResting=true;
+      phraseRestBeats=2+Math.floor(Math.random()*4); // 2-5 beat breath
+      phraseNotes=[];
+      phraseLen=3+Math.floor(Math.random()*5);
+    }
   }
 
   function playVibe(){
@@ -2475,9 +2519,25 @@ function startHvAnim(){
     // ── BRUTAL VIZ BRANCH ────────────────────────────────────
     if(_skin==='brutal'){
       c.clearRect(0,0,W,H);
-      c.fillStyle='rgba(0,0,0,0.88)';c.fillRect(0,0,W,H);
-      // beat flash — blue pulse
-      if(beatPhase<0.06){c.fillStyle=`rgba(43,94,255,${(0.06-beatPhase)/0.06*0.22})`;c.fillRect(0,0,W,H);}
+      c.fillStyle='rgba(0,0,0,0.90)';c.fillRect(0,0,W,H);
+      // Weather-driven color palette
+      let vizLo,vizHi,vizHot,vizFlash;
+      if(s.isStormy){
+        vizLo='#881100';vizHi='#FF3300';vizHot='#FF8800';vizFlash='rgba(255,60,0,';
+      } else if(s.isRaining){
+        vizLo='#112266';vizHi='#3366FF';vizHot='#66AAFF';vizFlash='rgba(50,100,255,';
+      } else if(s.isSnowing){
+        vizLo='#336688';vizHi='#AADDFF';vizHot='#EEEEFF';vizFlash='rgba(180,220,255,';
+      } else if(s.isFoggy){
+        vizLo='#334455';vizHi='#667788';vizHot='#99AABB';vizFlash='rgba(120,160,180,';
+      } else if(s.isSunny&&s.isDaytime){
+        vizLo='#AA4400';vizHi='#FF9900';vizHot='#FFDD00';vizFlash='rgba(255,160,0,';
+      } else if(!s.isDaytime){
+        vizLo='#220044';vizHi='#6622BB';vizHot='#AA55FF';vizFlash='rgba(120,50,220,';
+      } else {
+        vizLo='#1A3A55';vizHi='#3377AA';vizHot='#66BBDD';vizFlash='rgba(60,140,200,';
+      }
+      if(beatPhase<0.06){c.fillStyle=`${vizFlash}${(0.06-beatPhase)/0.06*0.18})`;c.fillRect(0,0,W,H);}
       const BP_L=12,BP_R=12,BP_TOP=38,BP_BOT=34;
       const bAW=W-BP_L-BP_R,bAH=H-BP_TOP-BP_BOT;
       const bW2=Math.floor(bAW/NUM_BARS),gap2=Math.max(2,Math.round(bW2*0.22)),bw2=bW2-gap2;
@@ -2490,43 +2550,39 @@ function startHvAnim(){
         }
         const bH2=Math.max(2,val*bAH);
         const bx=BP_L+i*bW2,by=BP_TOP+bAH-bH2;
-        // gradient bar: blue → electric blue at top, red tint when hot
         const barGrad=c.createLinearGradient(0,by,0,by+bH2);
-        if(val>0.7){
-          barGrad.addColorStop(0,'#E63333');
-          barGrad.addColorStop(1,'#2B5EFF');
-        } else {
-          barGrad.addColorStop(0,'#7BA8FF');
-          barGrad.addColorStop(1,'#2B5EFF');
-        }
+        barGrad.addColorStop(0,val>0.65?vizHot:vizHi);
+        barGrad.addColorStop(1,vizLo);
         c.fillStyle=barGrad;
         c.fillRect(bx,by,bw2,bH2);
         if(!peaks[i]||val>peaks[i]){peaks[i]=val;peakTimers[i]=55;}
         else{peakTimers[i]=(peakTimers[i]||0)-1;if(peakTimers[i]<=0)peaks[i]=Math.max(0,peaks[i]-0.009);}
-        if(peaks[i]>0.02){c.fillStyle='#FFFFFF';c.fillRect(bx,BP_TOP+bAH-peaks[i]*bAH-2,bw2,2);}
+        if(peaks[i]>0.02){c.fillStyle=vizHot;c.fillRect(bx,BP_TOP+bAH-peaks[i]*bAH-2,bw2,2);}
       }
       // baseline
-      c.strokeStyle='rgba(255,255,255,0.25)';c.lineWidth=1;
+      c.strokeStyle='rgba(255,255,255,0.18)';c.lineWidth=1;
       c.beginPath();c.moveTo(BP_L,BP_TOP+bAH+2);c.lineTo(W-BP_R,BP_TOP+bAH+2);c.stroke();
       // freq labels
       c.font="700 8px 'Space Grotesk',sans-serif";
-      c.fillStyle='rgba(255,255,255,0.35)';c.textAlign='center';c.textBaseline='top';
+      c.fillStyle='rgba(255,255,255,0.28)';c.textAlign='center';c.textBaseline='top';
       [{hz:100,t:'100'},{hz:250,t:'250'},{hz:500,t:'500'},{hz:1000,t:'1k'},{hz:2000,t:'2k'},{hz:4000,t:'4k'}].forEach(lb=>{
         const fx=BP_L+(Math.log(lb.hz/MIN_HZ)/Math.log(MAX_HZ/MIN_HZ))*bAW;
         c.fillText(lb.t,fx,BP_TOP+bAH+7);
       });
-      // BPM — white
+      // BPM — measure width at large size first to avoid label overlap
       const bpmFS=Math.round(H*0.13);
       c.font=`700 ${bpmFS}px 'Space Grotesk',sans-serif`;
+      const bpmStr=String(bpm);
+      const bpmW=c.measureText(bpmStr).width;
       c.textAlign='left';c.textBaseline='bottom';
-      c.fillStyle='#FFFFFF';c.fillText(bpm,BP_L,BP_TOP-4);
-      c.font="700 8px 'Space Grotesk',sans-serif";
-      c.fillStyle='rgba(255,255,255,0.4)';
-      c.fillText('BPM',BP_L+c.measureText(String(bpm)).width+5,BP_TOP-11);
-      // harmony — top right in blue
+      c.fillStyle='#FFFFFF';c.fillText(bpmStr,BP_L,BP_TOP-4);
+      c.font="600 8px 'Space Grotesk',sans-serif";
+      c.fillStyle='rgba(255,255,255,0.38)';
+      c.fillText('BPM',BP_L+bpmW+5,BP_TOP-7);
+      // genre/harmony — top right, weather color
       c.font="700 9px 'Space Grotesk',sans-serif";
-      c.fillStyle='#2B5EFF';c.textAlign='right';c.textBaseline='bottom';
-      c.fillText((s.harmony||'').toUpperCase(),W-BP_R,BP_TOP-4);
+      c.fillStyle=vizHi;c.textAlign='right';c.textBaseline='bottom';
+      c.fillText((s.genre||s.harmony||'').toUpperCase(),W-BP_R,BP_TOP-4);
       hvAnimFrame=requestAnimationFrame(draw);return;
     }
     // ── WEATHER UNDERLAY — drawn before bars, very low opacity ──
