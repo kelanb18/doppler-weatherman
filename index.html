@@ -27,8 +27,8 @@
   --font-mono:'IBM Plex Mono',monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:#B8B2A4;font-family:var(--font-ui);min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:24px 12px;}
-.chassis{width:100%;max-width:1180px;background:var(--body-bg);border-radius:16px;box-shadow:0 2px 0 #E8E2D6 inset,0 -2px 0 #A09888 inset,0 20px 60px rgba(0,0,0,0.45);overflow:hidden;}
+body{background:#000;font-family:var(--font-ui);min-height:100vh;}
+.chassis{width:100%;min-height:100vh;background:var(--body-bg);overflow:hidden;}
 
 /* COLOR STRIPES */
 .stripe{display:flex;height:5px;}
@@ -88,9 +88,9 @@ input[type="text"]:focus{border-color:var(--orange);}
 .body{display:grid;grid-template-columns:300px 1fr 240px;}
 
 /* SCREEN */
-.screen-row{display:grid;grid-template-columns:1fr 240px;border-top:2px solid #A09888;border-bottom:2px solid #A09888;}
+.screen-row{display:grid;grid-template-columns:1fr 260px;border-top:2px solid #A09888;border-bottom:2px solid #A09888;}
 .screen-outer{background:#181614;padding:6px;border-right:2px solid #A09888;}
-.screen{position:relative;min-height:320px;background:var(--screen-bg);overflow:hidden;box-shadow:inset 0 2px 8px rgba(0,0,0,0.8),inset 0 0 0 1px rgba(255,255,255,0.04);}
+.screen{position:relative;min-height:420px;background:var(--screen-bg);overflow:hidden;box-shadow:inset 0 2px 8px rgba(0,0,0,0.8),inset 0 0 0 1px rgba(255,255,255,0.04);}
 .screen::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.08) 3px,rgba(0,0,0,0.08) 4px);pointer-events:none;z-index:10;}
 .screen::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.012) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.012) 1px,transparent 1px);background-size:20px 20px;pointer-events:none;z-index:2;}
 .sky-layer{position:absolute;inset:0;transition:background 3s ease;z-index:0;}
@@ -272,22 +272,15 @@ body[data-skin="brutal"] .chord-option:hover,body[data-skin="brutal"] .chord-opt
 .pulse-dot.active{opacity:1;transform:scale(1.7);}
 
 /* RESPONSIVE */
-@media (max-width:1100px){
-  .body{grid-template-columns:1fr 1fr;}
-  .body>.col-right{grid-column:1/-1;}
+@media (max-width:900px){
   .screen-row{grid-template-columns:1fr;}
   .screen-sidebar{border-top:2px solid #A09888;}
   .screen{min-height:260px;}
   .control-section{grid-template-columns:1fr 1fr;}
 }
-@media (max-width:860px){
-  .screen-row{grid-template-columns:1fr;}
-  .control-section{grid-template-columns:1fr;}
-  .ctrl-panel{border-right:none;border-bottom:1px solid var(--rule);}
-}
 @media (max-width:680px){
   body{padding:0;}
-  .chassis{border-radius:0;max-width:100vw;overflow-x:hidden;}
+  .chassis{overflow-x:hidden;}
   .port-strip{padding:0 12px;gap:6px;}
   .port-tag{font-size:8px;padding:2px 6px;}
   .faceplate-top{flex-direction:column;align-items:center;text-align:center;padding:14px;gap:10px;min-width:0;}
@@ -333,7 +326,7 @@ body[data-skin="brutal"] .hv-viz{display:block;}
 body[data-skin="brutal"]{background:#000000;--nb-bg:#FFFFFF;--nb-ink:#000000;--nb-yellow:#DDE4FF;--nb-red:#E63333;--nb-blue:#2B5EFF;--nb-green:#00A854;--nb-font:'Space Grotesk',sans-serif;}
 
 /* chassis */
-body[data-skin="brutal"] .chassis{background:var(--nb-bg);border-radius:0;border:3px solid #000;box-shadow:10px 10px 0 #000;}
+body[data-skin="brutal"] .chassis{background:var(--nb-bg);border-radius:0;border:none;box-shadow:none;}
 
 /* stripe — thick solid bars */
 body[data-skin="brutal"] .stripe{height:8px;}
@@ -2695,7 +2688,19 @@ function startHvAnim(){
 
     c.clearRect(0,0,W,H);
 
-    if(!s){hvAnimFrame=requestAnimationFrame(draw);return;}
+    if(!s||!liveNodes){
+      // Idle state — weather loaded but not playing
+      c.fillStyle='rgba(0,0,0,0.92)';c.fillRect(0,0,W,H);
+      if(s){
+        c.font=`700 ${Math.round(H*0.055)}px 'Space Grotesk',sans-serif`;
+        c.fillStyle='rgba(255,255,255,0.18)';c.textAlign='center';c.textBaseline='middle';
+        c.fillText('▶  PRESS PLAY',W/2,H/2);
+        c.font=`500 ${Math.round(H*0.032)}px 'Space Grotesk',sans-serif`;
+        c.fillStyle='rgba(255,255,255,0.07)';
+        c.fillText(`${(s.genre||s.harmony||'').toUpperCase()} · ${Math.round(s.tempo||90)} BPM`,W/2,H/2+H*0.1);
+      }
+      hvAnimFrame=requestAnimationFrame(draw);return;
+    }
 
     const bpm=clk?clk.bpm:(s.tempo||70);
     const STEPS=clk?clk.STEPS:16;
