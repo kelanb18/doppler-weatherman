@@ -125,6 +125,11 @@ input[type="text"]:focus{border-color:var(--orange);}
 .hud-badge.genre-lofi{color:#C8A855;border-color:#C8A855;}
 .hud-badge.genre-electronic{color:var(--teal);border-color:var(--teal);}
 .btn3d.share{background:rgba(0,144,158,0.12);color:var(--teal);}
+.btn3d.mic-btn{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.55);}
+.btn3d.mic-btn.active{background:rgba(0,200,100,0.18);color:#00E676;box-shadow:0 0 0 1px rgba(0,230,118,0.4);}
+.btn3d.rec-btn{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.55);}
+.btn3d.rec-btn.active{background:rgba(220,30,30,0.2);color:#FF4444;box-shadow:0 0 0 1px rgba(255,60,60,0.5);animation:recPulse 1s ease-in-out infinite;}
+@keyframes recPulse{0%,100%{box-shadow:0 0 0 1px rgba(255,60,60,0.5);}50%{box-shadow:0 0 0 3px rgba(255,60,60,0.2);}}
 .share-toast{position:fixed;bottom:58px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--teal);color:#fff;font-family:var(--font-ui);font-weight:800;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;padding:8px 18px;border-radius:4px;opacity:0;transition:opacity 0.18s,transform 0.18s;pointer-events:none;z-index:99999;}
 .share-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .hud-badge.major{color:var(--yellow);border-color:rgba(240,188,0,0.5);background:rgba(240,188,0,0.1);}
@@ -380,6 +385,10 @@ body[data-skin="brutal"] .btn3d.orange{background:var(--nb-red);color:#fff;borde
 body[data-skin="brutal"] .btn3d.orange:hover{background:#9E3508;}
 body[data-skin="brutal"] .btn3d.gray{background:var(--nb-bg);color:#000;border-color:#000;}
 body[data-skin="brutal"] .btn3d.gray:hover{background:var(--nb-yellow);}
+body[data-skin="brutal"] .btn3d.mic-btn{background:var(--nb-bg);color:#555;border-color:#000;}
+body[data-skin="brutal"] .btn3d.mic-btn.active{background:#00C853;color:#000;border-color:#000;box-shadow:3px 3px 0 #000;animation:none;}
+body[data-skin="brutal"] .btn3d.rec-btn{background:var(--nb-bg);color:#555;border-color:#000;}
+body[data-skin="brutal"] .btn3d.rec-btn.active{background:var(--nb-red);color:#fff;border-color:#000;box-shadow:3px 3px 0 #000;}
 body[data-skin="brutal"] .zip-chip{border:2px solid #000;border-radius:0;color:#000;font-family:var(--nb-font);}
 body[data-skin="brutal"] .zip-chip:hover{background:#000;border-color:#000;color:var(--nb-yellow);}
 body[data-skin="brutal"] .ibar-status{font-family:var(--nb-font);color:var(--nb-blue);font-size:10px;font-weight:600;}
@@ -606,6 +615,9 @@ body[data-skin="brutal"] .drum-pad-key{color:rgba(0,0,0,0.3);background:rgba(0,0
   <div class="sep"></div>
   <button class="btn3d orange wide" id="playBtn">▶ Play</button>
   <button class="btn3d dark" id="stopBtn">■ Stop</button>
+  <div class="sep"></div>
+  <button class="btn3d mic-btn" id="micBtn" title="Mic input through FX chain">🎙 Mic</button>
+  <button class="btn3d rec-btn" id="recBtn" title="Record session to WAV">⏺ Rec</button>
   <div class="sep"></div>
   <button class="btn3d gray" id="resetToWeatherBtn">Reset to Weather</button>
   <button class="btn3d share" id="shareBtn">↗ Share</button>
@@ -994,6 +1006,11 @@ function stop(){
     try{currentAudio.stopAll();}catch(e){}
     currentAudio=null;
   }
+  // Release mic and stop recording if active
+  if(_micStream){try{_micSource?.disconnect();_micGain?.disconnect();_micComp?.disconnect();}catch(_){}
+    _micStream.getTracks().forEach(t=>t.stop());_micStream=null;_micSource=null;_micGain=null;_micComp=null;
+    $('micBtn').classList.remove('active');$('micBtn').textContent='🎙 Mic';}
+  if(_recorder&&_recorder.state!=='inactive'){_recorder.stop();}
   liveNodes=null;
   pulseDot.classList.remove('active');
   engineStatusEl.textContent='IDLE';
@@ -1570,7 +1587,7 @@ function playWeatherSoundscape(state){
   } else {bcInput.connect(gf);}
 
   // Store live nodes
-  liveNodes={ctx,gf,rvSend,dlySend,master,melodyBus:null,harmonicBus:null,analyser,dlyFB,dlyNode,bcInput,getDelayFB,dustyLP,tapeSat,warbleDelay,wowLFO,flutterLFO,wowLFOG,flutterLFOG,crushNode,filterBase:gf.frequency.value,wahFilter,wahLFO,wahLFOG,wahWet,wahDry,fuzzNode,fuzzWet,fuzzDry};
+  liveNodes={ctx,gf,rvSend,dlySend,master,limiter,melodyBus:null,harmonicBus:null,analyser,dlyFB,dlyNode,bcInput,getDelayFB,dustyLP,tapeSat,warbleDelay,wowLFO,flutterLFO,wowLFOG,flutterLFOG,crushNode,filterBase:gf.frequency.value,wahFilter,wahLFO,wahLFOG,wahWet,wahDry,fuzzNode,fuzzWet,fuzzDry};
 
   function wire(n){n.connect(gf);n.connect(rvSend);n.connect(dlySend);}
 
@@ -2236,6 +2253,8 @@ $('playBtn').addEventListener('click',play);
 $('playBtn2').addEventListener('click',play);
 $('stopBtn').addEventListener('click',stop);
 $('stopBtn2').addEventListener('click',stop);
+$('micBtn').addEventListener('click',toggleMic);
+$('recBtn').addEventListener('click',toggleRecording);
 $('applyManualBtn').addEventListener('click',applyManual);
 $('resetToWeatherBtn').addEventListener('click',resetToWeather);
 $('resetToWeatherBtn2').addEventListener('click',resetToWeather);
@@ -2505,6 +2524,88 @@ function triggerDrum(idx,el){
     }
   }
   if(el){el.classList.add('hit');setTimeout(()=>el.classList.remove('hit'),90);}
+}
+
+// ─── MIC INPUT ───────────────────────────────────────────────
+let _micStream=null,_micSource=null,_micGain=null,_micComp=null;
+
+async function toggleMic(){
+  const audioCtx=liveNodes?.ctx;
+  if(!audioCtx){setStatus('Start playback first, then enable mic.');return;}
+  if(_micSource){
+    // Disconnect and release mic
+    try{_micSource.disconnect();_micGain.disconnect();_micComp.disconnect();}catch(_){}
+    _micStream.getTracks().forEach(t=>t.stop());
+    _micStream=null;_micSource=null;_micGain=null;_micComp=null;
+    $('micBtn').classList.remove('active');$('micBtn').textContent='🎙 Mic';
+    setStatus('Mic disconnected.');
+    return;
+  }
+  try{
+    _micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false,latency:0}});
+    _micSource=audioCtx.createMediaStreamSource(_micStream);
+    // Light input compressor so loud voices don't clip
+    _micComp=audioCtx.createDynamicsCompressor();
+    _micComp.threshold.value=-24;_micComp.knee.value=10;
+    _micComp.ratio.value=4;_micComp.attack.value=0.003;_micComp.release.value=0.25;
+    _micGain=audioCtx.createGain();_micGain.gain.value=1.2;
+    _micSource.connect(_micComp);_micComp.connect(_micGain);
+    // Route through master → full FX chain (reverb, delay, wah, fuzz, etc.)
+    _micGain.connect(liveNodes.master);
+    _micGain.connect(liveNodes.rvSend);
+    _micGain.connect(liveNodes.dlySend);
+    $('micBtn').classList.add('active');$('micBtn').textContent='🎙 Live';
+    setStatus('Mic live — your voice is through the weather FX chain.');
+  }catch(e){setStatus(`Mic error: ${e.message}`);}
+}
+
+// ─── WAV RECORDING ───────────────────────────────────────────
+let _recorder=null,_recChunks=[],_recDest=null,_recStart=0,_recTimer=null;
+
+function toggleRecording(){
+  if(_recorder&&_recorder.state!=='inactive'){
+    stopRecording();return;
+  }
+  startRecording();
+}
+
+function startRecording(){
+  const audioCtx=liveNodes?.ctx;
+  if(!audioCtx){setStatus('Start playback first, then record.');return;}
+  _recDest=audioCtx.createMediaStreamDestination();
+  liveNodes.limiter.connect(_recDest);
+  _recChunks=[];
+  const mimeType=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':'audio/webm';
+  _recorder=new MediaRecorder(_recDest.stream,{mimeType});
+  _recorder.ondataavailable=e=>{if(e.data.size>0)_recChunks.push(e.data);};
+  _recorder.onstop=()=>{
+    liveNodes?.limiter?.disconnect(_recDest);
+    const blob=new Blob(_recChunks,{type:'audio/webm'});
+    const genre=currentState?.genre||currentState?.harmony||'session';
+    const city=(currentWeather?.location||'city').replace(/[^a-z0-9]/gi,'-').toLowerCase();
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=`weatherman-${city}-${genre}-${Date.now()}.webm`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    clearInterval(_recTimer);_recTimer=null;
+    $('recBtn').classList.remove('active');$('recBtn').textContent='⏺ Rec';
+    setStatus('Recording saved — open in any audio editor or DAW.');
+  };
+  _recorder.start(250); // collect chunks every 250ms
+  _recStart=Date.now();
+  _recTimer=setInterval(()=>{
+    const s=Math.floor((Date.now()-_recStart)/1000);
+    const mm=String(Math.floor(s/60)).padStart(2,'0');
+    const ss=String(s%60).padStart(2,'0');
+    $('recBtn').textContent=`⏹ ${mm}:${ss}`;
+  },1000);
+  $('recBtn').classList.add('active');$('recBtn').textContent='⏹ 00:00';
+  setStatus('Recording… tap ⏹ to stop and download.');
+}
+
+function stopRecording(){
+  if(_recorder&&_recorder.state!=='inactive'){_recorder.stop();}
 }
 
 document.addEventListener('keydown',e=>{
