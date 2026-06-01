@@ -113,7 +113,6 @@ input[type="text"]:focus{border-color:var(--orange);}
 @keyframes gust{from{transform:translateX(-140px);opacity:0;}20%{opacity:1;}100%{transform:translateX(700px);opacity:0;}}
 @keyframes fogDrift{from{transform:translateX(0);}to{transform:translateX(30%);}}
 @keyframes lightningFlash{0%{opacity:0;}10%{opacity:1;}30%{opacity:0.6;}50%{opacity:1;}100%{opacity:0;}}
-.screen-ghost{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:var(--font-ui);font-weight:900;font-size:clamp(28px,5vw,60px);letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.055);white-space:nowrap;pointer-events:none;z-index:2;user-select:none;}
 .screen-hud{position:absolute;inset:0;padding:10px 12px;display:flex;flex-direction:column;justify-content:space-between;z-index:5;pointer-events:none;}
 .hud-top{display:flex;justify-content:space-between;align-items:flex-start;}
 .hud-coords{font-family:var(--font-mono);font-size:8px;color:rgba(255,255,255,0.18);letter-spacing:0.06em;}
@@ -273,7 +272,13 @@ body[data-skin="brutal"] .chord-option:hover,body[data-skin="brutal"] .chord-opt
   .body>.col-right{grid-column:1/-1;}
   .screen-row{grid-template-columns:1fr;}
   .screen-sidebar{border-top:2px solid #A09888;}
+  .screen{min-height:260px;}
   .control-section{grid-template-columns:1fr 1fr;}
+}
+@media (max-width:860px){
+  .screen-row{grid-template-columns:1fr;}
+  .control-section{grid-template-columns:1fr;}
+  .ctrl-panel{border-right:none;border-bottom:1px solid var(--rule);}
 }
 @media (max-width:680px){
   body{padding:0;}
@@ -316,11 +321,8 @@ body[data-skin="brutal"] .chord-option:hover,body[data-skin="brutal"] .chord-opt
 .hv-viz{display:none;position:absolute;inset:0;z-index:8;pointer-events:none;}
 body[data-skin="brutal"] .hv-viz{display:block;}
 
-/* ── SKIN TOGGLE WIDGET ─────────────────────────────────── */
-.skin-toggle{position:fixed;bottom:20px;right:20px;display:flex;gap:6px;z-index:9999;background:rgba(0,0,0,0.7);padding:6px 8px;border-radius:6px;backdrop-filter:blur(8px);}
-.skin-btn{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;padding:5px 12px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.45);cursor:pointer;border-radius:3px;transition:all 0.12s;}
-.skin-btn:hover{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.75);}
-.skin-btn.active{background:rgba(255,255,255,0.18);color:#fff;border-color:rgba(255,255,255,0.4);}
+/* ── SKIN TOGGLE WIDGET — hidden (single skin) ──────────── */
+.skin-toggle{display:none;}
 
 /* ── NEO-BRUTALISM SKIN ─────────────────────────────────── */
 body[data-skin="brutal"]{background:#000000;--nb-bg:#FFFFFF;--nb-ink:#000000;--nb-yellow:#DDE4FF;--nb-red:#E63333;--nb-blue:#2B5EFF;--nb-green:#00A854;--nb-font:'Space Grotesk',sans-serif;}
@@ -387,7 +389,6 @@ body[data-skin="brutal"] .sep{background:#000;width:2px;}
 body[data-skin="brutal"] .screen-row{border-top:3px solid #000;border-bottom:3px solid #000;}
 body[data-skin="brutal"] .screen-outer{background:#0A0A0A;padding:4px;border-right:3px solid #000;}
 body[data-skin="brutal"] .screen::after{background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.06) 3px,rgba(0,0,0,0.06) 4px);}
-body[data-skin="brutal"] .screen-ghost{font-family:var(--nb-font);font-weight:700;color:rgba(255,255,255,0.05);letter-spacing:0.1em;}
 body[data-skin="brutal"] .hud-coords{font-family:'IBM Plex Mono',monospace;color:rgba(255,255,255,0.22);}
 body[data-skin="brutal"] .hud-badge{font-family:var(--nb-font);font-weight:700;letter-spacing:0.14em;border-radius:0;border-width:2px;}
 body[data-skin="brutal"] .hud-badge.major{color:var(--nb-yellow);border-color:var(--nb-yellow);background:rgba(232,200,64,0.12);}
@@ -461,8 +462,6 @@ body[data-skin="brutal"] .ss-bpm-unit{font-family:var(--nb-font);font-weight:700
 body[data-skin="brutal"] .pulse-dot{background:var(--nb-red);}
 body[data-skin="brutal"] .ss-block{border-right:1px solid rgba(255,255,255,0.08);}
 
-/* skin-toggle override for brutal */
-body[data-skin="brutal"] ~ .skin-toggle,.skin-toggle{background:rgba(0,0,0,0.75);}
 /* Brutal skin — cloud/fog/drop tinted to read on chromatic dark skies */
 body[data-skin="brutal"] .cloud{background:rgba(200,180,255,0.09);}
 body[data-skin="brutal"] .fog-bank{background:rgba(180,150,240,0.1);}
@@ -500,9 +499,6 @@ body[data-skin="brutal"] .snow{background:rgba(220,210,255,0.85);}
   /* status strip */
   body[data-skin="brutal"] .status-strip{border-top:2px solid #000;}
   body[data-skin="brutal"] .ss-block{border-right:none;border-bottom:1px solid rgba(255,255,255,0.08);}
-  /* skin toggle: compact at bottom */
-  .skin-toggle{bottom:12px;right:12px;padding:5px 6px;gap:4px;}
-  .skin-btn{font-size:9px;padding:4px 9px;}
 }
 /* DRUM PAD */
 .drum-section{background:var(--dark-bg);border-top:1px solid var(--rule);padding:14px 18px 16px;}
@@ -629,7 +625,6 @@ body[data-skin="brutal"] .drum-pad-key{color:rgba(0,0,0,0.3);background:rgba(0,0
       <div class="precip-layer" id="precipLayer"></div>
       <div class="terrain-layer" id="terrainLayer"></div>
       <div class="lightning-layer" id="lightningLayer"></div>
-      <div class="screen-ghost" id="screenGhost">CLEAR SKY</div>
       <div class="screen-hud">
         <div class="hud-top">
           <span class="hud-coords" id="hudCoords">—</span>
@@ -982,9 +977,9 @@ async function loadWeatherForZip(zip){
 function updateWeatherDisplay(w,s){
   $('locationValue').textContent=w.location;
   $('conditionValue').textContent=s.label;
-  $('tempValue').textContent=`${w.temp}°C`;
+  $('tempValue').textContent=`${Math.round(w.temp*9/5+32)}°F`;
   $('tempMoodValue').textContent=s.harmony==='major'?'warm/bright':s.harmony==='minor'?'cool/dark':'neutral';
-  $('windValue').textContent=`${w.wind} km/h`;
+  $('windValue').textContent=`${Math.round(w.wind*0.621371)} mph`;
   $('humidityValue').textContent=`${w.humidity}%`;
   $('precipValue').textContent=`${w.precipitation} mm`;
   $('sunriseValue').textContent=formatTime(w.sunrise);
@@ -1131,7 +1126,6 @@ function updateInstrumentReadout(s){
   $('pulseValue').textContent=pulse;$('pulseReadout').textContent=pulse;
   $('modeValue').textContent=s.source==='manual'?'MANUAL':'WEATHER';
   $('modeReadout').textContent=s.source==='manual'?'MANUAL':'WEATHER';
-  $('screenGhost').textContent=s.label.toUpperCase();
   engineStatusEl.textContent=currentAudio?'RUNNING':'IDLE';
   engineStatusEl.style.color=currentAudio?'var(--green)':'#4A4840';
 }
