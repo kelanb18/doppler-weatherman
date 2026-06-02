@@ -27,8 +27,8 @@
   --font-mono:'IBM Plex Mono',monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:#000;font-family:var(--font-ui);min-height:100vh;}
-.chassis{width:100%;min-height:100vh;background:var(--body-bg);overflow:hidden;}
+body{background:#000;font-family:var(--font-ui);min-height:100vh;overflow-x:hidden;}
+.chassis{width:100%;min-height:100vh;background:var(--body-bg);overflow:hidden;border-right:2px solid var(--rule);}
 
 /* COLOR STRIPES */
 .stripe{display:flex;height:5px;}
@@ -110,7 +110,7 @@ input[type="text"]:focus{border-color:var(--orange);}
 @keyframes gust{from{transform:translateX(-140px);opacity:0;}20%{opacity:1;}100%{transform:translateX(700px);opacity:0;}}
 @keyframes fogDrift{from{transform:translateX(0);}to{transform:translateX(30%);}}
 @keyframes lightningFlash{0%{opacity:0;}10%{opacity:1;}30%{opacity:0.6;}50%{opacity:1;}100%{opacity:0;}}
-.screen-hud{position:absolute;inset:0;padding:10px 12px;display:flex;flex-direction:column;justify-content:space-between;z-index:5;pointer-events:none;}
+.screen-hud{position:absolute;inset:0;padding:10px 12px;display:none;flex-direction:column;justify-content:space-between;z-index:5;pointer-events:none;}
 .hud-top{display:flex;justify-content:space-between;align-items:flex-start;}
 .hud-coords{font-family:var(--font-mono);font-size:8px;color:rgba(255,255,255,0.18);letter-spacing:0.06em;}
 .hud-badge{font-family:var(--font-ui);font-size:9px;font-weight:800;letter-spacing:0.16em;text-transform:uppercase;padding:2px 8px;border:1px solid;}
@@ -208,6 +208,15 @@ input[type="range"]::-moz-range-thumb{width:14px;height:26px;background:linear-g
 .ls-chord{font-family:var(--font-mono);font-size:10px;font-weight:700;padding:3px 9px;border-radius:3px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.35);transition:background 0.25s,color 0.25s,transform 0.15s;letter-spacing:0.04em;}
 .ls-chord.active{background:var(--orange);color:#fff;transform:scale(1.08);}
 .ls-chord.next{background:rgba(232,70,10,0.15);color:var(--orange);}
+/* SECTIONS BAR */
+.sections-bar{display:flex;align-items:center;gap:14px;padding:10px 18px;border-top:1px solid var(--rule);background:var(--dark-bg);}
+.sections-label{font-size:8px;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.22);white-space:nowrap;}
+.sections-btns{display:flex;gap:6px;flex-wrap:wrap;}
+.sec-btn{font-family:var(--font-ui);font-size:10px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;padding:5px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.38);cursor:pointer;border-radius:3px;transition:all 0.12s;}
+.sec-btn:hover{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.7);}
+.sec-btn.active{background:var(--orange);border-color:var(--orange);color:#fff;}
+.sec-btn.sec-clear{background:transparent;border-color:rgba(255,255,255,0.07);color:rgba(255,255,255,0.22);}
+.sec-btn.sec-clear.active{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.18);color:rgba(255,255,255,0.45);}
 .ls-arrow{font-family:var(--font-mono);font-size:9px;color:rgba(255,255,255,0.14);}
 button.ls-chord{border:none;cursor:pointer;}
 .ls-caret{font-size:7px;opacity:0.5;margin-left:2px;}
@@ -728,6 +737,18 @@ body[data-skin="brutal"] .drum-pad-key{color:rgba(0,0,0,0.3);background:rgba(0,0
   </div>
 </div>
 
+<!-- SONG SECTIONS -->
+<div class="sections-bar" id="sectionsBar">
+  <span class="sections-label">Song Sections</span>
+  <div class="sections-btns">
+    <button class="sec-btn" id="secBtn_intro" onclick="setSection('intro')">Intro</button>
+    <button class="sec-btn" id="secBtn_verse" onclick="setSection('verse')">Verse</button>
+    <button class="sec-btn" id="secBtn_chorus" onclick="setSection('chorus')">Chorus</button>
+    <button class="sec-btn" id="secBtn_bridge" onclick="setSection('bridge')">Bridge</button>
+    <button class="sec-btn sec-clear" id="secBtn_custom" onclick="clearSection()">Custom</button>
+  </div>
+</div>
+
 <!-- DRUM PAD -->
 <div class="drum-section">
   <div class="drum-header">
@@ -773,6 +794,8 @@ let _pendingSharedFx = null; // FX values from a share URL, applied once after w
 let liveNodes = null;
 let lightningTimer = null;
 let liveSheetData = {rootName:'—',modeName:'—',timeSig:'—',progression:[],chordIdx:0,lastMelodyNote:'—'};
+let _sectionStore = {};
+let _activeSectionKey = null;
 
 // ─── DOM REFS ────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
@@ -1360,6 +1383,35 @@ function updateLiveSheet(){
   }
 }
 
+function updateSectionUI(){
+  ['intro','verse','chorus','bridge','custom'].forEach(k=>{
+    const btn=$('secBtn_'+k);
+    if(btn)btn.classList.toggle('active',k===_activeSectionKey);
+  });
+}
+
+function setSection(key){
+  if(!window._liveChordCtx||!_sectionStore[key])return;
+  _activeSectionKey=key;
+  const sect=_sectionStore[key];
+  window._liveChordCtx.progression=sect.progression.slice();
+  liveSheetData.progression=sect.names.slice();
+  liveSheetData.chordIdx=0;
+  updateLiveSheet();
+  updateSectionUI();
+}
+
+function clearSection(){
+  if(!window._liveChordCtx||!_sectionStore._original)return;
+  _activeSectionKey='custom';
+  const orig=_sectionStore._original;
+  window._liveChordCtx.progression=orig.progression.slice();
+  liveSheetData.progression=orig.names.slice();
+  liveSheetData.chordIdx=0;
+  updateLiveSheet();
+  updateSectionUI();
+}
+
 function toggleChordPicker(btn,idx){
   const existing=document.querySelector('.chord-picker');
   if(existing){const wasThis=existing.dataset.idx===String(idx);existing.remove();if(wasThis)return;}
@@ -1642,6 +1694,36 @@ function playWeatherSoundscape(state){
   liveSheetData.chordIdx=0;
   liveSheetData.availableChords=Array.from({length:mode.length},(_,i)=>({deg:i,name:chordNameForDeg(scaleName,i,rootHz)}));
   window._liveChordCtx={progression,buildChord,mode,scaleName,rootHz,progDeg:progDeg.slice()};
+
+  // Build 4 song sections from available progressions in progSet
+  (function initSections(){
+    const sectKeys=['intro','verse','chorus','bridge'];
+    const n=progSet.length; // typically 3
+    _sectionStore={};
+    sectKeys.forEach((key,i)=>{
+      let deg;
+      if(i===3&&n<=3){
+        // Bridge: reverse the last progression for variation
+        deg=progSet[n-1].slice().reverse();
+      } else {
+        deg=progSet[i%n].slice();
+      }
+      _sectionStore[key]={
+        progDeg:deg.slice(),
+        progression:deg.map(d=>buildChord(d)),
+        names:deg.map(d=>chordNameForDeg(scaleName,d,rootHz))
+      };
+    });
+    // Store original so "Custom" can restore it
+    _sectionStore._original={
+      progDeg:progDeg.slice(),
+      progression:progression.slice(),
+      names:progDeg.map(d=>chordNameForDeg(scaleName,d,rootHz))
+    };
+    _activeSectionKey=null;
+    updateSectionUI();
+  })();
+
   updateLiveSheet();
 
   function buildMotif(ch){
@@ -2162,8 +2244,9 @@ function playWeatherSoundscape(state){
 
     // CHORD CHANGE
     if(step>0&&step%CHORD_CYCLE===0){
-      chordIdx=(chordIdx+1)%progression.length;
-      chord=progression[chordIdx];
+      const activeProg=window._liveChordCtx?.progression||progression;
+      chordIdx=(chordIdx+1)%activeProg.length;
+      chord=activeProg[chordIdx];
       motif=buildMotif(chord);
       cpFreq=chord[0]*1.5;
       liveSheetData.chordIdx=chordIdx;
@@ -2387,13 +2470,14 @@ function triggerDrum(idx,el){
   audioCtx.resume();
   const now=audioCtx.currentTime;
   const out=liveNodes.master;
-  // Snap to next 16th note grid — max wait ~1 sixteenth note for tight feel
+  // Snap to next quarter note grid
   let qTime=now+0.005;
   const ref=window._beatRef;
   if(ref&&ref.sixSec>0){
-    const phase=(now-ref.audioTime)%ref.sixSec;
-    const toNext=ref.sixSec-phase;
-    qTime=now+(toNext<0.012?toNext+ref.sixSec:toNext);
+    const qnSec=ref.sixSec*4;
+    const phase=(now-ref.audioTime)%qnSec;
+    const toNext=qnSec-phase;
+    qTime=now+(toNext<0.020?toNext+qnSec:toNext);
   }
   const out2=out;
   function go(node){node.connect(out2);}
@@ -2844,7 +2928,7 @@ function startHvAnim(){
     }
 
     // ── EQ BARS ───────────────────────────────────────────────
-    const PL=14,PR=14,PT=32,PB=40;
+    const PL=14,PR=14,PT=55,PB=40;
     const bAW=W-PL-PR,bAH=H-PT-PB;
     const bW=Math.floor(bAW/NUM_BARS),gap=Math.max(1,Math.round(bW*0.18)),bw=bW-gap;
 
@@ -2883,9 +2967,9 @@ function startHvAnim(){
     // ── BPM ───────────────────────────────────────────────────
     const bpmStr=String(bpm),bFS=Math.round(H*0.11);
     c.font=`300 ${bFS}px 'Inter',sans-serif`;c.fillStyle=barHi;
-    c.textAlign='left';c.textBaseline='bottom';c.fillText(bpmStr,PL,PT-5);
+    c.textAlign='left';c.textBaseline='top';c.fillText(bpmStr,PL,4);
     c.font="600 8px 'Inter',sans-serif";c.fillStyle=`${flashCol}0.40)`;
-    c.fillText('BPM',PL+c.measureText(bpmStr).width+4,PT-9);
+    c.fillText('BPM',PL+c.measureText(bpmStr).width+4,8);
 
     // ── BEAT FLASH ────────────────────────────────────────────
     if(beatPhase<0.08){c.fillStyle=`${flashCol}${(0.08-beatPhase)/0.08*0.09})`;c.fillRect(0,0,W,H);}
