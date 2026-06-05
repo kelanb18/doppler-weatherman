@@ -562,9 +562,6 @@ body[data-skin="brutal"] .drum-pad-key{color:rgba(0,0,0,0.3);background:rgba(0,0
 </div>
 
 <div class="port-strip">
-  <span class="port-tag orange">OUTPUT</span>
-  <span class="port-tag dark">INPUT</span>
-  <span class="port-tag green">SYNC</span>
   <span class="port-status">SYS <span id="engineStatus">IDLE</span></span>
 </div>
 
@@ -2154,7 +2151,7 @@ function playWeatherSoundscape(state){
   const seqTimer=setInterval(()=>{
     const cs=step%STEPS;
     // Expose beat grid for drum pad quantization (every 16th note)
-    window._beatRef={audioTime:ctx.currentTime,sixSec:sixMs/1000,bpm:state.tempo};
+    window._beatRef={audioTime:ctx.currentTime,sixSec:sixMs/1000,bpm:state.tempo,stepInBar:step%STEPS,steps:STEPS};
 
     // Live swing amount — slider + genre base (jazz/lofi add natural swing)
     const swingMs=(getFx().swing+genreBaseSwing*0.5)*(60000/state.tempo/4)*0.32;
@@ -2625,9 +2622,25 @@ function toggleRecording(){
   startRecording();
 }
 
+let _recPendingTimer=null;
 function startRecording(){
   const audioCtx=liveNodes?.ctx;
   if(!audioCtx){setStatus('Start playback first, then record.');return;}
+
+  // Wait for next bar 1 before capturing
+  const ref=window._beatRef;
+  if(ref&&ref.sixSec>0&&ref.stepInBar>0){
+    const stepsLeft=ref.steps-ref.stepInBar;
+    const msToBar1=stepsLeft*ref.sixSec*1000;
+    $('recBtn').classList.add('active');$('recBtn').textContent='⏳ On 1…';
+    setStatus(`Recording starts on next bar (${(msToBar1/1000).toFixed(1)}s)…`);
+    _recPendingTimer=setTimeout(()=>{_recPendingTimer=null;_doStartRecording(audioCtx);},msToBar1);
+    return;
+  }
+  _doStartRecording(audioCtx);
+}
+
+function _doStartRecording(audioCtx){
   _recDest=audioCtx.createMediaStreamDestination();
   liveNodes.limiter.connect(_recDest);
   _recChunks=[];
@@ -2648,7 +2661,7 @@ function startRecording(){
     $('recBtn').classList.remove('active');$('recBtn').textContent='⏺ Rec';
     setStatus('Recording saved — open in any audio editor or DAW.');
   };
-  _recorder.start(250); // collect chunks every 250ms
+  _recorder.start(250);
   _recStart=Date.now();
   _recTimer=setInterval(()=>{
     const s=Math.floor((Date.now()-_recStart)/1000);
@@ -2661,6 +2674,7 @@ function startRecording(){
 }
 
 function stopRecording(){
+  if(_recPendingTimer){clearTimeout(_recPendingTimer);_recPendingTimer=null;$('recBtn').classList.remove('active');$('recBtn').textContent='⏺ Rec';setStatus('');return;}
   if(_recorder&&_recorder.state!=='inactive'){_recorder.stop();}
 }
 
