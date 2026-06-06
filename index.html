@@ -278,31 +278,54 @@ body[data-skin="brutal"] .chord-option:hover,body[data-skin="brutal"] .chord-opt
 .pulse-dot{width:9px;height:9px;border-radius:50%;background:var(--orange);opacity:0.2;transition:opacity 0.06s,transform 0.06s;flex-shrink:0;}
 .pulse-dot.active{opacity:1;transform:scale(1.7);}
 
-/* DESKTOP: visualizer on right, controls take left */
+/* DESKTOP: visualizer compact LEFT, controls are the main RIGHT area */
 @media(min-width:901px){
-  .chassis{display:grid;grid-template-columns:1fr 420px;}
+  .chassis{display:grid;grid-template-columns:280px 1fr;}
   .chassis>.stripe:first-child,
   .chassis>.port-strip,
   .chassis>.faceplate-top,
   .chassis>.input-bar{grid-column:1/-1;}
+  /* Visualizer — compact left strip */
   .chassis>.screen-row{
-    grid-column:2;grid-row:5/9;
+    grid-column:1;grid-row:5/11;
     grid-template-columns:1fr;
-    border-left:2px solid #A09888;
+    border-right:2px solid #A09888;
     border-bottom:none;
     align-self:stretch;
+    overflow-y:auto;
   }
-  .chassis>.control-section{grid-column:1;grid-row:5;border-top:2px solid #A09888;}
-  .chassis>.sections-bar{grid-column:1;grid-row:6;}
-  .chassis>.drum-section{grid-column:1;grid-row:7;}
-  .chassis>.status-strip{grid-column:1;grid-row:8;}
-  .chassis>.stripe:last-child{grid-column:1/-1;grid-row:9;}
+  /* Controls — main content area on the right */
+  .chassis>.control-section{grid-column:2;grid-row:5;border-top:2px solid #A09888;border-left:none;}
+  .chassis>.mixer-section{grid-column:2;grid-row:6;}
+  .chassis>.sections-bar{grid-column:2;grid-row:7;}
+  .chassis>.drum-section{grid-column:2;grid-row:8;}
+  .chassis>.status-strip{grid-column:2;grid-row:9;}
+  .chassis>.stripe:last-child{grid-column:1/-1;grid-row:10;}
+  /* Inner screen layout — visualizer square, sidebar below */
   .screen-outer{border-right:none;}
-  .screen{min-height:320px;}
-  .screen-sidebar{border-top:2px solid #A09888;}
-  .control-section{grid-template-columns:300px 1fr 240px;}
-  .fx-grid{grid-template-columns:1fr 1fr 1fr;}
+  .screen{min-height:260px;max-height:280px;}
+  .screen-sidebar{border-top:2px solid #A09888;border-left:none;}
+  /* Control panels — wider, more columns */
+  .control-section{grid-template-columns:200px 1fr 180px;}
+  .fx-grid{grid-template-columns:1fr 1fr 1fr 1fr;}
 }
+
+/* MIXER PANEL */
+.mixer-section{background:var(--dark-bg);border-top:1px solid var(--rule);padding:14px 18px 16px;display:flex;flex-direction:column;gap:10px;}
+.mixer-label-row{display:flex;align-items:center;gap:8px;font-size:8px;font-weight:800;letter-spacing:0.22em;text-transform:uppercase;color:var(--ink-faint);}
+.mixer-label-row::after{content:'';flex:1;height:1px;background:var(--rule);}
+.mixer-strips{display:flex;gap:16px;align-items:flex-end;}
+.mix-ch{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:44px;}
+.mix-vu-wrap{width:8px;height:80px;background:rgba(0,0,0,0.45);border:1px solid rgba(255,255,255,0.05);border-radius:2px;display:flex;align-items:flex-end;overflow:hidden;}
+.mix-vu-bar{width:100%;height:0%;border-radius:1px;transition:height 0.04s;}
+.mix-fader-wrap{height:88px;display:flex;align-items:center;justify-content:center;}
+.mix-fader{writing-mode:vertical-lr;direction:rtl;height:88px;width:6px;padding:0;flex:none;-webkit-appearance:none;appearance:none;background:#0A0907;border:1px solid #2A2820;border-radius:3px;cursor:pointer;box-shadow:inset 0 1px 3px rgba(0,0,0,0.6);}
+.mix-fader::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:12px;background:linear-gradient(90deg,#C0B8A8 0%,#706860 100%);border-radius:3px;cursor:pointer;box-shadow:0 1px 0 rgba(255,255,255,0.3) inset,0 1px 3px rgba(0,0,0,0.5);}
+.mix-fader::-moz-range-thumb{width:28px;height:12px;background:linear-gradient(90deg,#C0B8A8,#706860);border-radius:3px;border:none;}
+.mix-mute{font-size:7px;font-weight:900;letter-spacing:0.1em;padding:3px 6px;background:var(--panel-bg);border:1px solid var(--rule);color:var(--ink-faint);cursor:pointer;border-radius:2px;line-height:1;}
+.mix-mute.on{background:var(--orange);color:#000;border-color:var(--orange);}
+.mix-ch-label{font-size:7px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-faint);white-space:nowrap;}
+.mix-divider{width:1px;height:100px;background:var(--rule);align-self:center;margin:0 4px;}
 
 /* RESPONSIVE */
 @media (max-width:900px){
@@ -758,6 +781,54 @@ body[data-skin="brutal"] .drum-pad-key{color:rgba(0,0,0,0.3);background:rgba(0,0
       <div class="ls-key-block"><span class="ls-sublabel">Last Note</span><span class="ls-val" id="lsMelody">—</span></div>
     </div>
     <div class="ls-prog" id="lsProg"></div>
+  </div>
+</div>
+
+<!-- MIXER -->
+<div class="mixer-section" id="mixerPanel">
+  <div class="mixer-label-row">Mixer</div>
+  <div class="mixer-strips">
+    <div class="mix-ch">
+      <div class="mix-vu-wrap"><div class="mix-vu-bar" id="mxVU_drums" style="background:#E88340"></div></div>
+      <div class="mix-fader-wrap"><input type="range" class="mix-fader" id="mxFad_drums" min="0" max="1.5" step="0.01" value="1" title="Drums"></div>
+      <button class="mix-mute" id="mxMute_drums" onclick="mixMute('drums')">M</button>
+      <div class="mix-ch-label">DRUMS</div>
+    </div>
+    <div class="mix-divider"></div>
+    <div class="mix-ch">
+      <div class="mix-vu-wrap"><div class="mix-vu-bar" id="mxVU_bass" style="background:#8B5CF6"></div></div>
+      <div class="mix-fader-wrap"><input type="range" class="mix-fader" id="mxFad_bass" min="0" max="1.5" step="0.01" value="1" title="Bass"></div>
+      <button class="mix-mute" id="mxMute_bass" onclick="mixMute('bass')">M</button>
+      <div class="mix-ch-label">BASS</div>
+    </div>
+    <div class="mix-divider"></div>
+    <div class="mix-ch">
+      <div class="mix-vu-wrap"><div class="mix-vu-bar" id="mxVU_pad" style="background:#2ABFBF"></div></div>
+      <div class="mix-fader-wrap"><input type="range" class="mix-fader" id="mxFad_pad" min="0" max="1.5" step="0.01" value="1" title="Pad"></div>
+      <button class="mix-mute" id="mxMute_pad" onclick="mixMute('pad')">M</button>
+      <div class="mix-ch-label">PAD</div>
+    </div>
+    <div class="mix-divider"></div>
+    <div class="mix-ch">
+      <div class="mix-vu-wrap"><div class="mix-vu-bar" id="mxVU_organ" style="background:#84CC16"></div></div>
+      <div class="mix-fader-wrap"><input type="range" class="mix-fader" id="mxFad_organ" min="0" max="1.5" step="0.01" value="0.85" title="Organ"></div>
+      <button class="mix-mute" id="mxMute_organ" onclick="mixMute('organ')">M</button>
+      <div class="mix-ch-label">ORGAN</div>
+    </div>
+    <div class="mix-divider"></div>
+    <div class="mix-ch">
+      <div class="mix-vu-wrap"><div class="mix-vu-bar" id="mxVU_melody" style="background:#3EB550"></div></div>
+      <div class="mix-fader-wrap"><input type="range" class="mix-fader" id="mxFad_melody" min="0" max="1.5" step="0.01" value="1" title="Melody"></div>
+      <button class="mix-mute" id="mxMute_melody" onclick="mixMute('melody')">M</button>
+      <div class="mix-ch-label">MELODY</div>
+    </div>
+    <div class="mix-divider"></div>
+    <div class="mix-ch">
+      <div class="mix-vu-wrap"><div class="mix-vu-bar" id="mxVU_reverb" style="background:#60A5FA"></div></div>
+      <div class="mix-fader-wrap"><input type="range" class="mix-fader" id="mxFad_reverb" min="0" max="1" step="0.01" value="0.5" title="Reverb wet"></div>
+      <button class="mix-mute" id="mxMute_reverb" onclick="mixMute('reverb')">M</button>
+      <div class="mix-ch-label">REVERB</div>
+    </div>
   </div>
 </div>
 
@@ -1553,6 +1624,12 @@ function playWeatherSoundscape(state){
   const gf=ctx.createBiquadFilter();gf.type='lowpass';
   gf.frequency.value=80*Math.pow(250,fx.filter); // logarithmic sweep 80Hz–20kHz
   gf.Q.value=0.8;
+
+  // MIXER BUSES — one gain node per channel, all feed gf
+  const drumBus=ctx.createGain();drumBus.gain.value=1;drumBus.connect(gf);
+  const bassSubBus=ctx.createGain();bassSubBus.gain.value=1;bassSubBus.connect(master);
+  const bassMidBus=ctx.createGain();bassMidBus.gain.value=1;bassMidBus.connect(gf);
+
   // ── TAPE CHAIN: dusty lo-fi LP → tanh saturation → wow/flutter warble → master ──
   const dustyLP=ctx.createBiquadFilter();dustyLP.type='lowpass';dustyLP.frequency.value=8500;dustyLP.Q.value=0.5;
   const tapeSat=ctx.createWaveShaper();
@@ -1646,7 +1723,7 @@ function playWeatherSoundscape(state){
   } else {bcInput.connect(gf);}
 
   // Store live nodes
-  liveNodes={ctx,gf,rvSend,dlySend,master,limiter,melodyBus:null,harmonicBus:null,analyser,dlyFB,dlyNode,ppFBL,ppFBR,ppL,ppR,ppWet,bcInput,getDelayFB,dustyLP,tapeSat,warbleDelay,wowLFO,flutterLFO,wowLFOG,flutterLFOG,crushNode,filterBase:gf.frequency.value,wahFilter,wahLFO,wahLFOG,wahWet,wahDry,scatterGain};
+  liveNodes={ctx,gf,rvSend,dlySend,master,limiter,melodyBus:null,harmonicBus:null,analyser,dlyFB,dlyNode,ppFBL,ppFBR,ppL,ppR,ppWet,bcInput,getDelayFB,dustyLP,tapeSat,warbleDelay,wowLFO,flutterLFO,wowLFOG,flutterLFOG,crushNode,filterBase:gf.frequency.value,wahFilter,wahLFO,wahLFOG,wahWet,wahDry,scatterGain,drumBus,bassSubBus,bassMidBus,padBus:null};
 
   function wire(n){n.connect(gf);n.connect(rvSend);n.connect(dlySend);}
 
@@ -1829,7 +1906,7 @@ function playWeatherSoundscape(state){
   organLP.connect(organGain);
   organGain.connect(gf);
   organGain.connect(rvSend);
-  liveNodes.organOscs=organOscs;liveNodes.organGain=organGain;
+  liveNodes.organOscs=organOscs;liveNodes.organGain=organGain;liveNodes.padBus=padBus;
   padBus.gain.setValueAtTime(0,ctx.currentTime);
   padBus.gain.linearRampToValueAtTime(vp.padVol,ctx.currentTime+vp.padAttk);
 
@@ -2016,6 +2093,7 @@ function playWeatherSoundscape(state){
   }
 
   function playKick(vel=1){
+    (window._mxL=window._mxL||{}).drums=Math.min(1,((window._mxL||{}).drums||0)+vel*0.8);
     const now=ctx.currentTime;
     // Deep boom bap body: 150Hz→48Hz exponential sweep
     const osc=ctx.createOscillator();const g=ctx.createGain();
@@ -2025,7 +2103,7 @@ function playWeatherSoundscape(state){
     const vol=(phase==='sparse'?0.12:0.20+state.storm*0.06)*vel;
     g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(vol,now+0.006);
     g.gain.exponentialRampToValueAtTime(0.0001,now+0.45);
-    osc.connect(g);g.connect(gf);osc.start(now);osc.stop(now+0.5);
+    osc.connect(g);g.connect(drumBus);osc.start(now);osc.stop(now+0.5);
     // Click transient: 6ms noise burst for punch
     const n=Math.floor(ctx.sampleRate*0.006);
     const clkBuf=ctx.createBuffer(1,n,ctx.sampleRate);
@@ -2034,12 +2112,13 @@ function playWeatherSoundscape(state){
     const clk=ctx.createBufferSource();clk.buffer=clkBuf;
     const clkHP=ctx.createBiquadFilter();clkHP.type='highpass';clkHP.frequency.value=5000;
     const clkG=ctx.createGain();clkG.gain.setValueAtTime(0.16*vel,now);clkG.gain.exponentialRampToValueAtTime(0.0001,now+0.006);
-    clk.connect(clkHP);clkHP.connect(clkG);clkG.connect(gf);clk.start(now);
+    clk.connect(clkHP);clkHP.connect(clkG);clkG.connect(drumBus);clk.start(now);
   }
 
   function playBassNote(freq,durBeats,vel=1.0){
     if(state.harmony==='suspended')return;
-    window._bassHit=(window._bassHit||0)+vel; // radar pulse trigger
+    window._bassHit=(window._bassHit||0)+vel;
+    (window._mxL=window._mxL||{}).bass=Math.min(1,((window._mxL||{}).bass||0)+vel*0.7);
     const now=ctx.currentTime;
     const noteDur=(60/state.tempo)*durBeats;
     // Sub sine one octave below — deep foundation
@@ -2050,7 +2129,7 @@ function playWeatherSoundscape(state){
     subG.gain.setValueAtTime(0.22*vel,now+noteDur*0.70);
     subG.gain.exponentialRampToValueAtTime(0.0001,now+noteDur*0.95);
     const subLP=ctx.createBiquadFilter();subLP.type='lowpass';subLP.frequency.value=220;
-    sub.connect(subLP);subLP.connect(subG);subG.connect(master);
+    sub.connect(subLP);subLP.connect(subG);subG.connect(bassSubBus);
     sub.start(now);sub.stop(now+noteDur+0.05);
     // Triangle at pitch — harmonic presence
     const mid=ctx.createOscillator();const midG=ctx.createGain();
@@ -2060,7 +2139,7 @@ function playWeatherSoundscape(state){
     midG.gain.setValueAtTime(0.08*vel,now+noteDur*0.55);
     midG.gain.exponentialRampToValueAtTime(0.0001,now+noteDur*0.88);
     const midLP=ctx.createBiquadFilter();midLP.type='lowpass';midLP.frequency.value=500;
-    mid.connect(midLP);midLP.connect(midG);midG.connect(gf);
+    mid.connect(midLP);midLP.connect(midG);midG.connect(bassMidBus);
     mid.start(now);mid.stop(now+noteDur+0.05);
   }
 
@@ -2076,7 +2155,7 @@ function playWeatherSoundscape(state){
     }else{
       g.gain.value=vol*pGain();
     }
-    src.connect(hpf);hpf.connect(g);g.connect(gf);
+    src.connect(hpf);hpf.connect(g);g.connect(drumBus);
     src.start(now);src.stop(now+(open?0.28:0.042));
   }
 
@@ -2089,14 +2168,14 @@ function playWeatherSoundscape(state){
     const ng=ctx.createGain();
     ng.gain.setValueAtTime(0.0001,now);ng.gain.exponentialRampToValueAtTime(0.06*vel*pGain(),now+0.003);
     ng.gain.exponentialRampToValueAtTime(0.0001,now+0.15);
-    src.connect(hpf);hpf.connect(bpf);bpf.connect(ng);ng.connect(gf);ng.connect(rvSend);
+    src.connect(hpf);hpf.connect(bpf);bpf.connect(ng);ng.connect(drumBus);ng.connect(rvSend);
     src.start(now);src.stop(now+0.18);
     // Tone crack: 200Hz sine adds snap and body
     const ton=ctx.createOscillator();const tg=ctx.createGain();
     ton.type='sine';ton.frequency.value=200;
     tg.gain.setValueAtTime(0.0001,now);tg.gain.exponentialRampToValueAtTime(0.04*vel,now+0.002);
     tg.gain.exponentialRampToValueAtTime(0.0001,now+0.075);
-    ton.connect(tg);tg.connect(gf);ton.start(now);ton.stop(now+0.1);
+    ton.connect(tg);tg.connect(drumBus);ton.start(now);ton.stop(now+0.1);
   }
 
   function playShimmer(){
@@ -2163,6 +2242,7 @@ function playWeatherSoundscape(state){
   const ARP_PATTERNS={major:[0,2,1,3,2,4,1,3],minor:[0,1,3,1,0,2,3,2],suspended:[0,3,1,2,3,0,2,1]};
   function playArpNote(freq){
     if(!freq||freq<100||freq>3000)return;
+    (window._mxL=window._mxL||{}).melody=Math.min(1,((window._mxL||{}).melody||0)+0.5);
     const now=ctx.currentTime;
     const osc=ctx.createOscillator();const g=ctx.createGain();
     const flt=ctx.createBiquadFilter();flt.type='bandpass';flt.frequency.value=freq*1.8;flt.Q.value=2;
@@ -2508,6 +2588,42 @@ loadShareURL();
   const el=$(id),valEl=$(id+'Val');
   if(el&&valEl)el.addEventListener('input',()=>{valEl.textContent=parseFloat(el.value).toFixed(2);applyLiveFx();});
 });
+
+// ─── MIXER ───────────────────────────────────────────────────
+const _mxMuted={drums:false,bass:false,pad:false,organ:false,melody:false,reverb:false};
+const _mxPre={drums:1,bass:1,pad:1,organ:0.85,melody:1,reverb:0.5};
+
+function mixMute(ch){
+  _mxMuted[ch]=!_mxMuted[ch];
+  const btn=$('mxMute_'+ch);
+  if(btn)btn.classList.toggle('on',_mxMuted[ch]);
+  applyMixerChannel(ch);
+}
+function applyMixerChannel(ch){
+  const val=_mxMuted[ch]?0:parseFloat($('mxFad_'+ch)?.value??_mxPre[ch]);
+  const ln=liveNodes;if(!ln)return;
+  const now=ln.ctx?.currentTime??0;
+  if(ch==='drums'&&ln.drumBus)ln.drumBus.gain.setTargetAtTime(val,now,0.05);
+  if(ch==='bass'){if(ln.bassSubBus)ln.bassSubBus.gain.setTargetAtTime(val,now,0.05);if(ln.bassMidBus)ln.bassMidBus.gain.setTargetAtTime(val,now,0.05);}
+  if(ch==='pad'&&ln.padBus)ln.padBus.gain.setTargetAtTime(val*0.7,now,0.08);
+  if(ch==='organ'&&ln.organGain)ln.organGain.gain.setTargetAtTime(val*0.038,now,0.1);
+  if(ch==='melody'&&ln.melodyBus)ln.melodyBus.gain.setTargetAtTime(val*getFx().melody,now,0.05);
+  if(ch==='reverb'&&ln.rvSend)ln.rvSend.gain.setTargetAtTime(val*getFx().reverb,now,0.08);
+}
+['drums','bass','pad','organ','melody','reverb'].forEach(ch=>{
+  const el=$('mxFad_'+ch);
+  if(el)el.addEventListener('input',()=>applyMixerChannel(ch));
+});
+// VU meter animation
+window._mxL={drums:0,bass:0,pad:0,organ:0,melody:0,reverb:0};
+setInterval(()=>{
+  const L=window._mxL||{};
+  ['drums','bass','pad','organ','melody','reverb'].forEach(ch=>{
+    L[ch]=Math.max(0,(L[ch]||0)-0.028);
+    const bar=$('mxVU_'+ch);
+    if(bar)bar.style.height=Math.round(L[ch]*100)+'%';
+  });
+},16);
 
 // Volume knob
 const volKnob=$('volKnob');
