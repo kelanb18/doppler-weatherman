@@ -1994,30 +1994,30 @@ function playWeatherSoundscape(state){
     clk.connect(clkHP);clkHP.connect(clkG);clkG.connect(gf);clk.start(now);
   }
 
-  function playSubBass(){
+  function playBassNote(freq,durBeats,vel=1.0){
     if(state.harmony==='suspended')return;
     const now=ctx.currentTime;
-    const beatDur=60/state.tempo;
-    // Deep sub (2 octaves below root) — long sustain, roots the chord
+    const noteDur=(60/state.tempo)*durBeats;
+    // Sub sine one octave below — deep foundation
     const sub=ctx.createOscillator();const subG=ctx.createGain();
-    sub.type='sine';sub.frequency.value=chord[0]*0.25;
+    sub.type='sine';sub.frequency.value=freq*0.5;
     subG.gain.setValueAtTime(0.0001,now);
-    subG.gain.exponentialRampToValueAtTime(0.22,now+0.010);
-    subG.gain.setValueAtTime(0.22,now+beatDur*0.65);
-    subG.gain.exponentialRampToValueAtTime(0.0001,now+beatDur*0.96);
-    const subLP=ctx.createBiquadFilter();subLP.type='lowpass';subLP.frequency.value=200;
+    subG.gain.exponentialRampToValueAtTime(0.22*vel,now+0.010);
+    subG.gain.setValueAtTime(0.22*vel,now+noteDur*0.70);
+    subG.gain.exponentialRampToValueAtTime(0.0001,now+noteDur*0.95);
+    const subLP=ctx.createBiquadFilter();subLP.type='lowpass';subLP.frequency.value=220;
     sub.connect(subLP);subLP.connect(subG);subG.connect(master);
-    sub.start(now);sub.stop(now+beatDur+0.05);
-    // Mid-bass (1 octave below root, triangle) — punchy presence
+    sub.start(now);sub.stop(now+noteDur+0.05);
+    // Triangle at pitch — harmonic presence
     const mid=ctx.createOscillator();const midG=ctx.createGain();
-    mid.type='triangle';mid.frequency.value=chord[0]*0.5;
+    mid.type='triangle';mid.frequency.value=freq;
     midG.gain.setValueAtTime(0.0001,now);
-    midG.gain.exponentialRampToValueAtTime(0.08,now+0.015);
-    midG.gain.setValueAtTime(0.08,now+beatDur*0.45);
-    midG.gain.exponentialRampToValueAtTime(0.0001,now+beatDur*0.82);
-    const midLP=ctx.createBiquadFilter();midLP.type='lowpass';midLP.frequency.value=480;
+    midG.gain.exponentialRampToValueAtTime(0.08*vel,now+0.015);
+    midG.gain.setValueAtTime(0.08*vel,now+noteDur*0.55);
+    midG.gain.exponentialRampToValueAtTime(0.0001,now+noteDur*0.88);
+    const midLP=ctx.createBiquadFilter();midLP.type='lowpass';midLP.frequency.value=500;
     mid.connect(midLP);midLP.connect(midG);midG.connect(gf);
-    mid.start(now);mid.stop(now+beatDur+0.05);
+    mid.start(now);mid.stop(now+noteDur+0.05);
   }
 
   function playHat(vol=0.008,open=false){
@@ -2155,6 +2155,24 @@ function playWeatherSoundscape(state){
     dlyFB.gain.setTargetAtTime(Math.min(0.45,fbBase+0.1*curve),ctx.currentTime,0.5);
   }
 
+  // BASSLINE PATTERNS — [beatPos(0–4), noteType, durationBeats, velocity]
+  // noteType: 0=root  1=fifth  2=third  3=root+8va  4=chromApproach  5=seventh
+  const BL=[
+    [[0,0,1.0,1.0],[1,1,0.5,0.72],[2,0,1.0,0.88],[3,1,0.5,0.70]],                                // 0: root+fifth bounce
+    [[0,0,1.0,1.0],[1,2,0.75,0.68],[2,1,0.75,0.82],[3,3,0.50,0.78],[3.75,4,0.25,0.52]],          // 1: walking (root→3rd→5th→8va→approach)
+    [[0,0,0.75,1.0],[0.75,1,0.25,0.60],[2,0,0.75,0.88],[2.5,2,0.50,0.65],[3.25,0,0.75,0.82]],   // 2: syncopated Motown
+    [[0,0,1.5,1.0],[2,0,1.0,0.85]],                                                                // 3: minimal (long held downbeats)
+    [[0,0,0.5,1.0],[0.5,3,0.5,0.55],[1.5,1,0.5,0.72],[2,0,0.5,0.88],[3,2,0.5,0.68],[3.5,1,0.5,0.65]], // 4: octave groove
+    [[0,0,0.75,1.0],[1,2,0.25,0.65],[1.5,1,0.5,0.78],[2.5,0,0.5,0.85],[3,5,0.5,0.62],[3.5,1,0.5,0.70]], // 5: jazz walk (root→3→5→…→7→5)
+  ];
+  let _blIdx=0;
+  function selectBL(){
+    const{isStormy,isFoggy,isRaining}=state;
+    const pool=isStormy?[2,4,2,4,2]:isFoggy?[1,3,5,3,1]:isRaining?[0,1,2,1,0]:[0,1,4,5,2];
+    _blIdx=pool[Math.floor(Math.random()*pool.length)];
+  }
+  selectBL();
+
   // SEQUENCER
   const beatMs=60000/state.tempo;
   const sixMs=beatMs/4;
@@ -2196,7 +2214,6 @@ function playWeatherSoundscape(state){
       const kickVel=cs===0?1.0:0.68+Math.random()*0.28;
       const dOff=cs===0?0:swingMs*0.55+Math.random()*9;
       setTimeout(()=>{playKick(kickVel);pulseVisual();},dOff);
-      if(cs===0||cs===Math.floor(STEPS/2)){setTimeout(()=>playSubBass(),dOff+2);}
     }
 
     // SNARE — main backbeat hits
@@ -2221,6 +2238,25 @@ function playWeatherSoundscape(state){
       setTimeout(()=>playHat(hVol,isOpen),hOff);
     }
     } // end genreDrumsActive
+
+    // BASSLINE — step-sequenced melodic bass notes
+    {
+      const sPerB=STEPS/4.0;
+      const bFreqs=[
+        chord[0],                             // 0: root
+        chord[3]*0.5,                         // 1: fifth
+        chord[2]*0.5,                         // 2: third
+        chord[0]*2,                           // 3: root +8va
+        chord[0]*Math.pow(2,-1/12),           // 4: chromatic approach (semitone below root)
+        chord[4]*0.5,                         // 5: seventh
+      ];
+      BL[_blIdx].forEach(([bp,nt,dur,vel])=>{
+        if(Math.round(bp*sPerB)===cs){
+          const freq=bFreqs[Math.min(nt,bFreqs.length-1)];
+          setTimeout(()=>playBassNote(freq,dur,vel),Math.random()*7);
+        }
+      });
+    }
 
     // ARPEGGIATOR — driven by genre blend weight
     if(phase!=='sparse'&&timeSig.hatOn&&timeSig.hatOn.includes(cs)&&cs%4!==0){
@@ -2278,6 +2314,7 @@ function playWeatherSoundscape(state){
       const activeProg=window._liveChordCtx?.progression||progression;
       chordIdx=(chordIdx+1)%activeProg.length;
       chord=activeProg[chordIdx];
+      selectBL();
       motif=buildMotif(chord);
       cpFreq=chord[0]*1.5;
       liveSheetData.chordIdx=chordIdx;
