@@ -278,6 +278,32 @@ body[data-skin="brutal"] .chord-option:hover,body[data-skin="brutal"] .chord-opt
 .pulse-dot{width:9px;height:9px;border-radius:50%;background:var(--orange);opacity:0.2;transition:opacity 0.06s,transform 0.06s;flex-shrink:0;}
 .pulse-dot.active{opacity:1;transform:scale(1.7);}
 
+/* DESKTOP: visualizer on right, controls take left */
+@media(min-width:901px){
+  .chassis{display:grid;grid-template-columns:1fr 420px;}
+  .chassis>.stripe:first-child,
+  .chassis>.port-strip,
+  .chassis>.faceplate-top,
+  .chassis>.input-bar{grid-column:1/-1;}
+  .chassis>.screen-row{
+    grid-column:2;grid-row:5/9;
+    grid-template-columns:1fr;
+    border-left:2px solid #A09888;
+    border-bottom:none;
+    align-self:stretch;
+  }
+  .chassis>.control-section{grid-column:1;grid-row:5;border-top:2px solid #A09888;}
+  .chassis>.sections-bar{grid-column:1;grid-row:6;}
+  .chassis>.drum-section{grid-column:1;grid-row:7;}
+  .chassis>.status-strip{grid-column:1;grid-row:8;}
+  .chassis>.stripe:last-child{grid-column:1/-1;grid-row:9;}
+  .screen-outer{border-right:none;}
+  .screen{min-height:320px;}
+  .screen-sidebar{border-top:2px solid #A09888;}
+  .control-section{grid-template-columns:300px 1fr 240px;}
+  .fx-grid{grid-template-columns:1fr 1fr 1fr;}
+}
+
 /* RESPONSIVE */
 @media (max-width:900px){
   .screen-row{grid-template-columns:1fr;}
@@ -1787,6 +1813,23 @@ function playWeatherSoundscape(state){
     });
   }
   buildPad(chord);
+
+  // ORGAN DRONE — Beach House-style Farfisa/Vox: layered sawtooth, heavy LP, slow attack
+  const organLP=ctx.createBiquadFilter();organLP.type='lowpass';organLP.frequency.value=420;organLP.Q.value=2.2;
+  const organGain=ctx.createGain();organGain.gain.value=0.0001;
+  organGain.gain.setTargetAtTime(state.harmony==='suspended'?0:0.038,ctx.currentTime+0.2,1.4);
+  const organOscs=[];
+  // 3 oscillators: root@oct2, fifth@oct2, root@oct3 — slightly detuned for chorus
+  [[chord[1],0],[chord[3],-5],[chord[1]*2,+4]].forEach(([freq,detune])=>{
+    const osc=ctx.createOscillator();
+    osc.type='sawtooth';osc.frequency.value=freq;osc.detune.value=detune;
+    osc.connect(organLP);osc.start();
+    organOscs.push(osc);
+  });
+  organLP.connect(organGain);
+  organGain.connect(gf);
+  organGain.connect(rvSend);
+  liveNodes.organOscs=organOscs;liveNodes.organGain=organGain;
   padBus.gain.setValueAtTime(0,ctx.currentTime);
   padBus.gain.linearRampToValueAtTime(vp.padVol,ctx.currentTime+vp.padAttk);
 
@@ -1996,6 +2039,7 @@ function playWeatherSoundscape(state){
 
   function playBassNote(freq,durBeats,vel=1.0){
     if(state.harmony==='suspended')return;
+    window._bassHit=(window._bassHit||0)+vel; // radar pulse trigger
     const now=ctx.currentTime;
     const noteDur=(60/state.tempo)*durBeats;
     // Sub sine one octave below — deep foundation
@@ -2315,6 +2359,11 @@ function playWeatherSoundscape(state){
       chordIdx=(chordIdx+1)%activeProg.length;
       chord=activeProg[chordIdx];
       selectBL();
+      // Glide organ to new chord
+      if(liveNodes.organOscs){
+        const oFreqs=[chord[1],chord[3],chord[1]*2];
+        liveNodes.organOscs.forEach((osc,i)=>osc.frequency.setTargetAtTime(oFreqs[i],ctx.currentTime,0.08));
+      }
       motif=buildMotif(chord);
       cpFreq=chord[0]*1.5;
       liveSheetData.chordIdx=chordIdx;
@@ -2366,9 +2415,11 @@ function playWeatherSoundscape(state){
       clearTimeout(phaseTimer);
       if(swellTimer)clearInterval(swellTimer);
       if(crackleTimer)clearTimeout(crackleTimer);
+      const _organOscs=liveNodes?.organOscs;
       liveNodes=null;
       [wSrc,eSrc].forEach(s=>{try{s.stop();}catch(e){}});
       [fLFO,bLFO,wLFO,wowLFO,flutterLFO,wahLFO].forEach(l=>{try{l.stop();}catch(e){}});
+      if(_organOscs)_organOscs.forEach(o=>{try{o.stop();}catch(e){}});
       padVoices.forEach(v=>{try{v.stop();}catch(e){}});
       padBus.gain.setValueAtTime(0,ctx.currentTime);
       setTimeout(()=>{try{ctx.close();}catch(e){}},300);
@@ -2836,8 +2887,8 @@ function startHvAnim(){
     const beatPhase=Math.min(1,elapsed/beatMs);
     const tempC=s.temp||20,tempF=tempC*9/5+32;
 
-    // Sweep: 1 revolution per 2 bars, tempo-synced
-    const revSec=(sixMs/1000)*32;
+    // Sweep: 1 revolution per bar, tempo-synced so every quarter-turn = 1 beat
+    const revSec=(sixMs/1000)*16;
     const sweepAngle=((wallT%revSec)/revSec)*Math.PI*2-Math.PI/2;
 
     // ── THEME ────────────────────────────────────────────────────
@@ -2933,10 +2984,23 @@ function startHvAnim(){
       c.fillStyle=pCol(t*t*0.16);c.fill();
     }
 
-    // ── SWEEP ARM ────────────────────────────────────────────────
+    // ── SWEEP ARM ── beats = quarter-turns so arm pulses every beat ──
     const ex=cx+Math.cos(sweepAngle)*maxR,ey=cy+Math.sin(sweepAngle)*maxR;
-    c.strokeStyle=pCol(0.20);c.lineWidth=7;c.beginPath();c.moveTo(cx,cy);c.lineTo(ex,ey);c.stroke();
-    c.strokeStyle=pCol(0.92);c.lineWidth=1.5;c.beginPath();c.moveTo(cx,cy);c.lineTo(ex,ey);c.stroke();
+    // Glow wide beam — brightens on beat
+    const beatBoost=beatPhase<0.12?1-beatPhase/0.12:0;
+    c.strokeStyle=pCol(0.18+beatBoost*0.28);c.lineWidth=7+beatBoost*8;
+    c.beginPath();c.moveTo(cx,cy);c.lineTo(ex,ey);c.stroke();
+    // Sharp leading edge
+    c.strokeStyle=pCol(0.90+beatBoost*0.10);c.lineWidth=1.5;
+    c.beginPath();c.moveTo(cx,cy);c.lineTo(ex,ey);c.stroke();
+    // Beat-tick dot at arm tip
+    if(beatBoost>0){
+      const dotR=4+beatBoost*8;
+      const dg=c.createRadialGradient(ex,ey,0,ex,ey,dotR*3);
+      dg.addColorStop(0,pCol(beatBoost*0.9));dg.addColorStop(1,pCol(0));
+      c.fillStyle=dg;c.beginPath();c.arc(ex,ey,dotR*3,0,Math.PI*2);c.fill();
+      c.fillStyle=pCol(beatBoost);c.beginPath();c.arc(ex,ey,dotR,0,Math.PI*2);c.fill();
+    }
     c.restore();
 
     // ── RANGE RINGS ──────────────────────────────────────────────
@@ -2965,25 +3029,59 @@ function startHvAnim(){
     });
 
     // ── OUTER BORDER + CENTER ─────────────────────────────────────
-    c.strokeStyle=pCol(0.48);c.lineWidth=2;c.beginPath();c.arc(cx,cy,maxR,0,Math.PI*2);c.stroke();
-    c.fillStyle=pCol(0.88);c.beginPath();c.arc(cx,cy,3.5,0,Math.PI*2);c.fill();
-    c.fillStyle=pCol(0.18);c.beginPath();c.arc(cx,cy,11,0,Math.PI*2);c.fill();
+    c.strokeStyle=pCol(0.55);c.lineWidth=2;c.beginPath();c.arc(cx,cy,maxR,0,Math.PI*2);c.stroke();
+    // second thin outer ring for 80s feel
+    c.strokeStyle=pCol(0.18);c.lineWidth=1;c.beginPath();c.arc(cx,cy,maxR+6,0,Math.PI*2);c.stroke();
+    const cBeat=beatPhase<0.1?1-beatPhase/0.1:0;
+    c.fillStyle=pCol(0.88+cBeat*0.12);c.beginPath();c.arc(cx,cy,3.5+cBeat*3,0,Math.PI*2);c.fill();
+    c.fillStyle=pCol(0.18+cBeat*0.35);c.beginPath();c.arc(cx,cy,11+cBeat*12,0,Math.PI*2);c.fill();
 
-    // ── HUD ──────────────────────────────────────────────────────
+    // ── BASS PULSE RINGS ─────────────────────────────────────────
+    const bh=window._bassHit||0;
+    if(bh>0.01){
+      for(let i=0;i<4;i++){
+        const rph=bh-i*0.22;if(rph<=0)continue;
+        const frac=Math.max(0.04,Math.min(0.98,1-rph*0.6));
+        const ringR=maxR*frac;
+        const alpha=rph*0.85*Math.pow(1-frac,0.3);
+        c.strokeStyle=pCol(Math.min(1,alpha));
+        c.lineWidth=1+rph*5;
+        c.beginPath();c.arc(cx,cy,ringR,0,Math.PI*2);c.stroke();
+      }
+      window._bassHit=Math.max(0,bh-0.07);
+    }
+
+    // ── CRT VIGNETTE ─────────────────────────────────────────────
+    const vig=c.createRadialGradient(cx,cy,maxR*0.55,cx,cy,maxR*1.3);
+    vig.addColorStop(0,'rgba(0,0,0,0)');vig.addColorStop(1,'rgba(0,0,0,0.72)');
+    c.fillStyle=vig;c.fillRect(0,0,W,H);
+
+    // ── HUD — 80s NEXRAD style ───────────────────────────────────
     const hudFS=Math.round(Math.max(8,H*0.025));
-    const bpmFS=Math.round(H*0.095);
-    c.font=`300 ${bpmFS}px 'Inter',sans-serif`;c.fillStyle=pCol(0.78);
+    const bpmFS=Math.round(H*0.1);
+    // "DOPPLER" watermark
+    c.font=`900 ${Math.round(H*0.055)}px 'Space Grotesk',sans-serif`;
+    c.fillStyle=pCol(0.06);c.textAlign='center';c.textBaseline='middle';
+    c.fillText('WSR-88D NEXRAD',cx,cy+maxR*0.60);
+    // BPM readout
+    c.font=`300 ${bpmFS}px 'Inter',sans-serif`;c.fillStyle=pCol(0.82);
     c.textAlign='left';c.textBaseline='top';c.fillText(String(Math.round(bpm)),8,5);
-    c.font=`700 ${hudFS}px 'Space Grotesk',sans-serif`;c.fillStyle=pCol(0.42);
+    c.font=`800 ${hudFS}px 'Space Grotesk',sans-serif`;c.fillStyle=pCol(0.45);
     c.fillText('BPM',8+c.measureText(String(Math.round(bpm))).width+4,10);
-    c.textAlign='right';c.fillStyle=pCol(0.30);c.fillText(`${Math.round(tempF)}°F`,W-8,10);
-    c.textBaseline='bottom';c.fillStyle=pCol(0.45);c.fillText((s.label||'').toUpperCase(),W-8,H-8);
-    c.font=`500 ${Math.round(Math.max(7,H*0.02))}px 'Space Grotesk',sans-serif`;
-    c.fillStyle=pCol(0.22);c.textAlign='left';c.textBaseline='bottom';
-    for(let i=1;i<=4;i++){c.fillText(`${i*25}km`,cx+4,cy-maxR*(i/4)+1);}
+    c.textAlign='right';c.fillStyle=pCol(0.35);c.fillText(`${Math.round(tempF)}°F`,W-8,10);
+    c.textBaseline='bottom';c.fillStyle=pCol(0.50);c.fillText((s.label||'').toUpperCase(),W-8,H-8);
+    // range labels — more 80s: right-aligned with unit
+    c.font=`600 ${Math.round(Math.max(7,H*0.021))}px 'Space Grotesk',sans-serif`;
+    c.fillStyle=pCol(0.28);c.textAlign='left';c.textBaseline='bottom';
+    for(let i=1;i<=4;i++){c.fillText(`${i*25}KM`,cx+5,cy-maxR*(i/4)+2);}
+    // TILT/ELEV readout — fake but authentic
+    c.textAlign='left';c.textBaseline='top';
+    c.font=`700 ${Math.round(H*0.019)}px 'Space Grotesk',sans-serif`;
+    c.fillStyle=pCol(0.20);
+    c.fillText(`TILT 0.5°  VCP-212  ${new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'})}Z`,8,H-22);
 
     // ── BEAT FLASH ───────────────────────────────────────────────
-    if(beatPhase<0.07){c.fillStyle=pCol((0.07-beatPhase)/0.07*0.13);c.fillRect(0,0,W,H);}
+    if(beatPhase<0.07){c.fillStyle=pCol((0.07-beatPhase)/0.07*0.16);c.fillRect(0,0,W,H);}
 
     hvAnimFrame=requestAnimationFrame(draw);
   }
