@@ -193,7 +193,8 @@ input[type="range"]::-moz-range-thumb{width:14px;height:26px;background:linear-g
 /* FX PANEL */
 .fx-panel{grid-column:1/-1;border-top:1px solid var(--rule);}
 .fx-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;padding:12px 18px;}
-.fx-col{display:flex;flex-direction:column;gap:4px;min-width:0;}
+.fx-col{display:flex;flex-direction:column;gap:4px;min-width:0;overflow:hidden;}
+.control-section>*{min-width:0;}
 .fx-key{font-size:9px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-mid);}
 
 /* LIVE SHEET */
@@ -705,7 +706,7 @@ body[data-skin="brutal"] .drum-pad-key{color:rgba(0,0,0,0.3);background:rgba(0,0
     <div class="ctrl-label">FX + Composition</div>
     <div class="fx-grid">
       <div class="fx-col"><span class="fx-key">Reverb</span><div class="sl-row"><input id="fxReverb" type="range" min="0" max="1" step="0.01" value="0.35"/><span class="sl-val" id="fxReverbVal">0.35</span></div></div>
-      <div class="fx-col"><span class="fx-key">Echo</span><div class="sl-row"><input id="fxDelay" type="range" min="0" max="1" step="0.01" value="0.25"/><span class="sl-val" id="fxDelayVal">0.25</span></div></div>
+      <div class="fx-col"><span class="fx-key">Ping</span><div class="sl-row"><input id="fxDelay" type="range" min="0" max="1" step="0.01" value="0.32"/><span class="sl-val" id="fxDelayVal">0.32</span></div></div>
       <div class="fx-col"><span class="fx-key">Filter</span><div class="sl-row"><input id="fxFilter" type="range" min="0" max="1" step="0.01" value="0.55"/><span class="sl-val" id="fxFilterVal">0.55</span></div></div>
       <div class="fx-col"><span class="fx-key">Drive</span><div class="sl-row"><input id="fxDrive" type="range" min="0" max="1" step="0.01" value="0.18"/><span class="sl-val" id="fxDriveVal">0.18</span></div></div>
       <div class="fx-col"><span class="fx-key">Melody</span><div class="sl-row"><input id="fxMelody" type="range" min="0" max="1" step="0.01" value="0.85"/><span class="sl-val" id="fxMelodyVal">0.85</span></div></div>
@@ -714,8 +715,8 @@ body[data-skin="brutal"] .drum-pad-key{color:rgba(0,0,0,0.3);background:rgba(0,0
       <div class="fx-col"><span class="fx-key">Crush</span><div class="sl-row"><input id="fxCrush" type="range" min="0" max="1" step="0.01" value="0"/><span class="sl-val" id="fxCrushVal">0.00</span></div></div>
       <div class="fx-col"><span class="fx-key">Pitch Drift</span><div class="sl-row"><input id="fxDrift" type="range" min="0" max="1" step="0.01" value="0.35"/><span class="sl-val" id="fxDriftVal">0.35</span></div></div>
       <div class="fx-col"><span class="fx-key">Wah</span><div class="sl-row"><input id="fxWah" type="range" min="0" max="1" step="0.01" value="0"/><span class="sl-val" id="fxWahVal">0.00</span></div></div>
-      <div class="fx-col"><span class="fx-key">Chorus</span><div class="sl-row"><input id="fxChorus" type="range" min="0" max="1" step="0.01" value="0.15"/><span class="sl-val" id="fxChorusVal">0.15</span></div></div>
-      <div class="fx-col"><span class="fx-key">Fuzz</span><div class="sl-row"><input id="fxFuzz" type="range" min="0" max="1" step="0.01" value="0"/><span class="sl-val" id="fxFuzzVal">0.00</span></div></div>
+      <div class="fx-col"><span class="fx-key">Shimmer</span><div class="sl-row"><input id="fxShimmer" type="range" min="0" max="1" step="0.01" value="0.22"/><span class="sl-val" id="fxShimmerVal">0.22</span></div></div>
+      <div class="fx-col"><span class="fx-key">Scatter</span><div class="sl-row"><input id="fxScatter" type="range" min="0" max="1" step="0.01" value="0"/><span class="sl-val" id="fxScatterVal">0.00</span></div></div>
     </div>
   </div>
 
@@ -1060,8 +1061,8 @@ function getFx(){
     crush:parseFloat($('fxCrush')?.value??0),
     drift:parseFloat($('fxDrift')?.value??0.35),
     wah:parseFloat($('fxWah')?.value??0),
-    chorus:parseFloat($('fxChorus')?.value??0.15),
-    fuzz:parseFloat($('fxFuzz')?.value??0),
+    shimmer:parseFloat($('fxShimmer')?.value??0.22),
+    scatter:parseFloat($('fxScatter')?.value??0),
     vol:parseFloat($('volKnob')?.value??0.75),
   };
 }
@@ -1069,7 +1070,7 @@ function getFx(){
 function applyLiveFx(){
   if(!liveNodes)return;
   const fx=getFx();
-  const {ctx,gf,rvSend,dlySend,master,melodyBus,harmonicBus,tapeSat,dustyLP,wowLFOG,flutterLFOG,dlyFB,crushNode,wahWet,wahDry,wahLFOG,fuzzNode,fuzzWet,fuzzDry,choWet,choLFOG}=liveNodes;
+  const {ctx,gf,rvSend,dlySend,master,melodyBus,harmonicBus,tapeSat,dustyLP,wowLFOG,flutterLFOG,crushNode,wahWet,wahDry,wahLFOG,shimFB,shimWet}=liveNodes;
   const now=ctx.currentTime;
   // Filter — full logarithmic sweep 80Hz to 20kHz (dramatic at both extremes)
   const hz=80*Math.pow(250,fx.filter);
@@ -1077,9 +1078,11 @@ function applyLiveFx(){
   gf.frequency.setTargetAtTime(hz,now,0.08);
   // Reverb — 0 (dead dry) to enormous (0→0.88 send gain)
   rvSend.gain.setTargetAtTime(fx.reverb*0.88,now,0.09);
-  // Echo — delay send + self-oscillating feedback at high values
-  dlySend.gain.setTargetAtTime(fx.delay*0.55,now,0.09);
-  if(dlyFB)dlyFB.gain.setTargetAtTime(Math.min(0.82,0.12+fx.delay*0.72),now,0.09);
+  // Ping — ping-pong cross delay send + cross feedback
+  dlySend.gain.setTargetAtTime(fx.delay*0.65,now,0.09);
+  const ppfb=Math.min(0.72,0.18+fx.delay*0.52);
+  if(liveNodes.ppFBL)liveNodes.ppFBL.gain.setTargetAtTime(ppfb,now,0.09);
+  if(liveNodes.ppFBR)liveNodes.ppFBR.gain.setTargetAtTime(ppfb*0.85,now,0.09);
   // Drive — tanh saturation (clean to crunchy to smashed) + dusty LP compresses down
   if(tapeSat){
     const drv=0.4+fx.drive*13;
@@ -1114,18 +1117,9 @@ function applyLiveFx(){
   if(wahWet)wahWet.gain.setTargetAtTime(fx.wah,now,0.1);
   if(wahDry)wahDry.gain.setTargetAtTime(Math.max(0,1-fx.wah*0.65),now,0.1);
   if(wahLFOG)wahLFOG.gain.setTargetAtTime(fx.wah*780,now,0.12);
-  // Chorus — detuned pad width
-  if(choWet)choWet.gain.setTargetAtTime(fx.chorus*0.48,now,0.1);
-  if(choLFOG)choLFOG.gain.setTargetAtTime(fx.chorus*0.005,now,0.1);
-  // Fuzz — hard-clip asymmetric distortion
-  if(fuzzWet)fuzzWet.gain.setTargetAtTime(fx.fuzz,now,0.1);
-  if(fuzzDry)fuzzDry.gain.setTargetAtTime(Math.max(0,1-fx.fuzz*0.72),now,0.1);
-  if(fuzzNode&&fx.fuzz>0.02){
-    const fc=new Float32Array(256);
-    const thr=Math.max(0.04,0.35-fx.fuzz*0.28);
-    for(let i=0;i<256;i++){const x=(i*2/255)-1;fc[i]=x>thr?thr+(x-thr)*0.05:x<-thr-0.08?(-thr-0.08)+(x+thr+0.08)*0.04:x;}
-    fuzzNode.curve=fc;
-  }
+  // Shimmer — bright self-resonating pad tail
+  if(shimFB)shimFB.gain.setTargetAtTime(fx.shimmer*0.72,now,0.1);
+  if(shimWet)shimWet.gain.setTargetAtTime(fx.shimmer*0.45,now,0.1);
 }
 
 // ─── UPDATEINSTRUMENTREADOUT ─────────────────────────────────
@@ -1449,20 +1443,20 @@ function setWeatherFxDefaults(s){
     return;
   }
   const defs=s.isStormy
-    ?{fxReverb:0.72,fxDelay:0.58,fxFilter:0.22,fxDrive:0.48,fxCrush:0.32,fxDrift:0.68,fxWah:0,fxChorus:0.2,fxFuzz:0.28}
+    ?{fxReverb:0.72,fxDelay:0.65,fxFilter:0.22,fxDrive:0.48,fxCrush:0.32,fxDrift:0.68,fxWah:0,fxShimmer:0.15,fxScatter:0.38}
     :s.isSnowing
-    ?{fxReverb:0.58,fxDelay:0.15,fxFilter:0.78,fxDrive:0.05,fxCrush:0,fxDrift:0.15,fxWah:0,fxChorus:0.55,fxFuzz:0}
+    ?{fxReverb:0.68,fxDelay:0.28,fxFilter:0.78,fxDrive:0.05,fxCrush:0,fxDrift:0.15,fxWah:0,fxShimmer:0.62,fxScatter:0}
     :s.isRaining
-    ?{fxReverb:0.48,fxDelay:0.32,fxFilter:0.50,fxDrive:0.15,fxCrush:0,fxDrift:0.38,fxWah:0.08,fxChorus:0.22,fxFuzz:0}
+    ?{fxReverb:0.52,fxDelay:0.42,fxFilter:0.50,fxDrive:0.15,fxCrush:0,fxDrift:0.38,fxWah:0.08,fxShimmer:0.28,fxScatter:0}
     :s.isFoggy
-    ?{fxReverb:0.65,fxDelay:0.48,fxFilter:0.32,fxDrive:0.08,fxCrush:0,fxDrift:0.28,fxWah:0,fxChorus:0.38,fxFuzz:0}
+    ?{fxReverb:0.72,fxDelay:0.55,fxFilter:0.32,fxDrive:0.08,fxCrush:0,fxDrift:0.28,fxWah:0,fxShimmer:0.48,fxScatter:0}
     :(s.isSunny&&s.warmth>0.6)
-    ?{fxReverb:0.18,fxDelay:0.22,fxFilter:0.72,fxDrive:0.10,fxCrush:0,fxDrift:0.20,fxWah:0.28,fxChorus:0.15,fxFuzz:0}
+    ?{fxReverb:0.22,fxDelay:0.30,fxFilter:0.72,fxDrive:0.10,fxCrush:0,fxDrift:0.20,fxWah:0.28,fxShimmer:0.18,fxScatter:0}
     :!s.isDaytime
-    ?{fxReverb:0.55,fxDelay:0.40,fxFilter:0.42,fxDrive:0.12,fxCrush:0,fxDrift:0.32,fxWah:0,fxChorus:0.28,fxFuzz:0}
+    ?{fxReverb:0.60,fxDelay:0.48,fxFilter:0.42,fxDrive:0.12,fxCrush:0,fxDrift:0.32,fxWah:0,fxShimmer:0.35,fxScatter:0}
     :s.wind>0.65
-    ?{fxReverb:0.38,fxDelay:0.35,fxFilter:0.58,fxDrive:0.22,fxCrush:0,fxDrift:0.58,fxWah:0.18,fxChorus:0.12,fxFuzz:0}
-    :{fxReverb:0.35,fxDelay:0.25,fxFilter:0.55,fxDrive:0.18,fxCrush:0,fxDrift:0.35,fxWah:0,fxChorus:0.15,fxFuzz:0};
+    ?{fxReverb:0.42,fxDelay:0.40,fxFilter:0.58,fxDrive:0.22,fxCrush:0,fxDrift:0.58,fxWah:0.18,fxShimmer:0.14,fxScatter:0.18}
+    :{fxReverb:0.38,fxDelay:0.32,fxFilter:0.55,fxDrive:0.18,fxCrush:0,fxDrift:0.35,fxWah:0,fxShimmer:0.22,fxScatter:0};
   Object.entries(defs).forEach(([id,v])=>{
     const el=$(id),valEl=$(id+'Val');
     if(el){el.value=String(v);}
@@ -1558,13 +1552,9 @@ function playWeatherSoundscape(state){
   gf.connect(wahDry);wahDry.connect(crushNode);
   gf.connect(wahFilter);wahFilter.connect(wahWet);wahWet.connect(crushNode);
   crushNode.connect(dustyLP);dustyLP.connect(tapeSat);
-  // FUZZ INSERT — asymmetric hard-clip wet/dry after tape saturation
-  const fuzzNode=ctx.createWaveShaper();
-  {const fc=new Float32Array(256);const thr=0.35;for(let i=0;i<256;i++){const x=(i*2/255)-1;fc[i]=x>thr?thr+(x-thr)*0.05:x<-(thr+0.08)?(-(thr+0.08))+(x+(thr+0.08))*0.04:x;}fuzzNode.curve=fc;fuzzNode.oversample='2x';}
-  const fuzzWet=ctx.createGain();fuzzWet.gain.value=fx.fuzz;
-  const fuzzDry=ctx.createGain();fuzzDry.gain.value=Math.max(0,1-fx.fuzz*0.72);
-  tapeSat.connect(fuzzDry);fuzzDry.connect(warbleDelay);
-  tapeSat.connect(fuzzNode);fuzzNode.connect(fuzzWet);fuzzWet.connect(warbleDelay);
+  // SCATTER GATE — rhythmic stutter, automated by seqTimer each step
+  const scatterGain=ctx.createGain();scatterGain.gain.value=1;
+  tapeSat.connect(scatterGain);scatterGain.connect(warbleDelay);
   warbleDelay.connect(master);
 
   // REVERB NETWORK
@@ -1590,14 +1580,29 @@ function playWeatherSoundscape(state){
     if(s.isSunny)    return b*0.375;  // dotted 1/16
     return b;                         // 1/4 default
   }
-  function getDelayFB(s,fxv){return Math.min(0.45,( s.isStormy?0.28:s.isFoggy?0.42:s.isRaining?0.35:0.3 )+fxv*0.15);}
-  const dlySend=ctx.createGain();dlySend.gain.value=fx.delay*0.18;
-  const dlyNode=ctx.createDelay(3.0);dlyNode.delayTime.value=getDelayTime(state.tempo,state);
-  const dlyFB=ctx.createGain();dlyFB.gain.value=getDelayFB(state,fx.delay);
-  const dlyF=ctx.createBiquadFilter();dlyF.type='lowpass';dlyF.frequency.value=2000;
-  const dlyReturn=ctx.createGain();dlyReturn.gain.value=0.32;
-  dlySend.connect(dlyNode);dlyNode.connect(dlyF);dlyF.connect(dlyFB);
-  dlyFB.connect(dlyNode);dlyF.connect(dlyReturn);dlyReturn.connect(gf);
+  // PING-PONG CROSS DELAY — L dotted-8th / R 8th, cross-fed for digital bounce
+  function getDelayFB(s,fxv){return Math.min(0.72,(s.isStormy?0.35:s.isFoggy?0.52:s.isRaining?0.45:0.38)+fxv*0.28);}
+  const beatSec=60/state.tempo;
+  const dlySend=ctx.createGain();dlySend.gain.value=fx.delay*0.65;
+  const ppL=ctx.createDelay(3.0);ppL.delayTime.value=beatSec*0.75;   // dotted 8th (L)
+  const ppR=ctx.createDelay(3.0);ppR.delayTime.value=beatSec*0.5;    // straight 8th (R)
+  const ppFBL=ctx.createGain();ppFBL.gain.value=getDelayFB(state,fx.delay);       // L→R cross
+  const ppFBR=ctx.createGain();ppFBR.gain.value=getDelayFB(state,fx.delay)*0.85;  // R→L cross
+  // Bright high-shelf per tap for that crisp digital sparkle
+  const ppBrL=ctx.createBiquadFilter();ppBrL.type='highshelf';ppBrL.frequency.value=2800;ppBrL.gain.value=6;
+  const ppBrR=ctx.createBiquadFilter();ppBrR.type='highshelf';ppBrR.frequency.value=2800;ppBrR.gain.value=6;
+  // Hard stereo pan
+  const ppPanL=ctx.createStereoPanner();ppPanL.pan.value=-0.88;
+  const ppPanR=ctx.createStereoPanner();ppPanR.pan.value=0.88;
+  const ppWet=ctx.createGain();ppWet.gain.value=0.62;
+  // Connections: dlySend → ppL (left tap) and ppR cross-feeds ppL
+  dlySend.connect(ppL);
+  ppL.connect(ppBrL);ppBrL.connect(ppPanL);ppPanL.connect(ppWet); // L tap → output
+  ppL.connect(ppFBL);ppFBL.connect(ppR);                           // L cross-feeds R
+  ppR.connect(ppBrR);ppBrR.connect(ppPanR);ppPanR.connect(ppWet); // R tap → output
+  ppR.connect(ppFBR);ppFBR.connect(ppL);                           // R cross-feeds L
+  ppWet.connect(master);                                            // direct to master for clarity
+  const dlyNode=ppL;const dlyFB=ppFBL;
 
   // BITCRUSHER — WaveShaper-based, used on perc during storm/rain
   const bcAmt=state.isStormy?0.55:state.isRaining?0.3:0.0;
@@ -1615,7 +1620,7 @@ function playWeatherSoundscape(state){
   } else {bcInput.connect(gf);}
 
   // Store live nodes
-  liveNodes={ctx,gf,rvSend,dlySend,master,limiter,melodyBus:null,harmonicBus:null,analyser,dlyFB,dlyNode,bcInput,getDelayFB,dustyLP,tapeSat,warbleDelay,wowLFO,flutterLFO,wowLFOG,flutterLFOG,crushNode,filterBase:gf.frequency.value,wahFilter,wahLFO,wahLFOG,wahWet,wahDry,fuzzNode,fuzzWet,fuzzDry};
+  liveNodes={ctx,gf,rvSend,dlySend,master,limiter,melodyBus:null,harmonicBus:null,analyser,dlyFB,dlyNode,ppFBL,ppFBR,ppL,ppR,ppWet,bcInput,getDelayFB,dustyLP,tapeSat,warbleDelay,wowLFO,flutterLFO,wowLFOG,flutterLFOG,crushNode,filterBase:gf.frequency.value,wahFilter,wahLFO,wahLFOG,wahWet,wahDry,scatterGain};
 
   function wire(n){n.connect(gf);n.connect(rvSend);n.connect(dlySend);}
 
@@ -1741,22 +1746,21 @@ function playWeatherSoundscape(state){
   phaseTimer=setTimeout(nextPhase,pDurs[0]*1000);
   function pGain(){return{bloom:0.65,full:1,breathe:0.45,sparse:0.3}[phase]||0.6;}
 
-  // PAD — HPF at 220Hz clears sub/kick space, LP shapes tone
+  // PAD — HPF at 80Hz keeps sub clear but lets chord root through, LP shapes tone
   const padBus=ctx.createGain();padBus.gain.value=0;wire(padBus);
-  const padHPF=ctx.createBiquadFilter();padHPF.type='highpass';padHPF.frequency.value=220;
-  // CHORUS on pad — two detuned delay lines with slow LFO
-  const choDelay1=ctx.createDelay(0.1);choDelay1.delayTime.value=0.012;
-  const choDelay2=ctx.createDelay(0.1);choDelay2.delayTime.value=0.018;
-  const choLFO=ctx.createOscillator();const choLFOG=ctx.createGain();
-  choLFO.type='sine';choLFO.frequency.value=0.38+state.wind*0.12;
-  choLFOG.gain.value=fx.chorus*0.005;
-  choLFO.connect(choLFOG);choLFOG.connect(choDelay1.delayTime);choLFOG.connect(choDelay2.delayTime);choLFO.start();
-  const choWet=ctx.createGain();choWet.gain.value=fx.chorus*0.48;
-  padHPF.connect(choDelay1);padHPF.connect(choDelay2);
-  choDelay1.connect(choWet);choDelay2.connect(choWet);choWet.connect(padBus);
+  const padHPF=ctx.createBiquadFilter();padHPF.type='highpass';padHPF.frequency.value=80;
+  // SHIMMER on pad — bright self-resonating feedback tail into reverb
+  const shimDelay=ctx.createDelay(2.0);shimDelay.delayTime.value=0.55+state.brightness*0.45;
+  const shimHS=ctx.createBiquadFilter();shimHS.type='highshelf';shimHS.frequency.value=3800;shimHS.gain.value=9;
+  const shimHP=ctx.createBiquadFilter();shimHP.type='highpass';shimHP.frequency.value=1200;shimHP.Q.value=1.2;
+  const shimFB=ctx.createGain();shimFB.gain.value=fx.shimmer*0.72;
+  const shimWet=ctx.createGain();shimWet.gain.value=fx.shimmer*0.45;
+  padHPF.connect(shimDelay);
+  shimDelay.connect(shimHS);shimHS.connect(shimHP);
+  shimHP.connect(shimFB);shimFB.connect(shimDelay); // self-resonating feedback loop
+  shimHP.connect(shimWet);shimWet.connect(rvSend);  // shimmer tail pours into reverb
   padHPF.connect(padBus);
-  // Register chorus nodes in liveNodes (declared after liveNodes init)
-  liveNodes.choDelay1=choDelay1;liveNodes.choDelay2=choDelay2;liveNodes.choLFO=choLFO;liveNodes.choLFOG=choLFOG;liveNodes.choWet=choWet;
+  liveNodes.shimFB=shimFB;liveNodes.shimWet=shimWet;
   const padF=ctx.createBiquadFilter();padF.type='lowpass';
   padF.frequency.value=700+state.brightness*1800;padF.Q.value=0.9;padF.connect(padHPF);
   const fLFO=ctx.createOscillator();const fLFOG=ctx.createGain();
@@ -1771,12 +1775,14 @@ function playWeatherSoundscape(state){
   function buildPad(ch){
     padVoices.forEach(v=>{try{v.stop(ctx.currentTime+2);}catch(e){}});
     padVoices.length=0;
-    [ch[1],ch[2],ch[3]].forEach((freq,i)=>{
+    // Include root (ch[0]) so the chord is clearly grounded
+    [ch[0],ch[1],ch[2],ch[3]].forEach((freq,i)=>{
       const osc=ctx.createOscillator();const g=ctx.createGain();
-      osc.type=vp.padTypes[i];
+      osc.type=i===0?'sine':vp.padTypes[i-1];
       osc.frequency.value=freq;
-      osc.detune.value=vp.padDetune[i];
-      g.gain.value=vp.padGains[i];
+      osc.detune.value=i===0?0:vp.padDetune[i-1];
+      // Root gets extra weight; upper voices scaled up 1.6× from before
+      g.gain.value=i===0?vp.padGains[0]*0.9:vp.padGains[i-1]*1.6;
       osc.connect(g);g.connect(padF);osc.start();padVoices.push(osc);
     });
   }
@@ -1991,11 +1997,27 @@ function playWeatherSoundscape(state){
   function playSubBass(){
     if(state.harmony==='suspended')return;
     const now=ctx.currentTime;
-    const osc=ctx.createOscillator();const g=ctx.createGain();
-    osc.type='sine';osc.frequency.value=chord[0]*0.25;
-    g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(0.055,now+0.005);
-    g.gain.exponentialRampToValueAtTime(0.0001,now+0.3);
-    osc.connect(g);g.connect(gf);osc.start(now);osc.stop(now+0.35);
+    const beatDur=60/state.tempo;
+    // Deep sub (2 octaves below root) — long sustain, roots the chord
+    const sub=ctx.createOscillator();const subG=ctx.createGain();
+    sub.type='sine';sub.frequency.value=chord[0]*0.25;
+    subG.gain.setValueAtTime(0.0001,now);
+    subG.gain.exponentialRampToValueAtTime(0.22,now+0.010);
+    subG.gain.setValueAtTime(0.22,now+beatDur*0.65);
+    subG.gain.exponentialRampToValueAtTime(0.0001,now+beatDur*0.96);
+    const subLP=ctx.createBiquadFilter();subLP.type='lowpass';subLP.frequency.value=200;
+    sub.connect(subLP);subLP.connect(subG);subG.connect(master);
+    sub.start(now);sub.stop(now+beatDur+0.05);
+    // Mid-bass (1 octave below root, triangle) — punchy presence
+    const mid=ctx.createOscillator();const midG=ctx.createGain();
+    mid.type='triangle';mid.frequency.value=chord[0]*0.5;
+    midG.gain.setValueAtTime(0.0001,now);
+    midG.gain.exponentialRampToValueAtTime(0.08,now+0.015);
+    midG.gain.setValueAtTime(0.08,now+beatDur*0.45);
+    midG.gain.exponentialRampToValueAtTime(0.0001,now+beatDur*0.82);
+    const midLP=ctx.createBiquadFilter();midLP.type='lowpass';midLP.frequency.value=480;
+    mid.connect(midLP);midLP.connect(midG);midG.connect(gf);
+    mid.start(now);mid.stop(now+beatDur+0.05);
   }
 
   function playHat(vol=0.008,open=false){
@@ -2153,6 +2175,18 @@ function playWeatherSoundscape(state){
     // Expose beat grid for drum pad quantization (every 16th note)
     window._beatRef={audioTime:ctx.currentTime,sixSec:sixMs/1000,bpm:state.tempo,stepInBar:step%STEPS,steps:STEPS};
 
+    // SCATTER gate — rhythmic stutter driven by FX slider
+    const scFx=getFx().scatter||0;
+    if(scFx>0.04&&liveNodes.scatterGain){
+      const scPats=[[1,0,1,1,0,1,0,0],[1,1,0,1,1,0,1,0],[1,0,0,1,0,0,1,1]];
+      const scPat=scPats[Math.min(2,Math.floor(scFx*3))];
+      if(!scPat[cs%8]){
+        liveNodes.scatterGain.gain.cancelScheduledValues(ctx.currentTime);
+        liveNodes.scatterGain.gain.setTargetAtTime(0.02,ctx.currentTime,0.003);
+        liveNodes.scatterGain.gain.setTargetAtTime(1,ctx.currentTime+(sixMs/1000)*0.84,0.004);
+      }
+    }
+
     // Live swing amount — slider + genre base (jazz/lofi add natural swing)
     const swingMs=(getFx().swing+genreBaseSwing*0.5)*(60000/state.tempo/4)*0.32;
 
@@ -2162,7 +2196,7 @@ function playWeatherSoundscape(state){
       const kickVel=cs===0?1.0:0.68+Math.random()*0.28;
       const dOff=cs===0?0:swingMs*0.55+Math.random()*9;
       setTimeout(()=>{playKick(kickVel);pulseVisual();},dOff);
-      if(cs===0){setTimeout(()=>playSubBass(),dOff+2);}
+      if(cs===0||cs===Math.floor(STEPS/2)){setTimeout(()=>playSubBass(),dOff+2);}
     }
 
     // SNARE — main backbeat hits
@@ -2297,7 +2331,7 @@ function playWeatherSoundscape(state){
       if(crackleTimer)clearTimeout(crackleTimer);
       liveNodes=null;
       [wSrc,eSrc].forEach(s=>{try{s.stop();}catch(e){}});
-      [fLFO,bLFO,wLFO,wowLFO,flutterLFO,wahLFO,choLFO].forEach(l=>{try{l.stop();}catch(e){}});
+      [fLFO,bLFO,wLFO,wowLFO,flutterLFO,wahLFO].forEach(l=>{try{l.stop();}catch(e){}});
       padVoices.forEach(v=>{try{v.stop();}catch(e){}});
       padBus.gain.setValueAtTime(0,ctx.currentTime);
       setTimeout(()=>{try{ctx.close();}catch(e){}},300);
@@ -2320,7 +2354,7 @@ $('resetToWeatherBtn2').addEventListener('click',resetToWeather);
 
 // ─── SHARE URL ───────────────────────────────────────────────
 function buildShareURL(){
-  const fxIds=['fxReverb','fxDelay','fxFilter','fxDrive','fxMelody','fxHarmony','fxWah','fxChorus','fxFuzz','fxCrush','fxDrift','fxSwing','fxVol'];
+  const fxIds=['fxReverb','fxDelay','fxFilter','fxDrive','fxMelody','fxHarmony','fxWah','fxShimmer','fxScatter','fxCrush','fxDrift','fxSwing','fxVol'];
   const fx=fxIds.map(id=>{const e=$(id);return e?Math.round(parseFloat(e.value)*100)/100:null;}).filter(v=>v!==null);
   const w=['warmthSlider','windSlider','wetnessSlider','stormSlider','brightnessSlider'].map(id=>{const e=$(id);return e?Math.round(parseFloat(e.value)*100)/100:0.5;});
   // Always mark manual:true so the recipient's FX and atmosphere are restored exactly as shared
@@ -2334,7 +2368,7 @@ function loadShareURL(){
     const obj=JSON.parse(atob(location.hash.slice(7)));
     if(obj.skin)document.body.dataset.skin=obj.skin;
     if(obj.zip){$('zipInput').value=obj.zip;try{$('zipInput2').value=obj.zip;}catch(e){}}
-    const fxIds=['fxReverb','fxDelay','fxFilter','fxDrive','fxMelody','fxHarmony','fxWah','fxChorus','fxFuzz','fxCrush','fxDrift','fxSwing','fxVol'];
+    const fxIds=['fxReverb','fxDelay','fxFilter','fxDrive','fxMelody','fxHarmony','fxWah','fxShimmer','fxScatter','fxCrush','fxDrift','fxSwing','fxVol'];
     if(obj.fx){
       // Apply FX to sliders immediately so user sees them
       fxIds.forEach((id,i)=>{
@@ -2382,7 +2416,7 @@ loadShareURL();
   });
 });
 
-['fxReverb','fxDelay','fxFilter','fxDrive','fxMelody','fxHarmony','fxSwing','fxCrush','fxDrift','fxWah','fxChorus','fxFuzz'].forEach(id=>{
+['fxReverb','fxDelay','fxFilter','fxDrive','fxMelody','fxHarmony','fxSwing','fxCrush','fxDrift','fxWah','fxShimmer','fxScatter'].forEach(id=>{
   const el=$(id),valEl=$(id+'Val');
   if(el&&valEl)el.addEventListener('input',()=>{valEl.textContent=parseFloat(el.value).toFixed(2);applyLiveFx();});
 });
@@ -2716,7 +2750,7 @@ function startHvAnim(){
   if(!canvas)return;
   const c=canvas.getContext('2d');
   let W,H;
-  let peaks=[],peakTimers=[];
+  let peaks=[],peakTimers=[],radarBlips=[],radarLastAngle=null;
 
   function resize(){
     const r=canvas.parentElement.getBoundingClientRect();
@@ -2724,28 +2758,13 @@ function startHvAnim(){
     canvas.height=Math.round(r.height*devicePixelRatio);
     c.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
     W=r.width; H=r.height;
-    peaks=[]; peakTimers=[];
+    peaks=[];peakTimers=[];radarBlips=[];radarLastAngle=null;
   }
   resize();
   new ResizeObserver(resize).observe(canvas.parentElement);
 
-  const NUM_BARS=28;
   const SR=44100,FFT=512,BIN_HZ=SR/FFT;
   const MIN_HZ=60,MAX_HZ=8000;
-
-  function getBarBins(){
-    const bands=[];
-    for(let i=0;i<NUM_BARS;i++){
-      // Log-spaced edges, both using i/NUM_BARS and (i+1)/NUM_BARS
-      const loHz=MIN_HZ*Math.pow(MAX_HZ/MIN_HZ, i/NUM_BARS);
-      const hiHz=MIN_HZ*Math.pow(MAX_HZ/MIN_HZ,(i+1)/NUM_BARS);
-      const lo=Math.max(0,Math.round(loHz/BIN_HZ));
-      const hi=Math.min(FFT/2-1,Math.round(hiHz/BIN_HZ));
-      bands.push({lo, hi:Math.max(lo,hi)});
-    }
-    return bands;
-  }
-  const BANDS=getBarBins();
 
   function draw(){
     const s=hvState;
@@ -2754,17 +2773,21 @@ function startHvAnim(){
     const wallT=performance.now()/1000;
 
     c.clearRect(0,0,W,H);
+    const cx=W/2,cy=H/2,maxR=Math.min(W,H)*0.43;
 
-    // ── IDLE ───────────────────────────────────────────────────
+    // ── IDLE ──────────────────────────────────────────────────────
     if(!s||!liveNodes){
-      c.fillStyle='#060608';c.fillRect(0,0,W,H);
+      c.fillStyle='#000A04';c.fillRect(0,0,W,H);
+      c.strokeStyle='rgba(0,180,80,0.12)';c.lineWidth=1;
+      for(let i=1;i<=4;i++){c.beginPath();c.arc(cx,cy,maxR*i/4,0,Math.PI*2);c.stroke();}
+      c.strokeStyle='rgba(0,180,80,0.07)';c.setLineDash([3,5]);
+      c.beginPath();c.moveTo(cx-maxR,cy);c.lineTo(cx+maxR,cy);c.moveTo(cx,cy-maxR);c.lineTo(cx,cy+maxR);c.stroke();
+      c.setLineDash([]);
+      c.fillStyle='rgba(0,200,100,0.35)';c.beginPath();c.arc(cx,cy,3,0,Math.PI*2);c.fill();
       if(s){
-        c.font=`600 ${Math.round(H*0.05)}px 'Space Grotesk',sans-serif`;
-        c.fillStyle='rgba(255,255,255,0.13)';c.textAlign='center';c.textBaseline='middle';
-        c.fillText('▶  PRESS PLAY',W/2,H/2);
-        c.font=`500 ${Math.round(H*0.026)}px 'Space Grotesk',sans-serif`;
-        c.fillStyle='rgba(255,255,255,0.05)';
-        c.fillText(`${Math.round(s.tempo||90)} BPM`,W/2,H/2+H*0.09);
+        c.font=`600 ${Math.round(H*0.042)}px 'Space Grotesk',sans-serif`;
+        c.fillStyle='rgba(0,200,100,0.18)';c.textAlign='center';c.textBaseline='middle';
+        c.fillText('▶  PRESS PLAY',cx,cy+H*0.11);
       }
       hvAnimFrame=requestAnimationFrame(draw);return;
     }
@@ -2774,219 +2797,156 @@ function startHvAnim(){
     const beatMs=sixMs*4;
     const elapsed=clk?performance.now()-clk.lastBeatTime:0;
     const beatPhase=Math.min(1,elapsed/beatMs);
-
-    const wind=s.wind||0,storm=s.storm||0,wet=s.wetness||0;
     const tempC=s.temp||20,tempF=tempC*9/5+32;
 
-    // ── WEATHER THEME ─────────────────────────────────────────
-    let barLo,barMid,barHi,barHot,peakCol,flashCol,skyTop,skyBot;
-    if(s.isStormy){
-      skyTop='#180008';skyBot='#0D0003';
-      barLo='#400010';barMid='#CC0033';barHi='#FF1744';barHot='#FF80AB';
-      peakCol='#FFCDD2';flashCol='rgba(255,23,68,';
-    } else if(s.isRaining){
-      skyTop='#000B22';skyBot='#000815';
-      barLo='#001840';barMid='#1460D0';barHi='#2979FF';barHot='#82B1FF';
-      peakCol='#C5CAE9';flashCol='rgba(41,121,255,';
-    } else if(s.isSnowing){
-      skyTop='#04071A';skyBot='#06091C';
-      barLo='#18184A';barMid='#7B87E0';barHi='#C5CAFF';barHot='#F0F2FF';
-      peakCol='#FFFFFF';flashCol='rgba(197,202,255,';
-    } else if(s.isFoggy){
-      skyTop='#050D12';skyBot='#091620';
-      barLo='#041015';barMid='#007A8A';barHi='#00BCD4';barHot='#80DEEA';
-      peakCol='#B2EBF2';flashCol='rgba(0,188,212,';
-    } else if(s.isSunny&&s.isDaytime){
-      if(tempF>=83){
-        skyTop='#1C0600';skyBot='#2A0E00';
-        barLo='#180400';barMid='#D84800';barHi='#FF6D00';barHot='#FFD740';
-        peakCol='#FFECB3';flashCol='rgba(255,109,0,';
-      } else if(tempF>=64){
-        skyTop='#001808';skyBot='#002A10';
-        barLo='#001806';barMid='#00A050';barHi='#00E676';barHot='#69FFAC';
-        peakCol='#CCFF90';flashCol='rgba(0,230,118,';
-      } else {
-        skyTop='#000E1A';skyBot='#001428';
-        barLo='#000E1C';barMid='#0077CC';barHi='#29B6F6';barHot='#80D8FF';
-        peakCol='#B3E5FC';flashCol='rgba(41,182,246,';
-      }
-    } else if(!s.isDaytime){
-      skyTop='#05000E';skyBot='#08001A';
-      barLo='#0C001C';barMid='#5500CC';barHi='#AA00FF';barHot='#EA80FC';
-      peakCol='#CE93D8';flashCol='rgba(170,0,255,';
-    } else {
-      skyTop='#070A14';skyBot='#0C1220';
-      barLo='#08101E';barMid='#2055E0';barHi='#448AFF';barHot='#82B1FF';
-      peakCol='#BBDEFB';flashCol='rgba(68,138,255,';
+    // Sweep: 1 revolution per 2 bars, tempo-synced
+    const revSec=(sixMs/1000)*32;
+    const sweepAngle=((wallT%revSec)/revSec)*Math.PI*2-Math.PI/2;
+
+    // ── THEME ────────────────────────────────────────────────────
+    let pR,pG,pB,useNexrad=false;
+    if(s.isStormy){pR=255;pG=30;pB=60;useNexrad=true;}
+    else if(s.isRaining){pR=40;pG=140;pB=255;useNexrad=true;}
+    else if(s.isSnowing){pR=180;pG=200;pB=255;}
+    else if(s.isFoggy){pR=200;pG=160;pB=60;}
+    else if(!s.isDaytime){pR=160;pG=80;pB=255;}
+    else if(s.isSunny&&tempF>=83){pR=255;pG=140;pB=0;}
+    else{pR=0;pG=220;pB=100;}
+
+    function pCol(a){return`rgba(${pR},${pG},${pB},${a})`;}
+    function nexradCol(t){
+      if(t<0.15)return[0,200,60];if(t<0.3)return[0,230,0];if(t<0.45)return[200,230,0];
+      if(t<0.55)return[255,200,0];if(t<0.65)return[255,120,0];if(t<0.75)return[255,30,0];
+      if(t<0.87)return[200,0,200];return[255,80,255];
+    }
+    function blipFill(t,a){
+      if(useNexrad){const[r,g,b]=nexradCol(t);return`rgba(${r},${g},${b},${a})`;}
+      return`rgba(${Math.round(pR*Math.min(1.4,t+0.4))},${Math.round(pG*Math.min(1.4,t+0.4))},${Math.round(pB*Math.min(1.4,t+0.4))},${a})`;
     }
 
-    // ── SKY ───────────────────────────────────────────────────
-    const sg=c.createLinearGradient(0,0,0,H);
-    sg.addColorStop(0,skyTop);sg.addColorStop(1,skyBot);
-    c.fillStyle=sg;c.fillRect(0,0,W,H);
+    // ── FFT ──────────────────────────────────────────────────────
+    let freqDB=null;
+    if(analyser){freqDB=new Float32Array(analyser.frequencyBinCount);analyser.getFloatFrequencyData(freqDB);}
 
-    // ── SUN ───────────────────────────────────────────────────
-    if(s.isSunny&&s.isDaytime){
-      const hot=Math.max(0,Math.min(1,(tempF-45)/70));
-      const sx=W*0.85,sy=H*0.16,sr=Math.round(H*(0.07+hot*0.06));
-      const sunG=c.createRadialGradient(sx,sy,0,sx,sy,sr*6);
-      sunG.addColorStop(0,tempF>=78?`rgba(255,${Math.round(110+hot*60)},0,${0.28+hot*0.14})`:'rgba(200,230,255,0.18)');
-      sunG.addColorStop(1,tempF>=78?'rgba(255,80,0,0)':'rgba(150,200,255,0)');
-      c.fillStyle=sunG;c.fillRect(sx-sr*6,sy-sr*6,sr*12,sr*12);
-      c.fillStyle=tempF>=78?`rgba(255,${Math.round(120+hot*55)},10,0.82)`:'rgba(240,248,255,0.82)';
-      c.beginPath();c.arc(sx,sy,sr,0,Math.PI*2);c.fill();
-      if(tempF>=68){
-        c.save();c.translate(sx,sy);
-        c.strokeStyle=`rgba(255,${tempF>=78?'150':'210'},${tempF>=78?'0':'150'},${0.09+hot*0.10})`;
-        c.lineWidth=Math.max(1,sr*0.12);
-        for(let i=0;i<12;i++){
-          const ang=i*Math.PI/6+wallT*0.25;
-          c.beginPath();c.moveTo(Math.cos(ang)*sr*1.5,Math.sin(ang)*sr*1.5);
-          c.lineTo(Math.cos(ang)*sr*(2.2+hot*2.5),Math.sin(ang)*sr*(2.2+hot*2.5));c.stroke();
+    // ── SAMPLE AUDIO → BLIPS at sweep position ───────────────────
+    const NUM_R=12;
+    if(freqDB&&radarLastAngle!==null){
+      let dA=sweepAngle-radarLastAngle;
+      if(dA<-Math.PI)dA+=Math.PI*2;if(dA>Math.PI)dA-=Math.PI*2;
+      const STEP_RAD=4.5*Math.PI/180;
+      if(Math.abs(dA)>=STEP_RAD){
+        const steps=Math.max(1,Math.round(Math.abs(dA)/STEP_RAD));
+        for(let si=0;si<steps;si++){
+          const sA=radarLastAngle+(si/steps)*dA;
+          for(let ri=0;ri<NUM_R;ri++){
+            const t=(ri+0.5)/NUM_R;
+            const loHz=MIN_HZ*Math.pow(MAX_HZ/MIN_HZ,ri/NUM_R);
+            const hiHz=MIN_HZ*Math.pow(MAX_HZ/MIN_HZ,(ri+1)/NUM_R);
+            const loBin=Math.max(0,Math.round(loHz/BIN_HZ));
+            const hiBin=Math.min(FFT/2-1,Math.round(hiHz/BIN_HZ));
+            let sum=0,cnt=0;
+            for(let b=loBin;b<=hiBin;b++){const db=freqDB[b];if(isFinite(db)&&db>-Infinity){sum+=db;cnt++;}}
+            if(!cnt)continue;
+            const intensity=Math.max(0,Math.min(1,(sum/cnt-(-80))/((-10)-(-80))));
+            if(intensity<0.07)continue;
+            const count=1+Math.floor(intensity*3);
+            for(let b2=0;b2<count;b2++){
+              if(radarBlips.length>=600)break;
+              const jA=(Math.random()-0.5)*0.20*(1-t*0.3);
+              const jR=(Math.random()-0.5)*maxR*0.09;
+              radarBlips.push({angle:sA+jA,r:Math.max(maxR*0.07,Math.min(maxR*0.97,t*maxR+jR)),intensity,life:1,sz:1.5+intensity*5.5});
+            }
+          }
         }
-        c.restore();
+        radarLastAngle=sweepAngle;
       }
+    }else{radarLastAngle=sweepAngle;}
+
+    // Age blips
+    for(let i=radarBlips.length-1;i>=0;i--){
+      radarBlips[i].life-=0.007;if(radarBlips[i].life<=0)radarBlips.splice(i,1);
     }
 
-    // ── MOON + STARS ──────────────────────────────────────────
-    if(!s.isDaytime){
-      if(!s.isStormy){
-        c.fillStyle='rgba(215,225,255,0.75)';
-        c.beginPath();c.arc(W*0.82,H*0.13,Math.round(H*0.04),0,Math.PI*2);c.fill();
-      }
-      const nStars=s.isStormy?6:(s.isRaining?20:55);
-      for(let i=0;i<nStars;i++){
-        const tx=((i*137.5)%1)*W,ty=((i*97.3)%1)*(H*0.5);
-        const tw=0.3+0.7*Math.sin(wallT*1.1+i*2.0);
-        c.fillStyle=`rgba(255,255,255,${tw*0.85})`;
-        c.beginPath();c.arc(tx,ty,0.9,0,Math.PI*2);c.fill();
-      }
+    // ── BACKGROUND ───────────────────────────────────────────────
+    c.fillStyle='#000508';c.fillRect(0,0,W,H);
+
+    // ── CLIP TO RADAR CIRCLE ─────────────────────────────────────
+    c.save();c.beginPath();c.arc(cx,cy,maxR,0,Math.PI*2);c.clip();
+    const bgGrd=c.createRadialGradient(cx,cy,0,cx,cy,maxR);
+    bgGrd.addColorStop(0,pCol(0.05));bgGrd.addColorStop(1,'rgba(0,0,0,0)');
+    c.fillStyle=bgGrd;c.fillRect(cx-maxR,cy-maxR,maxR*2,maxR*2);
+
+    // ── BLIPS ─────────────────────────────────────────────────────
+    for(const bl of radarBlips){
+      const bx=cx+Math.cos(bl.angle)*bl.r,by=cy+Math.sin(bl.angle)*bl.r;
+      const a=Math.pow(bl.life,0.55);
+      const grd=c.createRadialGradient(bx,by,0,bx,by,bl.sz*2.8);
+      grd.addColorStop(0,blipFill(bl.intensity,a*0.72));grd.addColorStop(1,blipFill(bl.intensity,0));
+      c.fillStyle=grd;c.beginPath();c.arc(bx,by,bl.sz*2.8,0,Math.PI*2);c.fill();
+      c.fillStyle=blipFill(Math.min(1,bl.intensity*1.5),a);
+      c.beginPath();c.arc(bx,by,Math.max(1,bl.sz*0.42),0,Math.PI*2);c.fill();
     }
 
-    // ── STORM CLOUDS ──────────────────────────────────────────
-    if(s.isStormy){
-      c.fillStyle='rgba(70,0,18,0.65)';
-      for(let i=0;i<6;i++){
-        const cx=((i/6)*W+(wallT*5+i*197))%W,cy=H*0.04+i*H*0.05;
-        c.beginPath();c.ellipse(cx,cy,100+i*20,26,0,0,Math.PI*2);c.fill();
-      }
+    // ── SWEEP TRAIL ──────────────────────────────────────────────
+    const trailAngle=Math.PI*0.30;
+    for(let i=0;i<50;i++){
+      const t=1-i/50;
+      const a1=sweepAngle-(i/50)*trailAngle,a2=sweepAngle-((i+1)/50)*trailAngle;
+      c.beginPath();c.moveTo(cx,cy);c.arc(cx,cy,maxR,a1,a2,true);c.closePath();
+      c.fillStyle=pCol(t*t*0.16);c.fill();
     }
 
-    // ── CLOUDS ────────────────────────────────────────────────
-    if(!s.isStormy&&!s.isRaining){
-      const n=s.isSunny?2:(s.isCloudy?7:4);
-      c.fillStyle=s.isDaytime?'rgba(255,255,255,0.05)':'rgba(80,80,120,0.06)';
-      for(let i=0;i<n;i++){
-        const cx=((i/n)*W+(wallT*13*(0.5+wind*0.5)+i*211))%W,cy=H*0.06+i*H*0.07,cw=50+i*28;
-        c.beginPath();c.ellipse(cx,cy,cw,16,0,0,Math.PI*2);c.fill();
-        c.beginPath();c.ellipse(cx+cw*0.3,cy-9,cw*0.5,13,0,0,Math.PI*2);c.fill();
-      }
+    // ── SWEEP ARM ────────────────────────────────────────────────
+    const ex=cx+Math.cos(sweepAngle)*maxR,ey=cy+Math.sin(sweepAngle)*maxR;
+    c.strokeStyle=pCol(0.20);c.lineWidth=7;c.beginPath();c.moveTo(cx,cy);c.lineTo(ex,ey);c.stroke();
+    c.strokeStyle=pCol(0.92);c.lineWidth=1.5;c.beginPath();c.moveTo(cx,cy);c.lineTo(ex,ey);c.stroke();
+    c.restore();
+
+    // ── RANGE RINGS ──────────────────────────────────────────────
+    c.strokeStyle=pCol(0.20);c.lineWidth=1;
+    for(let i=1;i<=4;i++){c.beginPath();c.arc(cx,cy,maxR*i/4,0,Math.PI*2);c.stroke();}
+    c.strokeStyle=pCol(0.09);c.lineWidth=1;c.setLineDash([3,7]);
+    c.beginPath();c.moveTo(cx-maxR,cy);c.lineTo(cx+maxR,cy);c.moveTo(cx,cy-maxR);c.lineTo(cx,cy+maxR);c.stroke();
+    c.setLineDash([]);
+
+    // ── DEGREE TICKS ─────────────────────────────────────────────
+    for(let deg=0;deg<360;deg+=10){
+      const rad=deg*Math.PI/180-Math.PI/2;
+      const isMaj=deg%90===0,isMed=deg%30===0;
+      c.strokeStyle=pCol(isMaj?0.38:isMed?0.22:0.12);c.lineWidth=1;
+      c.beginPath();
+      c.moveTo(cx+Math.cos(rad)*maxR*(isMaj?0.92:isMed?0.95:0.97),cy+Math.sin(rad)*maxR*(isMaj?0.92:isMed?0.95:0.97));
+      c.lineTo(cx+Math.cos(rad)*maxR,cy+Math.sin(rad)*maxR);c.stroke();
     }
 
-    // ── FOG ───────────────────────────────────────────────────
-    if(s.isFoggy){
-      for(let i=0;i<4;i++){
-        const fy=H*(0.25+i*0.18),fw=W*2;
-        const fx=((wallT*7*(0.5+i*0.3)+i*317)%(W+fw))-fw*0.5;
-        const fg=c.createLinearGradient(fx,0,fx+fw,0);
-        fg.addColorStop(0,'rgba(0,188,212,0)');fg.addColorStop(0.4,`rgba(0,150,170,${0.09-i*0.01})`);
-        fg.addColorStop(0.6,`rgba(0,150,170,${0.09-i*0.01})`);fg.addColorStop(1,'rgba(0,188,212,0)');
-        c.fillStyle=fg;c.fillRect(fx,fy-18,fw,42);
-      }
-    }
-
-    // ── RAIN ──────────────────────────────────────────────────
-    if(s.isRaining){
-      const n=Math.round(wet*100+45);
-      c.strokeStyle=`rgba(100,160,255,${0.38+wet*0.35})`;c.lineWidth=1;
-      for(let i=0;i<n;i++){
-        const rx=((i/n)*W*1.3+wallT*125*(1+wind*0.6))%W,ry=(wallT*210+i*(H/n))%H;
-        c.beginPath();c.moveTo(rx,ry);c.lineTo(rx-4,ry+13);c.stroke();
-      }
-    }
-
-    // ── SNOW ──────────────────────────────────────────────────
-    if(s.isSnowing){
-      for(let i=0;i<60;i++){
-        const sx=((i/60)*W+Math.sin(wallT*0.5+i*1.4)*22)%(W+8)-4;
-        const sy=(wallT*15+i*(H/60))%H,sz=1.2+Math.sin(i*2.7)*0.7;
-        c.fillStyle=`rgba(210,220,255,${0.65+Math.sin(i*1.3)*0.3})`;
-        c.beginPath();c.arc(sx,sy,sz,0,Math.PI*2);c.fill();
-      }
-    }
-
-    // ── WIND ──────────────────────────────────────────────────
-    if(wind>0.3){
-      c.strokeStyle=`rgba(255,255,255,${wind*0.12})`;c.lineWidth=1;
-      for(let i=0;i<10;i++){
-        const ly=H*0.04+i*H*0.09,lw=22+i*18;
-        const lx=((wallT*95*(0.5+wind)+i*163)%(W+lw))-lw;
-        c.beginPath();c.moveTo(lx,ly);c.lineTo(lx+lw,ly);c.stroke();
-      }
-    }
-
-    // ── LIGHTNING ─────────────────────────────────────────────
-    if(storm>0.4&&Math.random()<storm*0.008){
-      c.strokeStyle='rgba(255,245,200,0.95)';c.lineWidth=1.5;
-      const lx=W*0.15+Math.random()*W*0.7;
-      c.beginPath();c.moveTo(lx,0);c.lineTo(lx+10,H*0.25);
-      c.lineTo(lx-8,H*0.45);c.lineTo(lx+9,H*0.65);c.lineTo(lx-5,H*0.85);c.stroke();
-      c.fillStyle='rgba(255,180,80,0.10)';c.fillRect(0,0,W,H);
-    }
-
-    // ── FFT ───────────────────────────────────────────────────
-    let freqDataDB=null;
-    if(analyser){
-      freqDataDB=new Float32Array(analyser.frequencyBinCount);
-      analyser.getFloatFrequencyData(freqDataDB);
-    }
-
-    // ── EQ BARS ───────────────────────────────────────────────
-    const PL=14,PR=14,PT=55,PB=40;
-    const bAW=W-PL-PR,bAH=H-PT-PB;
-    const bW=Math.floor(bAW/NUM_BARS),gap=Math.max(1,Math.round(bW*0.18)),bw=bW-gap;
-
-    for(let i=0;i<NUM_BARS;i++){
-      const band=BANDS[i];let val=0;
-      if(freqDataDB){
-        let sum=0,cnt=0;
-        for(let b=band.lo;b<=band.hi;b++){const db=freqDataDB[b];if(isFinite(db)&&db>-Infinity){sum+=db;cnt++;}}
-        if(cnt>0){
-          const avg=sum/cnt,mapped=Math.max(0,(avg-(-80))/((-10)-(-80)));
-          const cHz=MIN_HZ*Math.pow(MAX_HZ/MIN_HZ,(i+0.5)/NUM_BARS);
-          let aw=cHz<200?0.4+cHz/200*0.3:cHz<500?0.7+(cHz-200)/300*0.15:cHz<2000?0.85+(cHz-500)/1500*0.15:cHz<4000?1:0.88;
-          val=Math.min(1,mapped*aw);
-        }
-      }
-      const bH=Math.max(2,val*bAH),x=PL+i*bW,y=PT+bAH-bH;
-      const bg=c.createLinearGradient(0,y,0,y+bH);
-      bg.addColorStop(0,val>0.65?barHot:barHi);bg.addColorStop(0.55,barMid);bg.addColorStop(1,barLo);
-      c.fillStyle=bg;c.fillRect(x,y,bw,bH);
-      if(!peaks[i]||val>peaks[i]){peaks[i]=val;peakTimers[i]=55;}
-      else{peakTimers[i]=(peakTimers[i]||0)-1;if(peakTimers[i]<=0)peaks[i]=Math.max(0,peaks[i]-0.008);}
-      if(peaks[i]>0.02){c.fillStyle=peakCol;c.fillRect(x,PT+bAH-peaks[i]*bAH-2,bw,2);}
-    }
-
-    // ── BASELINE ──────────────────────────────────────────────
-    c.strokeStyle=`${flashCol}0.22)`;c.lineWidth=1;
-    c.beginPath();c.moveTo(PL,PT+bAH+1);c.lineTo(W-PR,PT+bAH+1);c.stroke();
-
-    // ── FREQ LABELS ───────────────────────────────────────────
-    c.font="500 8px 'Inter',sans-serif";c.fillStyle=`${flashCol}0.32)`;
-    c.textAlign='center';c.textBaseline='top';
-    [{hz:100,t:'100'},{hz:250,t:'250'},{hz:500,t:'500'},{hz:1000,t:'1k'},{hz:2000,t:'2k'},{hz:4000,t:'4k'}].forEach(lb=>{
-      c.fillText(lb.t,PL+(Math.log(lb.hz/MIN_HZ)/Math.log(MAX_HZ/MIN_HZ))*bAW,PT+bAH+6);
+    // ── COMPASS LABELS ───────────────────────────────────────────
+    const cFS=Math.round(Math.max(9,H*0.028));
+    c.font=`700 ${cFS}px 'Space Grotesk',sans-serif`;c.textAlign='center';c.textBaseline='middle';
+    [{l:'N',d:0},{l:'E',d:90},{l:'S',d:180},{l:'W',d:270}].forEach(({l,d})=>{
+      const rad=d*Math.PI/180-Math.PI/2;
+      c.fillStyle=pCol(0.52);c.fillText(l,cx+Math.cos(rad)*maxR*0.84,cy+Math.sin(rad)*maxR*0.84);
     });
 
-    // ── BPM ───────────────────────────────────────────────────
-    const bpmStr=String(bpm),bFS=Math.round(H*0.11);
-    c.font=`300 ${bFS}px 'Inter',sans-serif`;c.fillStyle=barHi;
-    c.textAlign='left';c.textBaseline='top';c.fillText(bpmStr,PL,4);
-    c.font="600 8px 'Inter',sans-serif";c.fillStyle=`${flashCol}0.40)`;
-    c.fillText('BPM',PL+c.measureText(bpmStr).width+4,8);
+    // ── OUTER BORDER + CENTER ─────────────────────────────────────
+    c.strokeStyle=pCol(0.48);c.lineWidth=2;c.beginPath();c.arc(cx,cy,maxR,0,Math.PI*2);c.stroke();
+    c.fillStyle=pCol(0.88);c.beginPath();c.arc(cx,cy,3.5,0,Math.PI*2);c.fill();
+    c.fillStyle=pCol(0.18);c.beginPath();c.arc(cx,cy,11,0,Math.PI*2);c.fill();
 
-    // ── BEAT FLASH ────────────────────────────────────────────
-    if(beatPhase<0.08){c.fillStyle=`${flashCol}${(0.08-beatPhase)/0.08*0.09})`;c.fillRect(0,0,W,H);}
+    // ── HUD ──────────────────────────────────────────────────────
+    const hudFS=Math.round(Math.max(8,H*0.025));
+    const bpmFS=Math.round(H*0.095);
+    c.font=`300 ${bpmFS}px 'Inter',sans-serif`;c.fillStyle=pCol(0.78);
+    c.textAlign='left';c.textBaseline='top';c.fillText(String(Math.round(bpm)),8,5);
+    c.font=`700 ${hudFS}px 'Space Grotesk',sans-serif`;c.fillStyle=pCol(0.42);
+    c.fillText('BPM',8+c.measureText(String(Math.round(bpm))).width+4,10);
+    c.textAlign='right';c.fillStyle=pCol(0.30);c.fillText(`${Math.round(tempF)}°F`,W-8,10);
+    c.textBaseline='bottom';c.fillStyle=pCol(0.45);c.fillText((s.label||'').toUpperCase(),W-8,H-8);
+    c.font=`500 ${Math.round(Math.max(7,H*0.02))}px 'Space Grotesk',sans-serif`;
+    c.fillStyle=pCol(0.22);c.textAlign='left';c.textBaseline='bottom';
+    for(let i=1;i<=4;i++){c.fillText(`${i*25}km`,cx+4,cy-maxR*(i/4)+1);}
+
+    // ── BEAT FLASH ───────────────────────────────────────────────
+    if(beatPhase<0.07){c.fillStyle=pCol((0.07-beatPhase)/0.07*0.13);c.fillRect(0,0,W,H);}
 
     hvAnimFrame=requestAnimationFrame(draw);
   }
