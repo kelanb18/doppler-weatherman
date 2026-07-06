@@ -2804,12 +2804,10 @@ async function toggleMic(){
 }
 
 // ─── WAV RECORDING ───────────────────────────────────────────
-let _recorder=null,_recChunks=[],_recDest=null,_recStart=0,_recTimer=null;
+let _recScriptNode=null,_recDummyGain=null,_recChunks=[],_recSampleRate=44100,_recStart=0,_recTimer=null;
 
 function toggleRecording(){
-  if(_recorder&&_recorder.state!=='inactive'){
-    stopRecording();return;
-  }
+  if(_recScriptNode){stopRecording();return;}
   startRecording();
 }
 
@@ -2818,7 +2816,6 @@ function startRecording(){
   const audioCtx=liveNodes?.ctx;
   if(!audioCtx){setStatus('Start playback first, then record.');return;}
 
-  // Wait for next bar 1 before capturing
   const ref=window._beatRef;
   if(ref&&ref.sixSec>0&&ref.stepInBar>0){
     const stepsLeft=ref.steps-ref.stepInBar;
@@ -2832,41 +2829,72 @@ function startRecording(){
 }
 
 function _doStartRecording(audioCtx){
-  _recDest=audioCtx.createMediaStreamDestination();
-  liveNodes.limiter.connect(_recDest);
   _recChunks=[];
-  const mimeType=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':'audio/webm';
-  _recorder=new MediaRecorder(_recDest.stream,{mimeType});
-  _recorder.ondataavailable=e=>{if(e.data.size>0)_recChunks.push(e.data);};
-  _recorder.onstop=()=>{
-    liveNodes?.limiter?.disconnect(_recDest);
-    const blob=new Blob(_recChunks,{type:'audio/webm'});
-    const genre=currentState?.genre||currentState?.harmony||'session';
-    const city=(currentWeather?.location||'city').replace(/[^a-z0-9]/gi,'-').toLowerCase();
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download=`weatherman-${city}-${genre}-${Date.now()}.webm`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-    clearInterval(_recTimer);_recTimer=null;
-    $('recBtn').classList.remove('active');$('recBtn').textContent='⏺ Rec';
-    setStatus('Recording saved — open in any audio editor or DAW.');
+  _recSampleRate=audioCtx.sampleRate;
+  // ScriptProcessorNode captures raw PCM — works in all browsers, no codec dependency
+  const spn=audioCtx.createScriptProcessor(4096,2,2);
+  spn.onaudioprocess=e=>{
+    _recChunks.push([
+      new Float32Array(e.inputBuffer.getChannelData(0)),
+      new Float32Array(e.inputBuffer.getChannelData(1)),
+    ]);
   };
-  _recorder.start(250);
+  // Route: limiter → spn → silent gain (keeps spn active without doubling output)
+  const dummy=audioCtx.createGain();dummy.gain.value=0;
+  liveNodes.limiter.connect(spn);
+  spn.connect(dummy);dummy.connect(audioCtx.destination);
+  _recScriptNode=spn;_recDummyGain=dummy;
+
   _recStart=Date.now();
   _recTimer=setInterval(()=>{
     const s=Math.floor((Date.now()-_recStart)/1000);
-    const mm=String(Math.floor(s/60)).padStart(2,'0');
-    const ss=String(s%60).padStart(2,'0');
-    $('recBtn').textContent=`⏹ ${mm}:${ss}`;
+    $('recBtn').textContent=`⏹ ${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
   },1000);
   $('recBtn').classList.add('active');$('recBtn').textContent='⏹ 00:00';
-  setStatus('Recording… tap ⏹ to stop and download.');
+  setStatus('Recording… tap ⏹ to stop and save WAV.');
 }
 
 function stopRecording(){
   if(_recPendingTimer){clearTimeout(_recPendingTimer);_recPendingTimer=null;$('recBtn').classList.remove('active');$('recBtn').textContent='⏺ Rec';setStatus('');return;}
-  if(_recorder&&_recorder.state!=='inactive'){_recorder.stop();}
+  if(!_recScriptNode)return;
+  try{liveNodes?.limiter?.disconnect(_recScriptNode);}catch(e){}
+  try{_recScriptNode.disconnect();}catch(e){}
+  try{_recDummyGain?.disconnect();}catch(e){}
+  _recScriptNode=null;_recDummyGain=null;
+  clearInterval(_recTimer);_recTimer=null;
+  $('recBtn').classList.remove('active');$('recBtn').textContent='⏺ Rec';
+
+  const wav=_encodeWAV(_recChunks,_recSampleRate);
+  const genre=currentState?.genre||currentState?.harmony||'session';
+  const city=(currentWeather?.location||'city').replace(/[^a-z0-9]/gi,'-').toLowerCase();
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([wav],{type:'audio/wav'}));
+  a.download=`weatherman-${city}-${genre}.wav`;
+  a.click();URL.revokeObjectURL(a.href);
+  setStatus('WAV saved — drag into any DAW or audio editor.');
+}
+
+function _encodeWAV(chunks,sampleRate){
+  const nCh=2,bDepth=16;
+  const nSamples=chunks.reduce((s,c)=>s+c[0].length,0);
+  const dataSize=nSamples*nCh*(bDepth/8);
+  const buf=new ArrayBuffer(44+dataSize);
+  const v=new DataView(buf);
+  const ws=(off,str)=>{for(let i=0;i<str.length;i++)v.setUint8(off+i,str.charCodeAt(i));};
+  ws(0,'RIFF');v.setUint32(4,36+dataSize,true);ws(8,'WAVE');
+  ws(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);
+  v.setUint16(22,nCh,true);v.setUint32(24,sampleRate,true);
+  v.setUint32(28,sampleRate*nCh*(bDepth/8),true);
+  v.setUint16(32,nCh*(bDepth/8),true);v.setUint16(34,bDepth,true);
+  ws(36,'data');v.setUint32(40,dataSize,true);
+  let off=44;
+  for(const[L,R]of chunks){
+    for(let i=0;i<L.length;i++){
+      v.setInt16(off,Math.max(-1,Math.min(1,L[i]))*0x7FFF,true);off+=2;
+      v.setInt16(off,Math.max(-1,Math.min(1,R[i]))*0x7FFF,true);off+=2;
+    }
+  }
+  return buf;
 }
 
 document.addEventListener('keydown',e=>{
