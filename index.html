@@ -1522,12 +1522,12 @@ function freqToNoteName(hz){
 
 // Set weather-driven FX defaults at playback start
 function setWeatherFxDefaults(s){
-  if(usingManualState)return;
   if(_pendingSharedFx){
     const fx=_pendingSharedFx;_pendingSharedFx=null;
     fx.forEach(([id,v])=>{const e=$(id);if(e)e.value=String(v);const ve=$(id+'Val');if(ve)ve.textContent=Number(v).toFixed(2);});
     return;
   }
+  if(usingManualState)return;
   const defs=s.isStormy
     ?{fxReverb:0.72,fxDelay:0.65,fxFilter:0.22,fxDrive:0.48,fxCrush:0.32,fxDrift:0.68,fxWah:0,fxShimmer:0.15,fxScatter:0.38}
     :s.isSnowing
@@ -2521,12 +2521,13 @@ $('resetToWeatherBtn').addEventListener('click',resetToWeather);
 $('resetToWeatherBtn2').addEventListener('click',resetToWeather);
 
 // ─── SHARE URL ───────────────────────────────────────────────
+const _FX_IDS=['fxReverb','fxDelay','fxFilter','fxDrive','fxMelody','fxHarmony','fxWah','fxShimmer','fxScatter','fxCrush','fxDrift','fxSwing'];
+
 function buildShareURL(){
-  const fxIds=['fxReverb','fxDelay','fxFilter','fxDrive','fxMelody','fxHarmony','fxWah','fxShimmer','fxScatter','fxCrush','fxDrift','fxSwing','fxVol'];
-  const fx=fxIds.map(id=>{const e=$(id);return e?Math.round(parseFloat(e.value)*100)/100:null;}).filter(v=>v!==null);
+  const fx=_FX_IDS.map(id=>{const e=$(id);return e?Math.round(parseFloat(e.value)*100)/100:null;});
   const w=['warmthSlider','windSlider','wetnessSlider','stormSlider','brightnessSlider'].map(id=>{const e=$(id);return e?Math.round(parseFloat(e.value)*100)/100:0.5;});
-  // Always mark manual:true so the recipient's FX and atmosphere are restored exactly as shared
-  const obj={zip:$('zipInput').value,w,fx,skin:document.body.dataset.skin||'default',manual:true};
+  const label=currentState?.label||'';
+  const obj={zip:$('zipInput').value,w,fx,skin:document.body.dataset.skin||'default',manual:true,label};
   return location.origin+location.pathname+'#state='+btoa(JSON.stringify(obj));
 }
 
@@ -2536,25 +2537,35 @@ function loadShareURL(){
     const obj=JSON.parse(atob(location.hash.slice(7)));
     if(obj.skin)document.body.dataset.skin=obj.skin;
     if(obj.zip){$('zipInput').value=obj.zip;try{$('zipInput2').value=obj.zip;}catch(e){}}
-    const fxIds=['fxReverb','fxDelay','fxFilter','fxDrive','fxMelody','fxHarmony','fxWah','fxShimmer','fxScatter','fxCrush','fxDrift','fxSwing','fxVol'];
     if(obj.fx){
-      // Apply FX to sliders immediately so user sees them
-      fxIds.forEach((id,i)=>{
+      _FX_IDS.forEach((id,i)=>{
         if(obj.fx[i]==null)return;
         const e=$(id);if(e)e.value=String(obj.fx[i]);
         const ve=$(id+'Val');if(ve)ve.textContent=Number(obj.fx[i]).toFixed(2);
       });
-      // Also store so setWeatherFxDefaults (called on Play) uses these instead of weather defaults
-      _pendingSharedFx=fxIds.map((id,i)=>obj.fx[i]!=null?[id,obj.fx[i]]:null).filter(Boolean);
+      _pendingSharedFx=_FX_IDS.map((id,i)=>obj.fx[i]!=null?[id,obj.fx[i]]:null).filter(Boolean);
     }
     if(obj.manual){
       if(obj.w){['warmthSlider','windSlider','wetnessSlider','stormSlider','brightnessSlider'].forEach((id,i)=>{const e=$(id);if(e)e.value=String(obj.w[i]);const v=$(id+'Value');if(v)v.textContent=Number(obj.w[i]).toFixed(2);});}
-      usingManualState=true;state=stateFromSliders();updateVisuals(state);
+      usingManualState=true;
+      state=stateFromSliders();
+      updateVisualizer(state);
     } else if(obj.zip){
-      // Load live weather for the ZIP, FX will be preserved via _pendingSharedFx
       setTimeout(()=>loadWeatherForZip(obj.zip),400);
     }
-  }catch(e){}
+    // Dismiss onboarding overlay and show play prompt
+    const ov=$('obOverlay');if(ov){ov.style.display='none';}
+    showSharedBanner(obj.label||obj.zip||'');
+  }catch(e){console.warn('Share URL parse error:',e);}
+}
+
+function showSharedBanner(label){
+  const b=document.createElement('div');
+  b.id='shareBanner';
+  b.style.cssText='position:fixed;bottom:24px;right:24px;background:#1E1C18;border:1px solid #A09888;padding:14px 18px;display:flex;align-items:center;gap:14px;z-index:9998;box-shadow:0 8px 32px rgba(0,0,0,0.7);';
+  const desc=label?`<div style="font-family:var(--font-ui);font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#9A9088;">Shared Soundscape</div><div style="font-family:var(--font-mono);font-size:12px;color:#D6D0C4;margin-top:3px;">${label}</div>`:`<div style="font-family:var(--font-ui);font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#9A9088;">Shared Soundscape</div>`;
+  b.innerHTML=`<div>${desc}</div><button class="btn3d orange" style="white-space:nowrap" onclick="play();document.getElementById('shareBanner').remove()">▶ Play</button><button style="background:none;border:none;color:#5A5248;cursor:pointer;font-size:16px;line-height:1;padding:4px" onclick="this.parentElement.remove()">✕</button>`;
+  document.body.appendChild(b);
 }
 
 function showShareToast(){
