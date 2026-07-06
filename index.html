@@ -277,21 +277,23 @@ body[data-skin="brutal"] .chord-option:hover,body[data-skin="brutal"] .chord-opt
 
 /* DESKTOP: visualizer compact LEFT, controls main RIGHT */
 @media(min-width:901px){
-  .chassis-content{display:flex;align-items:stretch;}
+  .chassis-content{display:flex;align-items:stretch;width:100%;}
   /* Left column — screen stacked vertically */
   .chassis-content>.screen-row{
-    width:280px;flex-shrink:0;
+    width:280px;flex-shrink:0;flex-grow:0;
     display:flex;flex-direction:column;
     border-right:2px solid #A09888;
     border-bottom:none;
   }
-  .chassis-content>.screen-row>.screen-outer{flex:1;border-right:none;}
-  .chassis-content>.screen-row>.screen-sidebar{flex-shrink:0;border-top:2px solid #A09888;}
+  .chassis-content>.screen-row>.screen-outer{flex:1 1 auto;border-right:none;}
+  .chassis-content>.screen-row>.screen-sidebar{flex:0 0 auto;border-top:2px solid #A09888;}
   .screen{min-height:260px;}
-  /* Right column — all controls */
-  .controls-panel{flex:1;min-width:0;display:flex;flex-direction:column;}
-  /* Control section — equal thirds */
+  /* Right column — all controls, fills remaining space */
+  .controls-panel{flex:1 1 0;min-width:0;display:flex;flex-direction:column;overflow-y:auto;}
+  /* Control section top row — equal thirds */
   .control-section{grid-template-columns:1fr 1fr 1fr;}
+  /* FX and Live Sheet span all columns */
+  .ctrl-panel.fx-panel,.ctrl-panel.live-sheet{grid-column:1/-1;}
   .fx-grid{grid-template-columns:1fr 1fr 1fr 1fr;}
 }
 
