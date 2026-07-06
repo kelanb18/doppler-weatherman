@@ -278,34 +278,19 @@ body[data-skin="brutal"] .chord-option:hover,body[data-skin="brutal"] .chord-opt
 .pulse-dot{width:9px;height:9px;border-radius:50%;background:var(--orange);opacity:0.2;transition:opacity 0.06s,transform 0.06s;flex-shrink:0;}
 .pulse-dot.active{opacity:1;transform:scale(1.7);}
 
-/* DESKTOP: visualizer compact LEFT, controls are the main RIGHT area */
+/* DESKTOP: visualizer compact LEFT, controls main RIGHT */
 @media(min-width:901px){
-  .chassis{display:grid;grid-template-columns:280px 1fr;}
-  .chassis>.stripe:first-child,
-  .chassis>.port-strip,
-  .chassis>.faceplate-top,
-  .chassis>.input-bar{grid-column:1/-1;}
-  /* Visualizer — compact left strip */
-  .chassis>.screen-row{
-    grid-column:1;grid-row:5/11;
-    grid-template-columns:1fr;
+  .chassis-content{display:flex;align-items:stretch;}
+  .chassis-content>.screen-row{
+    width:300px;flex-shrink:0;
+    grid-template-columns:1fr 200px;
     border-right:2px solid #A09888;
     border-bottom:none;
-    align-self:stretch;
-    overflow-y:auto;
   }
-  /* Controls — main content area on the right */
-  .chassis>.control-section{grid-column:2;grid-row:5;border-top:2px solid #A09888;border-left:none;}
-  .chassis>.mixer-section{grid-column:2;grid-row:6;}
-  .chassis>.sections-bar{grid-column:2;grid-row:7;}
-  .chassis>.drum-section{grid-column:2;grid-row:8;}
-  .chassis>.status-strip{grid-column:2;grid-row:9;}
-  .chassis>.stripe:last-child{grid-column:1/-1;grid-row:10;}
-  /* Inner screen layout — visualizer square, sidebar below */
+  .controls-panel{flex:1;min-width:0;display:flex;flex-direction:column;}
   .screen-outer{border-right:none;}
-  .screen{min-height:260px;max-height:280px;}
+  .screen{min-height:260px;max-height:300px;}
   .screen-sidebar{border-top:2px solid #A09888;border-left:none;}
-  /* Control panels — wider, more columns */
   .control-section{grid-template-columns:200px 1fr 180px;}
   .fx-grid{grid-template-columns:1fr 1fr 1fr 1fr;}
 }
@@ -660,6 +645,7 @@ body[data-skin="brutal"] .drum-pad-key{color:rgba(0,0,0,0.3);background:rgba(0,0
 </div>
 <div id="shareToast" class="share-toast">Link copied ✓</div>
 
+<div class="chassis-content">
 <div class="screen-row">
   <div class="screen-outer">
     <div class="screen">
@@ -703,6 +689,7 @@ body[data-skin="brutal"] .drum-pad-key{color:rgba(0,0,0,0.3);background:rgba(0,0
   </div>
 </div>
 
+<div class="controls-panel">
 <div class="control-section">
   <!-- TRANSPORT -->
   <div class="ctrl-panel">
@@ -869,6 +856,8 @@ body[data-skin="brutal"] .drum-pad-key{color:rgba(0,0,0,0.3);background:rgba(0,0
   <div class="ss-block"><span class="pulse-dot" id="pulseDot"></span></div>
   <div class="ss-bpm"><span class="ss-bpm-num" id="tempoValueBig">—</span><span class="ss-bpm-unit">BPM</span></div>
 </div>
+</div><!-- end controls-panel -->
+</div><!-- end chassis-content -->
 
 <div class="stripe">
   <div style="background:var(--red)"></div><div style="background:var(--purple)"></div>
@@ -2282,12 +2271,23 @@ function playWeatherSoundscape(state){
   // BASSLINE PATTERNS — [beatPos(0–4), noteType, durationBeats, velocity]
   // noteType: 0=root  1=fifth  2=third  3=root+8va  4=chromApproach  5=seventh
   const BL=[
-    [[0,0,1.0,1.0],[1,1,0.5,0.72],[2,0,1.0,0.88],[3,1,0.5,0.70]],                                // 0: root+fifth bounce
-    [[0,0,1.0,1.0],[1,2,0.75,0.68],[2,1,0.75,0.82],[3,3,0.50,0.78],[3.75,4,0.25,0.52]],          // 1: walking (root→3rd→5th→8va→approach)
-    [[0,0,0.75,1.0],[0.75,1,0.25,0.60],[2,0,0.75,0.88],[2.5,2,0.50,0.65],[3.25,0,0.75,0.82]],   // 2: syncopated Motown
-    [[0,0,1.5,1.0],[2,0,1.0,0.85]],                                                                // 3: minimal (long held downbeats)
-    [[0,0,0.5,1.0],[0.5,3,0.5,0.55],[1.5,1,0.5,0.72],[2,0,0.5,0.88],[3,2,0.5,0.68],[3.5,1,0.5,0.65]], // 4: octave groove
-    [[0,0,0.75,1.0],[1,2,0.25,0.65],[1.5,1,0.5,0.78],[2.5,0,0.5,0.85],[3,5,0.5,0.62],[3.5,1,0.5,0.70]], // 5: jazz walk (root→3→5→…→7→5)
+    // 0: "What's Going On" — root on 1, chromatic walk through chord tones
+    [[0,0,0.5,1.0],[0.5,4,0.5,0.72],[1.0,1,0.5,0.82],[1.5,2,0.5,0.65],
+     [2.0,0,0.5,0.90],[2.75,5,0.25,0.62],[3.0,1,0.5,0.78],[3.5,2,0.5,0.60]],
+    // 1: "Mercy Mercy Me" — space + melodic fills, let notes breathe
+    [[0,0,1.0,1.0],[1.0,2,0.5,0.72],[1.5,1,0.75,0.80],
+     [2.5,5,0.5,0.68],[3.0,0,0.75,0.85],[3.75,4,0.25,0.58]],
+    // 2: syncopated — anticipations + ghost notes, Jamerson's rhythmic fingerprint
+    [[0,0,0.75,1.0],[0.75,2,0.25,0.68],[1.0,1,0.5,0.82],[1.75,5,0.25,0.60],
+     [2.0,0,0.5,0.88],[2.5,4,0.25,0.62],[2.75,0,0.25,0.70],[3.0,2,0.5,0.72],[3.5,1,0.5,0.65]],
+    // 3: minimal/spacious — long tones with a pickup at the end
+    [[0,0,1.5,1.0],[2,0,1.0,0.85],[3.5,1,0.5,0.68]],
+    // 4: octave groove — root to high octave leaps then descend through thirds
+    [[0,0,0.5,1.0],[0.75,3,0.25,0.72],[1.0,0,0.5,0.85],[1.75,1,0.25,0.65],
+     [2.0,3,0.5,0.90],[2.5,2,0.5,0.70],[3.0,0,0.5,0.78],[3.5,4,0.5,0.62]],
+    // 5: descending walk — high octave down through chord tones + chromatic color
+    [[0,3,0.5,1.0],[0.5,0,0.5,0.80],[1.0,5,0.5,0.72],[1.5,2,0.5,0.65],
+     [2.0,1,0.75,0.88],[3.0,4,0.5,0.70],[3.5,0,0.5,0.80]],
   ];
   let _blIdx=0;
   function selectBL(){
