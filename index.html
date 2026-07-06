@@ -121,14 +121,11 @@ input[type="text"]:focus{border-color:var(--orange);}
 .hud-badge.genre-jazz{color:var(--purple);border-color:var(--purple);}
 .hud-badge.genre-lofi{color:#C8A855;border-color:#C8A855;}
 .hud-badge.genre-electronic{color:var(--teal);border-color:var(--teal);}
-.btn3d.share{background:rgba(0,144,158,0.12);color:var(--teal);}
 .btn3d.mic-btn{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.55);}
 .btn3d.mic-btn.active{background:rgba(0,200,100,0.18);color:#00E676;box-shadow:0 0 0 1px rgba(0,230,118,0.4);}
 .btn3d.rec-btn{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.55);}
 .btn3d.rec-btn.active{background:rgba(220,30,30,0.2);color:#FF4444;box-shadow:0 0 0 1px rgba(255,60,60,0.5);animation:recPulse 1s ease-in-out infinite;}
 @keyframes recPulse{0%,100%{box-shadow:0 0 0 1px rgba(255,60,60,0.5);}50%{box-shadow:0 0 0 3px rgba(255,60,60,0.2);}}
-.share-toast{position:fixed;bottom:58px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--teal);color:#fff;font-family:var(--font-ui);font-weight:800;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;padding:8px 18px;border-radius:4px;opacity:0;transition:opacity 0.18s,transform 0.18s;pointer-events:none;z-index:99999;}
-.share-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .hud-badge.major{color:var(--yellow);border-color:rgba(240,188,0,0.5);background:rgba(240,188,0,0.1);}
 .hud-badge.minor{color:var(--teal);border-color:rgba(0,144,158,0.5);background:rgba(0,144,158,0.1);}
 .hud-badge.suspended{color:rgba(255,255,255,0.4);border-color:rgba(255,255,255,0.15);background:rgba(0,0,0,0.2);}
@@ -281,17 +278,20 @@ body[data-skin="brutal"] .chord-option:hover,body[data-skin="brutal"] .chord-opt
 /* DESKTOP: visualizer compact LEFT, controls main RIGHT */
 @media(min-width:901px){
   .chassis-content{display:flex;align-items:stretch;}
+  /* Left column — screen stacked vertically */
   .chassis-content>.screen-row{
-    width:300px;flex-shrink:0;
-    grid-template-columns:1fr 200px;
+    width:280px;flex-shrink:0;
+    display:flex;flex-direction:column;
     border-right:2px solid #A09888;
     border-bottom:none;
   }
+  .chassis-content>.screen-row>.screen-outer{flex:1;border-right:none;}
+  .chassis-content>.screen-row>.screen-sidebar{flex-shrink:0;border-top:2px solid #A09888;}
+  .screen{min-height:260px;}
+  /* Right column — all controls */
   .controls-panel{flex:1;min-width:0;display:flex;flex-direction:column;}
-  .screen-outer{border-right:none;}
-  .screen{min-height:260px;max-height:300px;}
-  .screen-sidebar{border-top:2px solid #A09888;border-left:none;}
-  .control-section{grid-template-columns:200px 1fr 180px;}
+  /* Control section — equal thirds */
+  .control-section{grid-template-columns:1fr 1fr 1fr;}
   .fx-grid{grid-template-columns:1fr 1fr 1fr 1fr;}
 }
 
@@ -640,10 +640,8 @@ body[data-skin="brutal"] .drum-pad-key{color:rgba(0,0,0,0.3);background:rgba(0,0
   <button class="btn3d rec-btn" id="recBtn" title="Record session to WAV">⏺ Rec</button>
   <div class="sep"></div>
   <button class="btn3d gray" id="resetToWeatherBtn">Reset to Weather</button>
-  <button class="btn3d share" id="shareBtn">↗ Share</button>
   <span class="ibar-status" id="status">Loading weather...</span>
 </div>
-<div id="shareToast" class="share-toast">Link copied ✓</div>
 
 <div class="chassis-content">
 <div class="screen-row">
@@ -874,7 +872,6 @@ let currentAudio = null;
 let currentWeather = null;
 let currentState = null;
 let usingManualState = false;
-let _pendingSharedFx = null; // FX values from a share URL, applied once after weather loads
 let liveNodes = null;
 let lightningTimer = null;
 let liveSheetData = {rootName:'—',modeName:'—',timeSig:'—',progression:[],chordIdx:0,lastMelodyNote:'—'};
@@ -1522,11 +1519,6 @@ function freqToNoteName(hz){
 
 // Set weather-driven FX defaults at playback start
 function setWeatherFxDefaults(s){
-  if(_pendingSharedFx){
-    const fx=_pendingSharedFx;_pendingSharedFx=null;
-    fx.forEach(([id,v])=>{const e=$(id);if(e)e.value=String(v);const ve=$(id+'Val');if(ve)ve.textContent=Number(v).toFixed(2);});
-    return;
-  }
   if(usingManualState)return;
   const defs=s.isStormy
     ?{fxReverb:0.72,fxDelay:0.65,fxFilter:0.22,fxDrive:0.48,fxCrush:0.32,fxDrift:0.68,fxWah:0,fxShimmer:0.15,fxScatter:0.38}
@@ -2270,30 +2262,37 @@ function playWeatherSoundscape(state){
 
   // BASSLINE PATTERNS — [beatPos(0–4), noteType, durationBeats, velocity]
   // noteType: 0=root  1=fifth  2=third  3=root+8va  4=chromApproach  5=seventh
+  // Beat positions: 0=beat1, 1=beat2, 2=beat3, 3=beat4 (0.25 = 16th note subdivisions)
   const BL=[
-    // 0: "What's Going On" — root on 1, chromatic walk through chord tones
-    [[0,0,0.5,1.0],[0.5,4,0.5,0.72],[1.0,1,0.5,0.82],[1.5,2,0.5,0.65],
-     [2.0,0,0.5,0.90],[2.75,5,0.25,0.62],[3.0,1,0.5,0.78],[3.5,2,0.5,0.60]],
-    // 1: "Mercy Mercy Me" — space + melodic fills, let notes breathe
-    [[0,0,1.0,1.0],[1.0,2,0.5,0.72],[1.5,1,0.75,0.80],
-     [2.5,5,0.5,0.68],[3.0,0,0.75,0.85],[3.75,4,0.25,0.58]],
-    // 2: syncopated — anticipations + ghost notes, Jamerson's rhythmic fingerprint
-    [[0,0,0.75,1.0],[0.75,2,0.25,0.68],[1.0,1,0.5,0.82],[1.75,5,0.25,0.60],
-     [2.0,0,0.5,0.88],[2.5,4,0.25,0.62],[2.75,0,0.25,0.70],[3.0,2,0.5,0.72],[3.5,1,0.5,0.65]],
-    // 3: minimal/spacious — long tones with a pickup at the end
-    [[0,0,1.5,1.0],[2,0,1.0,0.85],[3.5,1,0.5,0.68]],
-    // 4: octave groove — root to high octave leaps then descend through thirds
-    [[0,0,0.5,1.0],[0.75,3,0.25,0.72],[1.0,0,0.5,0.85],[1.75,1,0.25,0.65],
-     [2.0,3,0.5,0.90],[2.5,2,0.5,0.70],[3.0,0,0.5,0.78],[3.5,4,0.5,0.62]],
-    // 5: descending walk — high octave down through chord tones + chromatic color
-    [[0,3,0.5,1.0],[0.5,0,0.5,0.80],[1.0,5,0.5,0.72],[1.5,2,0.5,0.65],
-     [2.0,1,0.75,0.88],[3.0,4,0.5,0.70],[3.5,0,0.5,0.80]],
+    // 0: Motown pulse — lands on 1 and 3, 8th-note pickups between
+    [[0,0,0.75,1.0],[0.75,2,0.25,0.62],[1.5,1,0.5,0.72],
+     [2.0,0,0.75,0.88],[2.75,5,0.25,0.60],[3.5,1,0.5,0.68]],
+    // 1: Half-time — two long tones, very spacious (nothing but halves)
+    [[0,0,1.75,1.0],[2.0,1,1.75,0.80]],
+    // 2: 16th-note funk — very dense, push-and-pull on every subdivision
+    [[0,0,0.5,1.0],[0.25,2,0.25,0.52],[0.75,1,0.5,0.72],
+     [1.25,5,0.25,0.60],[1.5,0,0.5,0.85],[2.25,4,0.25,0.58],
+     [2.5,0,0.5,0.88],[3.0,2,0.25,0.62],[3.25,1,0.5,0.72],[3.75,0,0.25,0.58]],
+    // 3: One-drop feel — silent on beat 1, HEAVY on beat 3
+    [[0.75,4,0.25,0.60],[1.0,0,0.5,0.72],
+     [2.0,0,1.0,1.00],[3.0,1,0.5,0.78],[3.75,0,0.25,0.62]],
+    // 4: Octave bounce — alternates root and high octave on every beat
+    [[0,0,0.75,1.0],[0.75,3,0.25,0.70],
+     [1.5,0,0.75,0.85],[2.25,3,0.25,0.66],
+     [3.0,0,0.75,0.80],[3.75,4,0.25,0.56]],
+    // 5: Call-and-response — two quick bursts, then silence, like breathing
+    [[0,3,0.5,1.0],[0.5,0,0.5,0.78],[1.0,2,0.5,0.68],
+     [2.0,0,0.5,0.90],[2.5,5,0.5,0.74],[3.0,1,1.0,0.72]],
   ];
   let _blIdx=0;
   function selectBL(){
     const{isStormy,isFoggy,isRaining}=state;
-    const pool=isStormy?[2,4,2,4,2]:isFoggy?[1,3,5,3,1]:isRaining?[0,1,2,1,0]:[0,1,4,5,2];
-    _blIdx=pool[Math.floor(Math.random()*pool.length)];
+    const pool=isStormy?[2,3,4,2,4]:isFoggy?[1,3,5,1,3]:isRaining?[0,3,1,4,0]:[0,1,2,3,4,5];
+    // Avoid same pattern twice in a row
+    let next;
+    let tries=0;
+    do{next=pool[Math.floor(Math.random()*pool.length)];}while(next===_blIdx&&++tries<8);
+    _blIdx=next;
   }
   selectBL();
 
@@ -2520,69 +2519,6 @@ $('applyManualBtn').addEventListener('click',applyManual);
 $('resetToWeatherBtn').addEventListener('click',resetToWeather);
 $('resetToWeatherBtn2').addEventListener('click',resetToWeather);
 
-// ─── SHARE URL ───────────────────────────────────────────────
-const _FX_IDS=['fxReverb','fxDelay','fxFilter','fxDrive','fxMelody','fxHarmony','fxWah','fxShimmer','fxScatter','fxCrush','fxDrift','fxSwing'];
-
-function buildShareURL(){
-  const fx=_FX_IDS.map(id=>{const e=$(id);return e?Math.round(parseFloat(e.value)*100)/100:null;});
-  const w=['warmthSlider','windSlider','wetnessSlider','stormSlider','brightnessSlider'].map(id=>{const e=$(id);return e?Math.round(parseFloat(e.value)*100)/100:0.5;});
-  const label=currentState?.label||'';
-  const obj={zip:$('zipInput').value,w,fx,skin:document.body.dataset.skin||'default',manual:true,label};
-  return location.origin+location.pathname+'#state='+btoa(JSON.stringify(obj));
-}
-
-function loadShareURL(){
-  if(!location.hash.startsWith('#state='))return;
-  try{
-    const obj=JSON.parse(atob(location.hash.slice(7)));
-    if(obj.skin)document.body.dataset.skin=obj.skin;
-    if(obj.zip){$('zipInput').value=obj.zip;try{$('zipInput2').value=obj.zip;}catch(e){}}
-    if(obj.fx){
-      _FX_IDS.forEach((id,i)=>{
-        if(obj.fx[i]==null)return;
-        const e=$(id);if(e)e.value=String(obj.fx[i]);
-        const ve=$(id+'Val');if(ve)ve.textContent=Number(obj.fx[i]).toFixed(2);
-      });
-      _pendingSharedFx=_FX_IDS.map((id,i)=>obj.fx[i]!=null?[id,obj.fx[i]]:null).filter(Boolean);
-    }
-    if(obj.manual){
-      if(obj.w){['warmthSlider','windSlider','wetnessSlider','stormSlider','brightnessSlider'].forEach((id,i)=>{const e=$(id);if(e)e.value=String(obj.w[i]);const v=$(id+'Value');if(v)v.textContent=Number(obj.w[i]).toFixed(2);});}
-      usingManualState=true;
-      state=stateFromSliders();
-      updateVisualizer(state);
-    } else if(obj.zip){
-      setTimeout(()=>loadWeatherForZip(obj.zip),400);
-    }
-    // Dismiss onboarding overlay and show play prompt
-    const ov=$('obOverlay');if(ov){ov.style.display='none';}
-    showSharedBanner(obj.label||obj.zip||'');
-  }catch(e){console.warn('Share URL parse error:',e);}
-}
-
-function showSharedBanner(label){
-  const b=document.createElement('div');
-  b.id='shareBanner';
-  b.style.cssText='position:fixed;bottom:24px;right:24px;background:#1E1C18;border:1px solid #A09888;padding:14px 18px;display:flex;align-items:center;gap:14px;z-index:9998;box-shadow:0 8px 32px rgba(0,0,0,0.7);';
-  const desc=label?`<div style="font-family:var(--font-ui);font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#9A9088;">Shared Soundscape</div><div style="font-family:var(--font-mono);font-size:12px;color:#D6D0C4;margin-top:3px;">${label}</div>`:`<div style="font-family:var(--font-ui);font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#9A9088;">Shared Soundscape</div>`;
-  b.innerHTML=`<div>${desc}</div><button class="btn3d orange" style="white-space:nowrap" onclick="play();document.getElementById('shareBanner').remove()">▶ Play</button><button style="background:none;border:none;color:#5A5248;cursor:pointer;font-size:16px;line-height:1;padding:4px" onclick="this.parentElement.remove()">✕</button>`;
-  document.body.appendChild(b);
-}
-
-function showShareToast(){
-  const t=$('shareToast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);
-}
-
-$('shareBtn').addEventListener('click',()=>{
-  const url=buildShareURL();
-  history.replaceState(null,'',url);
-  if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(url).then(showShareToast).catch(showShareToast);
-  }else{
-    const inp=document.createElement('input');inp.value=url;document.body.appendChild(inp);inp.select();try{document.execCommand('copy');}catch(e){}document.body.removeChild(inp);showShareToast();
-  }
-});
-
-loadShareURL();
 
 ['warmth','wind','wetness','storm','brightness'].forEach(k=>{
   const sl=$(`${k}Slider`);
