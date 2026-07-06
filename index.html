@@ -1096,7 +1096,7 @@ function stop(){
   if(_micStream){try{_micSource?.disconnect();_micGain?.disconnect();_micComp?.disconnect();}catch(_){}
     _micStream.getTracks().forEach(t=>t.stop());_micStream=null;_micSource=null;_micGain=null;_micComp=null;
     $('micBtn').classList.remove('active');$('micBtn').textContent='🎙 Mic';}
-  if(_recorder&&_recorder.state!=='inactive'){_recorder.stop();}
+  if(_recScriptNode){stopRecording();}
   liveNodes=null;
   pulseDot.classList.remove('active');
   engineStatusEl.textContent='IDLE';
