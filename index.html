@@ -1756,20 +1756,23 @@ function playWeatherSoundscape(state){
     return rootHz*oct*Math.pow(2,semi/12);
   }
 
-  // CHORD SYSTEM
+  // CHORD SYSTEM — stacked thirds through 7th AND 9th for lush "What's Going On"-style
+  // soul-jazz harmony (chord[5] = 9th, used for color tones in pads/melody, not the core voicing)
   function buildChord(rd){
-    return[mHz(rd,1),mHz(rd,2),mHz(rd+2,2),mHz(rd+4,2),mHz(rd+6,2)];
+    return[mHz(rd,1),mHz(rd,2),mHz(rd+2,2),mHz(rd+4,2),mHz(rd+6,2),mHz(rd+8,2)];
   }
-  function chordTones(ch){return[ch[1],ch[2],ch[3],ch[4],ch[1]*2,ch[2]*2];}
+  function chordTones(ch){return[ch[1],ch[2],ch[3],ch[4],ch[1]*2,ch[2]*2,ch[5]];}
 
+  // Soul/Motown-inspired progressions — longer chord cycles with ii-V-I motion,
+  // I-vi-ii-V "Mercy Mercy Me" loops, and modal vamps reminiscent of What's Going On
   const PROG_DEGS={
-    major:[[0,2,4,3],[3,1,4,2],[0,4,3,2]],
-    minor:[[0,3,4,1],[0,4,3,2],[1,0,4,3]],
-    suspended:[[0,3,1,4],[0,4,2,3],[1,0,4,2]],
-    phrygian:[[0,1,3,2],[1,0,3,4],[0,3,1,2]],
+    major:[[0,2,4,3],[3,1,4,2],[0,4,3,2],[0,5,1,4],[1,4,0,5,3,4],[5,1,4,0,3,4]],
+    minor:[[0,3,4,1],[0,4,3,2],[1,0,4,3],[0,5,2,6],[0,3,6,2,5,4],[1,4,0,3]],
+    suspended:[[0,3,1,4],[0,4,2,3],[1,0,4,2],[0,3,4,1,3,4]],
+    phrygian:[[0,1,3,2],[1,0,3,4],[0,3,1,2],[0,6,1,3]],
     whole_tone:[[0,2,4,2],[0,4,2,3],[2,0,4,1]],
-    dorian:[[0,2,4,3],[0,4,1,3],[2,0,3,4]],
-    lydian:[[0,2,4,3],[3,0,2,4],[0,4,2,3]],
+    dorian:[[0,2,4,3],[0,4,1,3],[2,0,3,4],[0,3,1,4,0,2],[5,1,0,4,3,1]],
+    lydian:[[0,2,4,3],[3,0,2,4],[0,4,2,3],[0,3,4,2,5,4]],
     pentatonic_minor:[[0,2,3,1],[1,3,0,2],[0,3,2,1]],
   };
   const progSet=PROG_DEGS[scaleName]||PROG_DEGS[state.harmony]||PROG_DEGS.major;
@@ -1861,8 +1864,8 @@ function playWeatherSoundscape(state){
   function buildPad(ch){
     padVoices.forEach(v=>{try{v.stop(ctx.currentTime+2);}catch(e){}});
     padVoices.length=0;
-    // Include root (ch[0]) so the chord is clearly grounded
-    [ch[0],ch[1],ch[2],ch[3]].forEach((freq,i)=>{
+    // Root grounds the chord; upper voices are 3rd-5th-7th — full soul/Rhodes-style 7th chord
+    [ch[0],ch[2],ch[3],ch[4]].forEach((freq,i)=>{
       const osc=ctx.createOscillator();const g=ctx.createGain();
       osc.type=i===0?'sine':vp.padTypes[i-1];
       osc.frequency.value=freq;
@@ -1929,7 +1932,7 @@ function playWeatherSoundscape(state){
   let cpFreq=state.isStormy?chord[0]*0.5:state.isSunny?chord[2]/2:chord[0]*1.5;
   let cpPhrasePos=0,cpRestBeats=0;
 
-  // chord = [root_oct1, root_oct2, 3rd_oct2, 5th_oct2, 7th_oct2]
+  // chord = [root_oct1, root_oct2, 3rd_oct2, 5th_oct2, 7th_oct2, 9th_oct2]
   function cpPool(){
     if(vp.cpReg==='sub')return[chord[0]*0.5,chord[0],chord[2]/2,chord[3]/2]; // deep bass for storm
     if(vp.cpReg==='high')return[chord[2]/2,chord[3]/2,chord[2],chord[3]]; // upper register for sun
