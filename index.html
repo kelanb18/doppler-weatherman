@@ -902,7 +902,7 @@ function computeTempo(s){
   const base=Math.round(62+(s.wind*0.42+s.wetness*0.22+s.storm*0.36)*64);
   if(!s.genreWeights)return base;
   const gw=s.genreWeights;
-  const offset=gw.industrial*16+gw.ambient*(-22)+gw.classical*(-12)+gw.tropical*14+gw.jazz*(-3)+gw.lofi*(-9);
+  const offset=gw.industrial*16+gw.ambient*(-24)+gw.lofi*(-10)+gw.electronic*12;
   return Math.round(clamp(base+offset,50,152));
 }
 
@@ -917,15 +917,14 @@ function computeHarmony(s){
 
 function computeGenreWeights(s){
   const night=s.isDaytime?0.08:0.82;
-  const w={
-    industrial: Math.pow(clamp(s.storm,0,1),1.0)*0.92 + Math.max(0,0.4-s.warmth)*0.08,
-    ambient:    Math.pow(clamp(1-s.brightness,0,1),2.2)*0.38 + clamp(s.wetness*(1-s.storm)*0.6,0,1)*0.22 + clamp(0.55-s.wind,0,1)*0.10,
-    classical:  clamp(s.wetness-0.05,0,1)*clamp(0.55-s.warmth,0,1)*2.4*clamp(1-s.storm*2.2,0,1),
-    tropical:   s.warmth*s.brightness*clamp(s.wetness*1.8+0.08,0,1)*clamp(s.wind*1.0+0.3,0,1),
-    jazz:       night*clamp(1-s.storm*2,0,1)*(0.30+s.warmth*0.70),
-    lofi:       clamp(s.wetness*0.9,0,1)*clamp(1-s.storm*1.5,0,1)*clamp(1-s.brightness*1.1,0,1)*1.2,
-    electronic: 0.22 + clamp((s.warmth-0.5)*0.4*(1-Math.min(s.wetness*2,1)),0,0.3),
-  };
+  const industrial_raw = Math.pow(clamp(s.storm,0,1),1.0)*0.92 + Math.max(0,0.4-s.warmth)*0.08;
+  const ambient_raw    = Math.pow(clamp(1-s.brightness,0,1),2.2)*0.38 + clamp(s.wetness*(1-s.storm)*0.6,0,1)*0.22 + clamp(0.55-s.wind,0,1)*0.10
+                       + clamp(s.wetness-0.05,0,1)*clamp(0.55-s.warmth,0,1)*2.4*clamp(1-s.storm*2.2,0,1); // classical folded in
+  const lofi_raw       = clamp(s.wetness*0.9,0,1)*clamp(1-s.storm*1.5,0,1)*clamp(1-s.brightness*1.1,0,1)*1.2
+                       + night*clamp(1-s.storm*2,0,1)*(0.30+s.warmth*0.70); // jazz folded in
+  const electronic_raw = 0.22 + clamp((s.warmth-0.5)*0.4*(1-Math.min(s.wetness*2,1)),0,0.3)
+                       + s.warmth*s.brightness*clamp(s.wetness*1.8+0.08,0,1)*clamp(s.wind*1.0+0.3,0,1); // tropical folded in
+  const w={industrial:industrial_raw,ambient:ambient_raw,lofi:lofi_raw,electronic:electronic_raw};
   const total=Object.values(w).reduce((a,b)=>a+b,0)||1;
   Object.keys(w).forEach(k=>w[k]=Math.max(0,w[k])/total);
   return w;
@@ -1734,14 +1733,14 @@ function playWeatherSoundscape(state){
 
   // GENRE BLEND — continuous weights drive all musical parameters
   const gw=state.genreWeights||{electronic:1};
-  const genreDrumDensity=clamp(gw.industrial*0.88+gw.ambient*0.05+gw.classical*0.22+gw.tropical*0.68+gw.jazz*0.55+gw.lofi*0.62+gw.electronic*0.58,0.05,0.94);
-  const genreArpWeight=clamp(gw.tropical*0.92+gw.jazz*0.38+gw.lofi*0.20+gw.classical*0.08+gw.electronic*(state.isSunny?0.78:state.brightness*0.5)+gw.ambient*0.04,0,1);
-  const genreBaseSwing=gw.jazz*0.40+gw.lofi*0.26+gw.tropical*0.14+gw.electronic*0.10;
+  const genreDrumDensity=clamp(gw.industrial*0.88+gw.ambient*0.12+gw.lofi*0.58+gw.electronic*0.65,0.05,0.94);
+  const genreArpWeight=clamp(gw.electronic*(state.isSunny?0.88:state.brightness*0.6)+gw.lofi*0.30+gw.ambient*0.06+gw.industrial*0.02,0,1);
+  const genreBaseSwing=gw.lofi*0.42+gw.electronic*0.12+gw.ambient*0.04;
   const genreDrumsActive=(gw.ambient||0)<0.62;
 
   // MODE & ROOT
   const MODES={major:[0,2,4,5,7,9,11],minor:[0,2,3,5,7,8,10],suspended:[0,2,3,5,7,9,10],phrygian:[0,1,3,5,7,8,10],whole_tone:[0,2,4,6,8,10],dorian:[0,2,3,5,7,9,10],lydian:[0,2,4,6,7,9,11],pentatonic_minor:[0,3,5,7,10],pentatonic_major:[0,2,4,7,9]};
-  const GENRE_SCALE={industrial:'phrygian',ambient:'minor',classical:'major',tropical:'lydian',jazz:'dorian',lofi:'pentatonic_minor',electronic:'pentatonic_major'};
+  const GENRE_SCALE={industrial:'phrygian',ambient:'minor',lofi:'pentatonic_minor',electronic:'pentatonic_major'};
   const scaleName=GENRE_SCALE[state.genre]||state.harmony;
   const mode=MODES[scaleName]||MODES.major;
   const ROOTS=[110,116.54,123.47,130.81,138.59,146.83,155.56,164.81,174.61,185,196,207.65];
@@ -1863,17 +1862,31 @@ function playWeatherSoundscape(state){
   bLFO.connect(bLFOG);bLFOG.connect(padBus.gain);bLFO.start();
   const padVoices=[];
   function buildPad(ch){
-    padVoices.forEach(v=>{try{v.stop(ctx.currentTime+2);}catch(e){}});
+    // Voice targets: root_oct2, 3rd, 5th, 7th (soul/Rhodes voicing)
+    const targets=[ch[1],ch[2],ch[3],ch[4]];
+    if(padVoices.length===targets.length){
+      // Voice leading: assign each existing voice to the closest new target by log-pitch
+      const avail=targets.slice();
+      padVoices.forEach(v=>{
+        let bestIdx=0,bestDist=Infinity;
+        avail.forEach((t,j)=>{const d=Math.abs(Math.log2(t/v.freq));if(d<bestDist){bestDist=d;bestIdx=j;}});
+        const target=avail.splice(bestIdx,1)[0];
+        v.osc.frequency.setTargetAtTime(target,ctx.currentTime+0.05,0.12);
+        v.freq=target;
+      });
+      return;
+    }
+    // First build or voice-count mismatch: create oscillators
+    padVoices.forEach(v=>{try{v.osc.stop(ctx.currentTime+2);}catch(e){}});
     padVoices.length=0;
-    // Root grounds the chord; upper voices are 3rd-5th-7th — full soul/Rhodes-style 7th chord
-    [ch[0],ch[2],ch[3],ch[4]].forEach((freq,i)=>{
+    targets.forEach((freq,i)=>{
       const osc=ctx.createOscillator();const g=ctx.createGain();
       osc.type=i===0?'sine':vp.padTypes[i-1];
       osc.frequency.value=freq;
       osc.detune.value=i===0?0:vp.padDetune[i-1];
-      // Root gets extra weight; upper voices scaled up 1.6× from before
       g.gain.value=i===0?vp.padGains[0]*0.9:vp.padGains[i-1]*1.6;
-      osc.connect(g);g.connect(padF);osc.start();padVoices.push(osc);
+      osc.connect(g);g.connect(padF);osc.start();
+      padVoices.push({osc,g,freq});
     });
   }
   buildPad(chord);
@@ -1924,125 +1937,104 @@ function playWeatherSoundscape(state){
   liveNodes.harmonicBus=harmonicBus;
 
   // Melody phrase state
-  let phrasePos=0,phraseResting=false,phraseRestBeats=0;
-  let phraseLen=4+Math.floor(Math.random()*4); // 4-7 notes per phrase
-  let phraseNotes=[];
+  let phraseResting=false,phraseRestBeats=0;
   let lastFreq=motif[0];
+  let _melCellQ=[],_melSentShape=null,_melSentPos=0,_melSentRest=0;
 
   // Counterpoint state
   let cpFreq=state.isStormy?chord[0]*0.5:state.isSunny?chord[2]/2:chord[0]*1.5;
-  let cpPhrasePos=0,cpRestBeats=0;
-
-  // chord = [root_oct1, root_oct2, 3rd_oct2, 5th_oct2, 7th_oct2, 9th_oct2]
-  function cpPool(){
-    if(vp.cpReg==='sub')return[chord[0]*0.5,chord[0],chord[2]/2,chord[3]/2]; // deep bass for storm
-    if(vp.cpReg==='high')return[chord[2]/2,chord[3]/2,chord[2],chord[3]]; // upper register for sun
-    return[chord[0],chord[2]/2,chord[3]/2,chord[4]/2];
-  }
-
   function playCounterpoint(){
-    if(cpRestBeats>0){cpRestBeats--;return;}
-    const pool=cpPool();
-    // Score each candidate by: contrary motion + consonance with last melody note
-    const midRef=(pool[0]+pool[pool.length-1])/2;
-    const scored=pool.map(f=>{
-      let s=0;
-      // Contrary motion: if voice has been high prefer down, low prefer up
-      if(cpFreq>midRef&&f<cpFreq)s+=3;
-      else if(cpFreq<=midRef&&f>=cpFreq)s+=3;
-      // Consonance check — normalize interval to within one octave, then score
-      let ratio=lastFreq/f;
-      while(ratio>=2)ratio/=2;
-      while(ratio<1)ratio*=2;
-      if(ratio>=1.18&&ratio<=1.27)s+=4; // third — very consonant
-      if(ratio>=1.48&&ratio<=1.51)s+=4; // fifth
-      if(ratio>=1.58&&ratio<=1.70)s+=3; // sixth
-      if(ratio>=1.06&&ratio<=1.13)s-=4; // semitone — avoid
-      if(ratio>=1.40&&ratio<=1.43)s-=3; // tritone — avoid
-      // Prefer small leaps
-      const jump=Math.abs(Math.log2(f/cpFreq))*12;
-      if(jump>7)s-=2;
-      return{f,s};
-    });
-    scored.sort((a,b)=>b.s-a.s);
-    const chosen=Math.random()<0.78?scored[0].f:scored[Math.min(1,scored.length-1)].f;
-    if(!chosen||chosen<55||chosen>420)return;
-    cpFreq=chosen;
-    // Update chord display
+    // Held color tone — only during melody rests, whole-note duration
+    if(!phraseResting)return;
+    const freq=Math.random()<0.55?chord[5]:chord[3]; // 9th or 5th
+    if(!freq||freq<80||freq>1400)return;
+    cpFreq=freq;
     if(typeof updateLiveSheet==='function')updateLiveSheet();
     const now=ctx.currentTime;
+    const holdSecs=4*60/state.tempo;
     const osc=ctx.createOscillator();const g=ctx.createGain();
     osc.type=vp.cpType;
     osc.frequency.value=cpFreq;
-    osc.detune.value=(Math.random()-0.5)*6;
-    const att=vp.cpAtt+Math.random()*0.05;
-    const dec=vp.cpDecMin+Math.random()*vp.cpDecRng;
-    const peak=(vp.cpPeak+state.brightness*0.012)*pGain();
+    osc.detune.value=(Math.random()-0.5)*4;
+    const peak=(vp.cpPeak+state.brightness*0.012)*pGain()*0.75;
     g.gain.setValueAtTime(0.0001,now);
-    g.gain.exponentialRampToValueAtTime(peak,now+att);
-    g.gain.exponentialRampToValueAtTime(0.0001,now+att+dec);
+    g.gain.exponentialRampToValueAtTime(peak,now+0.35);
+    g.gain.exponentialRampToValueAtTime(0.0001,now+holdSecs-0.15);
     osc.connect(g);g.connect(harmonicBus);
-    osc.start(now);osc.stop(now+att+dec+0.1);
-    cpPhrasePos++;
-    if(cpPhrasePos>=4){cpPhrasePos=0;cpRestBeats=1+Math.floor(Math.random()*3);}
+    osc.start(now);osc.stop(now+holdSecs+0.1);
   }
 
-  function nextMelodyFreq(){
-    const tones=chordTones(chord);
-    const pool=[...new Set([...tones,motif[Math.floor(Math.random()*motif.length)]])];
-    // Phrase contour: rise first half, fall second half → arc shape
-    const progress=phraseLen>1?phrasePos/(phraseLen-1):0.5;
-    const wantUp=progress<0.5;
-    // Score each candidate
-    const scored=pool.map(f=>{
-      let sc=0;
-      const semis=Math.abs(Math.log2(f/lastFreq))*12;
-      // Strongly prefer small steps (vocal character)
-      if(semis<=2)sc+=5; else if(semis<=4)sc+=3; else if(semis<=7)sc+=1; else sc-=3;
-      // Avoid exact repetition
-      if(semis<0.5)sc-=6;
-      // Contour: reward movement in the desired direction
-      if(wantUp&&f>lastFreq)sc+=3; else if(!wantUp&&f<lastFreq)sc+=3;
-      // Chord tones are stable
-      if(tones.includes(f))sc+=1;
-      // Near phrase end: lean toward root/fifth for resolution
-      if(phrasePos>=phraseLen-2){
-        const ri=Math.abs(Math.log2(f/chord[1]))*12%12;
-        if(ri<1.5||Math.abs(ri-7)<1.5)sc+=4;
-      }
-      return{f,sc};
-    });
-    scored.sort((a,b)=>b.sc-a.sc);
-    const pick=scored[Math.random()<0.72?0:Math.floor(Math.random()*Math.min(3,scored.length))];
-    lastFreq=pick.f;
-    phraseNotes.push(pick.f);
-    return pick.f;
+  // CELL LIBRARY — pre-composed diatonic motifs per genre, tagged Q (question) / A (answer)
+  // Each entry: array of scale degrees to play in sequence (one per beat call)
+  const _CELLS={
+    ambient:{
+      Q:[[4,3,2,4],[0,2,4,2],[2,4,6,4],[0,2,3,0]],
+      A:[[4,2,0],[3,2,1,0],[6,4,2,0],[4,2,0,2]],
+    },
+    lofi:{
+      Q:[[0,2,3,2,4],[4,3,5,3,4],[0,3,2,0,2],[4,6,4,2,0]],
+      A:[[4,2,1,0],[3,2,0],[4,2,3,0],[6,4,2,0,2,0]],
+    },
+    electronic:{
+      Q:[[0,2,4,6,4],[4,2,4,6,4],[0,4,2,6,4],[2,4,6,4,2]],
+      A:[[6,4,2,0],[4,2,0,2],[4,2,0],[6,4,0,2,0]],
+    },
+    industrial:{
+      Q:[[0,1,3,1,0],[0,3,5,3,1],[0,1,0,3,1],[5,3,1,3,0]],
+      A:[[3,1,0],[5,3,1,0],[1,0,1,0],[3,1,3,0]],
+    },
+  };
+  // Sentence shapes: each entry is a Q/A/R sequence forming a musical sentence
+  const _SSHAPES={
+    ambient:   [['Q','R','A'],['Q','A','R'],['R','Q','A']],
+    lofi:      [['Q','Q','A','R'],['Q','A','Q','A'],['R','Q','Q','A']],
+    electronic:[['Q','Q','A','R'],['Q','A','Q','A'],['Q','Q','Q','A']],
+    industrial:[['Q','Q','A'],['R','Q','Q','A'],['Q','A','Q','A']],
+  };
+
+  function _pickCellFreqs(type){
+    const lib=_CELLS[state.genre]||_CELLS.electronic;
+    const pool=lib[type]||lib.Q;
+    const degs=pool[Math.floor(Math.random()*pool.length)];
+    return degs.map(rd=>mHz(rd,rd<4?2:3));
+  }
+
+  function _advanceMelSent(){
+    if(!_melSentShape||_melSentPos>=_melSentShape.length){
+      const shapes=_SSHAPES[state.genre]||_SSHAPES.electronic;
+      _melSentShape=shapes[Math.floor(Math.random()*shapes.length)];
+      _melSentPos=0;
+      _melSentRest=1+Math.floor(Math.random()*3);
+      phraseResting=true;
+      return;
+    }
+    const type=_melSentShape[_melSentPos++];
+    if(type==='R'){phraseResting=true;phraseRestBeats=2;_melCellQ=[];return;}
+    _melCellQ=_pickCellFreqs(type);
+    phraseResting=false;
   }
 
   function playMelodyNote(){
+    if(_melSentRest>0){_melSentRest--;phraseResting=true;return;}
     if(phraseResting){
-      phraseRestBeats--;
-      if(phraseRestBeats<=0){
-        phraseResting=false;
-        phraseLen=3+Math.floor(Math.random()*5); // 3-7 notes next phrase
-        phraseNotes=[];
-      }
-      return;
+      if(phraseRestBeats>0){phraseRestBeats--;return;}
+      phraseResting=false;
     }
-    if(phase==='sparse'&&Math.random()<0.35)return;
-    const freq=nextMelodyFreq();
+    if(_melCellQ.length===0){
+      _advanceMelSent();
+      if(phraseResting)return;
+    }
+    if(phase==='sparse'&&Math.random()<0.3)return;
+    const freq=_melCellQ.shift();
     if(!freq||freq<80||freq>6000)return;
+    lastFreq=freq;
     const now=ctx.currentTime;
     const osc=ctx.createOscillator();const g=ctx.createGain();const filt=ctx.createBiquadFilter();
     osc.type=vp.melType;osc.frequency.value=freq;
     filt.type='lowpass';filt.frequency.value=vp.melFilter+state.brightness*1500;
     const atk=vp.melAtk+Math.random()*0.012;
-    // Mid-phrase notes held longer for legato phrasing
-    const progress=phraseLen>1?phrasePos/(phraseLen-1):0.5;
-    const lenMult=(progress>0.2&&progress<0.8)?1.35+Math.random()*0.4:1.0;
-    const dec=(vp.melDecMin+Math.random()*vp.melDecRng)*lenMult;
+    const dec=vp.melDecMin+Math.random()*vp.melDecRng;
     const peak=(vp.melPeak+state.brightness*0.03)*pGain();
-    // Vibrato on sustained mid-phrase notes
     if(dec>0.7&&Math.random()<0.55){
       const vibOsc=ctx.createOscillator();const vibG=ctx.createGain();
       vibOsc.frequency.value=4.8+Math.random()*2;
@@ -2057,13 +2049,6 @@ function playWeatherSoundscape(state){
     osc.start(now);osc.stop(now+atk+dec+0.05);
     liveSheetData.lastMelodyNote=freqToNoteName(freq);
     updateLiveSheet();
-    phrasePos++;
-    if(phrasePos>=phraseLen){
-      phrasePos=0;phraseResting=true;
-      phraseRestBeats=2+Math.floor(Math.random()*4); // 2-5 beat breath
-      phraseNotes=[];
-      phraseLen=3+Math.floor(Math.random()*5);
-    }
   }
 
   function playVibe(){
@@ -2267,36 +2252,39 @@ function playWeatherSoundscape(state){
   }
 
   // BASSLINE PATTERNS — [beatPos(0–4), noteType, durationBeats, velocity]
-  // noteType: 0=root  1=fifth  2=third  3=root+8va  4=chromApproach  5=seventh
-  // Beat positions: 0=beat1, 1=beat2, 2=beat3, 3=beat4 (0.25 = 16th note subdivisions)
+  // noteType: 0=root 1=fifth 2=third 3=root+8va 4=chromApproach(below root) 5=seventh
+  //           6=approach-to-next-root 7=ghost(quiet root pickup) 8=b2(semitone above root)
   const BL=[
-    // 0: Motown pulse — lands on 1 and 3, 8th-note pickups between
-    [[0,0,0.75,1.0],[0.75,2,0.25,0.62],[1.5,1,0.5,0.72],
-     [2.0,0,0.75,0.88],[2.75,5,0.25,0.60],[3.5,1,0.5,0.68]],
-    // 1: Half-time — two long tones, very spacious (nothing but halves)
-    [[0,0,1.75,1.0],[2.0,1,1.75,0.80]],
-    // 2: 16th-note funk — very dense, push-and-pull on every subdivision
-    [[0,0,0.5,1.0],[0.25,2,0.25,0.52],[0.75,1,0.5,0.72],
-     [1.25,5,0.25,0.60],[1.5,0,0.5,0.85],[2.25,4,0.25,0.58],
-     [2.5,0,0.5,0.88],[3.0,2,0.25,0.62],[3.25,1,0.5,0.72],[3.75,0,0.25,0.58]],
-    // 3: One-drop feel — silent on beat 1, HEAVY on beat 3
-    [[0.75,4,0.25,0.60],[1.0,0,0.5,0.72],
-     [2.0,0,1.0,1.00],[3.0,1,0.5,0.78],[3.75,0,0.25,0.62]],
-    // 4: Octave bounce — alternates root and high octave on every beat
-    [[0,0,0.75,1.0],[0.75,3,0.25,0.70],
-     [1.5,0,0.75,0.85],[2.25,3,0.25,0.66],
-     [3.0,0,0.75,0.80],[3.75,4,0.25,0.56]],
-    // 5: Call-and-response — two quick bursts, then silence, like breathing
-    [[0,3,0.5,1.0],[0.5,0,0.5,0.78],[1.0,2,0.5,0.68],
-     [2.0,0,0.5,0.90],[2.5,5,0.5,0.74],[3.0,1,1.0,0.72]],
+    // 0: AMBIENT-A — whole tones, breath-like phrasing
+    [[0,0,2.0,0.90],[2.0,1,1.75,0.72]],
+    // 1: AMBIENT-B — root with gentle ghost pickup
+    [[0,0,1.75,0.90],[1.75,7,0.25,0.35],[2.0,0,0.75,0.80],[2.75,1,1.25,0.70]],
+    // 2: LO-FI-A — Jamerson syncopation, land on "e" of beats, approach into next chord
+    [[0,0,0.75,1.0],[0.75,2,0.25,0.60],[1.25,1,0.5,0.74],
+     [1.75,7,0.25,0.38],[2.0,0,0.75,0.90],[2.75,5,0.25,0.56],
+     [3.25,1,0.5,0.70],[3.75,6,0.25,0.50]],
+    // 3: LO-FI-B — denser 16th Jamerson groove, ghost notes and approach
+    [[0,0,0.5,1.0],[0.5,7,0.25,0.30],[0.75,2,0.25,0.64],[1.0,1,0.5,0.76],
+     [1.75,0,0.25,0.82],[2.0,0,0.75,0.92],[2.75,5,0.25,0.54],
+     [3.0,2,0.5,0.68],[3.5,7,0.25,0.32],[3.75,6,0.25,0.48]],
+    // 4: ELECTRONIC-A — on-beat pulse with b2 and approach color
+    [[0,0,0.75,1.0],[0.75,4,0.25,0.62],[1.0,3,0.75,0.78],
+     [2.0,0,0.75,0.88],[2.75,8,0.25,0.58],[3.0,1,0.75,0.74],[3.75,6,0.25,0.50]],
+    // 5: ELECTRONIC-B — octave bounce with b2 flavor
+    [[0,0,0.75,1.0],[0.75,3,0.25,0.68],[1.5,0,0.75,0.84],
+     [2.25,8,0.25,0.58],[2.5,0,0.75,0.90],[3.25,3,0.25,0.60],[3.75,6,0.25,0.48]],
+    // 6: INDUSTRIAL-A — chromatic cluster, heavy downbeats
+    [[0,0,0.5,1.0],[0.5,8,0.25,0.70],[0.75,1,0.5,0.82],
+     [1.5,4,0.25,0.62],[1.75,0,0.25,0.90],
+     [2.0,0,0.75,1.0],[2.75,8,0.25,0.68],[3.0,3,0.5,0.80],[3.75,6,0.25,0.56]],
+    // 7: INDUSTRIAL-B — half-time stomp, two heavy beats
+    [[0,0,1.75,1.0],[1.75,4,0.25,0.62],[2.0,0,1.25,0.96],[3.25,1,0.5,0.80],[3.75,8,0.25,0.60]],
   ];
   let _blIdx=0;
   function selectBL(){
-    const{isStormy,isFoggy,isRaining}=state;
-    const pool=isStormy?[2,3,4,2,4]:isFoggy?[1,3,5,1,3]:isRaining?[0,3,1,4,0]:[0,1,2,3,4,5];
-    // Avoid same pattern twice in a row
-    let next;
-    let tries=0;
+    const pools={ambient:[0,1,0,1],lofi:[2,3,2,3],electronic:[4,5,4,5],industrial:[6,7,6,7]};
+    const pool=pools[state.genre]||[0,2,4,6];
+    let next,tries=0;
     do{next=pool[Math.floor(Math.random()*pool.length)];}while(next===_blIdx&&++tries<8);
     _blIdx=next;
   }
@@ -2371,18 +2359,24 @@ function playWeatherSoundscape(state){
     // BASSLINE — step-sequenced melodic bass notes
     {
       const sPerB=STEPS/4.0;
+      const _ap=window._liveChordCtx?.progression||progression;
+      const nextCh=_ap[(chordIdx+1)%_ap.length];
       const bFreqs=[
-        chord[0],                             // 0: root
-        chord[3]*0.5,                         // 1: fifth
-        chord[2]*0.5,                         // 2: third
-        chord[0]*2,                           // 3: root +8va
-        chord[0]*Math.pow(2,-1/12),           // 4: chromatic approach (semitone below root)
-        chord[4]*0.5,                         // 5: seventh
+        chord[0],                              // 0: root
+        chord[3]*0.5,                          // 1: fifth (lower oct)
+        chord[2]*0.5,                          // 2: third (lower oct)
+        chord[0]*2,                            // 3: root +8va
+        chord[0]*Math.pow(2,-1/12),            // 4: chrom approach (semitone below root)
+        chord[4]*0.5,                          // 5: seventh (lower oct)
+        nextCh[0]*Math.pow(2,-1/12),           // 6: approach to next chord root
+        chord[0],                              // 7: ghost (root — velocity reduced at call site)
+        chord[0]*Math.pow(2,1/12),             // 8: b2 (semitone above root)
       ];
       BL[_blIdx].forEach(([bp,nt,dur,vel])=>{
         if(Math.round(bp*sPerB)===cs){
           const freq=bFreqs[Math.min(nt,bFreqs.length-1)];
-          setTimeout(()=>playBassNote(freq,dur,vel),Math.random()*7);
+          const ghostMult=nt===7?0.32:1.0;
+          setTimeout(()=>playBassNote(freq,dur,vel*ghostMult),Math.random()*7);
         }
       });
     }
@@ -2451,10 +2445,11 @@ function playWeatherSoundscape(state){
       }
       motif=buildMotif(chord);
       cpFreq=chord[0]*1.5;
+      // Flush melody cell queue so next note re-evaluates against new chord tones
+      _melCellQ=[];
       liveSheetData.chordIdx=chordIdx;
       updateLiveSheet();
-      padVoices.forEach(v=>{try{v.stop(ctx.currentTime+2.5);}catch(e){}});
-      setTimeout(()=>buildPad(chord),600);
+      buildPad(chord);
       // Chord stab
       if(phase!=='sparse'){
         chordTones(chord).slice(0,3).forEach((freq,i)=>{
@@ -2505,7 +2500,7 @@ function playWeatherSoundscape(state){
       [wSrc,eSrc].forEach(s=>{try{s.stop();}catch(e){}});
       [fLFO,bLFO,wLFO,wowLFO,flutterLFO,wahLFO].forEach(l=>{try{l.stop();}catch(e){}});
       if(_organOscs)_organOscs.forEach(o=>{try{o.stop();}catch(e){}});
-      padVoices.forEach(v=>{try{v.stop();}catch(e){}});
+      padVoices.forEach(v=>{try{(v.osc||v).stop();}catch(e){}});
       padBus.gain.setValueAtTime(0,ctx.currentTime);
       setTimeout(()=>{try{ctx.close();}catch(e){}},300);
     }
