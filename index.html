@@ -878,6 +878,7 @@ let usingManualState = false;
 let liveNodes = null;
 let lightningTimer = null;
 let liveSheetData = {rootName:'—',modeName:'—',timeSig:'—',progression:[],chordIdx:0,lastMelodyNote:'—'};
+window.liveSheetData=liveSheetData;
 let _sectionStore = {};
 let _activeSectionKey = null;
 
@@ -1457,6 +1458,15 @@ function updateLiveSheet(){
       return`<button class="ls-chord${cls?' '+cls:''}" onclick="toggleChordPicker(this,${i})">${ch}<span class="ls-caret">▾</span></button>${i<d.progression.length-1?'<span class="ls-arrow"> → </span>':''}`;
     }).join('');
   }
+  // Poetic soundscape name displayed on radar HUD
+  if(liveSheetData.rootName && typeof currentState !== 'undefined' && currentState) {
+    const _moods={ambient:['Still','Hollow','Distant','Hazy','Drifting'],lofi:['Late Night','Overcast','Worn','Warm','Cassette'],electronic:['Neon','Electric','Charged','Vivid','Open'],industrial:['Heavy','Raw','Dense','Iron','Concrete']};
+    const _modeShort={minor:'minor',major:'major',pentatonic_minor:'pent.min',pentatonic_major:'pent.maj',phrygian:'phrygian',dorian:'dorian',suspended:'sus'}[liveSheetData.modeName]||'modal';
+    const _genre=currentState.genre||'electronic';
+    const _moodPool=_moods[_genre]||_moods.electronic;
+    const _mood=_moodPool[Math.floor(Math.abs(Math.sin((currentState.warmth||0.5)*31.4+(currentState.wetness||0.5)*17.1))*_moodPool.length)];
+    window._soundscapeName=`${_mood} · ${liveSheetData.rootName} ${_modeShort} · ${currentState.tempo||70} BPM`;
+  }
 }
 
 function updateSectionUI(){
@@ -1886,7 +1896,12 @@ function playWeatherSoundscape(state){
       osc.detune.value=i===0?0:vp.padDetune[i-1];
       g.gain.value=i===0?vp.padGains[0]*0.9:vp.padGains[i-1]*1.6;
       osc.connect(g);g.connect(padF);osc.start();
-      padVoices.push({osc,g,freq});
+      // Coprime drift LFO for organic detuning between voices
+      const dLfo=ctx.createOscillator();const dLfoG=ctx.createGain();
+      dLfo.type='sine';dLfo.frequency.value=[0.071,0.113,0.173,0.233][i]||0.09;
+      dLfoG.gain.value=[4.5,6.5,5.2,7.0][i]||5;
+      dLfo.connect(dLfoG);dLfoG.connect(osc.detune);dLfo.start();
+      padVoices.push({osc,g,freq,dLfo});
     });
   }
   buildPad(chord);
@@ -2035,6 +2050,17 @@ function playWeatherSoundscape(state){
     const atk=vp.melAtk+Math.random()*0.012;
     const dec=vp.melDecMin+Math.random()*vp.melDecRng;
     const peak=(vp.melPeak+state.brightness*0.03)*pGain();
+    // Acciaccatura grace note — quick crush before main note (not in industrial)
+    if(Math.random()<0.17&&state.genre!=='industrial'){
+      const gDir=Math.random()<0.55?-1:1;
+      const gFreq=freq*Math.pow(2,gDir/12);
+      const gOsc=ctx.createOscillator();const gFG=ctx.createGain();
+      const gFlt=ctx.createBiquadFilter();gFlt.type='lowpass';gFlt.frequency.value=vp.melFilter+state.brightness*1500;
+      gOsc.type=vp.melType;gOsc.frequency.value=gFreq;
+      gFG.gain.setValueAtTime(0.0001,now);gFG.gain.exponentialRampToValueAtTime(peak*0.48,now+0.010);gFG.gain.exponentialRampToValueAtTime(0.0001,now+0.040);
+      gOsc.connect(gFlt);gFlt.connect(gFG);gFG.connect(melodyBus);
+      gOsc.start(now);gOsc.stop(now+0.055);
+    }
     if(dec>0.7&&Math.random()<0.55){
       const vibOsc=ctx.createOscillator();const vibG=ctx.createGain();
       vibOsc.frequency.value=4.8+Math.random()*2;
@@ -2500,7 +2526,7 @@ function playWeatherSoundscape(state){
       [wSrc,eSrc].forEach(s=>{try{s.stop();}catch(e){}});
       [fLFO,bLFO,wLFO,wowLFO,flutterLFO,wahLFO].forEach(l=>{try{l.stop();}catch(e){}});
       if(_organOscs)_organOscs.forEach(o=>{try{o.stop();}catch(e){}});
-      padVoices.forEach(v=>{try{(v.osc||v).stop();}catch(e){}});
+      padVoices.forEach(v=>{try{(v.osc||v).stop();}catch(e){}try{if(v.dLfo)v.dLfo.stop();}catch(e){}});
       padBus.gain.setValueAtTime(0,ctx.currentTime);
       setTimeout(()=>{try{ctx.close();}catch(e){}},300);
     }
@@ -3095,6 +3121,20 @@ function startHvAnim(){
     }
     c.restore();
 
+    // ── POLAR WAVEFORM RING ──────────────────────────────────────
+    if(analyser){
+      const wDat=new Float32Array(analyser.fftSize);analyser.getFloatTimeDomainData(wDat);
+      const ringR=maxR+14;const ringAmp=11+(s.storm||0)*7;
+      c.beginPath();
+      for(let wi=0;wi<wDat.length;wi++){
+        const wa=(wi/wDat.length)*Math.PI*2-Math.PI/2;
+        const r=ringR+wDat[wi]*ringAmp;
+        const px=cx+Math.cos(wa)*r,py=cy+Math.sin(wa)*r;
+        if(wi===0)c.moveTo(px,py);else c.lineTo(px,py);
+      }
+      c.closePath();c.strokeStyle=pCol(0.60);c.lineWidth=1.4;c.stroke();
+    }
+
     // ── RANGE RINGS ──────────────────────────────────────────────
     c.strokeStyle=pCol(0.20);c.lineWidth=1;
     for(let i=1;i<=4;i++){c.beginPath();c.arc(cx,cy,maxR*i/4,0,Math.PI*2);c.stroke();}
@@ -3171,6 +3211,26 @@ function startHvAnim(){
     c.font=`700 ${Math.round(H*0.019)}px 'Space Grotesk',sans-serif`;
     c.fillStyle=pCol(0.20);
     c.fillText(`TILT 0.5°  VCP-212  ${new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'})}Z`,8,H-22);
+    // Soundscape name
+    const _sn=window._soundscapeName||'';
+    if(_sn){c.fillStyle=pCol(0.38);c.font=`600 ${Math.round(H*0.022)}px 'Space Grotesk',sans-serif`;c.fillText(_sn,8,H-22-Math.round(H*0.028));}
+    // Current chord name overlay (faint, centered)
+    const _cn=(window.liveSheetData?.progression||[])[window.liveSheetData?.chordIdx||0]||'';
+    if(_cn){c.font=`300 ${Math.round(H*0.068)}px 'Space Grotesk','Inter',sans-serif`;c.textAlign='center';c.textBaseline='middle';c.fillStyle=pCol(0.13);c.fillText(_cn,cx,cy+maxR*0.30);}
+
+    // ── STEP SEQUENCER DOTS ──────────────────────────────────────
+    {
+      const ref=window._beatRef;const totalS=ref?.steps||16;const curS=ref?.stepInBar||0;
+      const nD=Math.min(16,totalS);const dSz=Math.max(3,Math.round(Math.min(W,H)*0.012));
+      const dGap=Math.round(dSz*0.6);const totW=nD*(dSz+dGap)-dGap;
+      const dx0=(W-totW)/2;const dy=H-dSz-7;
+      for(let i=0;i<nD;i++){
+        const sS=Math.round(i*(totalS/nD)),sE=Math.round((i+1)*(totalS/nD))-1;
+        const on=curS>=sS&&curS<=sE,isBt=i%(nD/4)===0;
+        c.fillStyle=on?pCol(0.95):isBt?pCol(0.25):pCol(0.10);
+        c.beginPath();c.arc(dx0+i*(dSz+dGap)+dSz/2,dy+dSz/2,dSz/2,0,Math.PI*2);c.fill();
+      }
+    }
 
     // ── BEAT FLASH ───────────────────────────────────────────────
     if(beatPhase<0.07){c.fillStyle=pCol((0.07-beatPhase)/0.07*0.16);c.fillRect(0,0,W,H);}
@@ -3187,6 +3247,19 @@ function stopHvAnim(){
 }
 
 
+
+// ─── KEYBOARD SHORTCUTS ──────────────────────────────────────
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+  if(e.code==='Space'){e.preventDefault();currentAudio?stop():play();return;}
+  if(e.key==='r'||e.key==='R'){if(!e.metaKey&&!e.ctrlKey&&!e.shiftKey)toggleRecording();return;}
+  if(e.key==='l'||e.key==='L'){const z=$('zipInput').value||$('zipInput2').value;if(z)loadWeatherForZip(z);return;}
+  if(e.key==='m'||e.key==='M'){
+    const mn=liveNodes?.master;
+    if(mn&&liveNodes?.ctx){const ct=liveNodes.ctx.currentTime;mn.gain.setTargetAtTime(mn.gain.value>0.01?0:getFx().vol*0.75,ct,0.05);}
+    return;
+  }
+});
 
 // ─── ONBOARDING ──────────────────────────────────────────────
 (function(){
