@@ -187,6 +187,16 @@ input[type="range"]::-moz-range-thumb{width:14px;height:26px;background:linear-g
 .dc-val.c-purple{color:var(--purple);}
 .dc-sub{font-size:8px;color:var(--ink-faint);font-family:var(--font-mono);margin-top:1px;}
 
+/* LIVE RADAR */
+.radar-updated{float:right;font-weight:600;letter-spacing:0.08em;opacity:0.6;text-transform:none;}
+.radar-wrap{position:relative;width:100%;aspect-ratio:900/230;background:#0A0F0A;overflow:hidden;}
+.radar-wrap canvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
+.radar-crosshair{position:absolute;top:50%;left:50%;width:14px;height:14px;transform:translate(-50%,-50%);border-radius:50%;border:2px solid rgba(255,255,255,0.85);box-shadow:0 0 0 3px rgba(0,0,0,0.35);pointer-events:none;}
+.radar-crosshair::before,.radar-crosshair::after{content:'';position:absolute;background:rgba(255,255,255,0.85);}
+.radar-crosshair::before{top:50%;left:-6px;width:26px;height:1px;transform:translateY(-50%);}
+.radar-crosshair::after{left:50%;top:-6px;height:26px;width:1px;transform:translateX(-50%);}
+.radar-caption{position:absolute;left:8px;bottom:6px;font-family:var(--font-mono);font-size:8px;letter-spacing:0.04em;color:rgba(255,255,255,0.55);text-shadow:0 1px 2px rgba(0,0,0,0.8);pointer-events:none;}
+
 /* FX PANEL */
 .fx-panel{grid-column:1/-1;border-top:1px solid var(--rule);}
 .fx-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;padding:12px 18px;}
@@ -276,7 +286,13 @@ body[data-skin="brutal"] .chord-option:hover,body[data-skin="brutal"] .chord-opt
 .pulse-dot.active{opacity:1;transform:scale(1.7);}
 
 /* DESKTOP: visualizer compact LEFT, controls main RIGHT */
+#chassisStage{width:100%;}
 @media(min-width:901px){
+  /* Above tablet width the instrument holds a fixed native size and scales
+     as one unit to fit the viewport, instead of reflowing its grid —
+     matches how hardware-styled virtual instruments preserve their panel design. */
+  #chassisStage{display:flex;justify-content:center;overflow:hidden;}
+  .chassis{width:1440px;flex-shrink:0;}
   .chassis-content{display:flex;align-items:stretch;width:100%;}
   /* Left column — screen stacked vertically */
   .chassis-content>.screen-row{
@@ -293,7 +309,7 @@ body[data-skin="brutal"] .chord-option:hover,body[data-skin="brutal"] .chord-opt
   /* Control section top row — equal thirds */
   .control-section{grid-template-columns:1fr 1fr 1fr;}
   /* FX and Live Sheet span all columns */
-  .ctrl-panel.fx-panel,.ctrl-panel.live-sheet{grid-column:1/-1;}
+  .ctrl-panel.fx-panel,.ctrl-panel.live-sheet,.ctrl-panel.radar-panel{grid-column:1/-1;}
   .fx-grid{grid-template-columns:1fr 1fr 1fr 1fr;}
 }
 
@@ -364,7 +380,7 @@ body[data-skin="brutal"] .chord-option:hover,body[data-skin="brutal"] .chord-opt
 .skin-toggle{display:none;}
 
 /* ── NEO-BRUTALISM SKIN ─────────────────────────────────── */
-body[data-skin="brutal"]{background:#000000;--nb-bg:#FFFFFF;--nb-ink:#000000;--nb-yellow:#DDE4FF;--nb-red:#E63333;--nb-blue:#2B5EFF;--nb-green:#00A854;--nb-font:'Space Grotesk',sans-serif;}
+body[data-skin="brutal"]{background:#000000;--nb-bg:#FFFFFF;--nb-ink:#000000;--nb-yellow:#F0BC00;--nb-red:#E63333;--nb-blue:#2B5EFF;--nb-green:#00A854;--nb-font:'Space Grotesk',sans-serif;}
 
 /* chassis */
 body[data-skin="brutal"] .chassis{background:var(--nb-bg);border-radius:0;border:none;box-shadow:none;}
@@ -590,6 +606,7 @@ body[data-skin="brutal"] .drum-pad-key{color:rgba(0,0,0,0.3);background:rgba(0,0
   </div>
 </div>
 
+<div id="chassisStage">
 <div class="chassis">
 
 <div class="stripe">
@@ -738,6 +755,16 @@ body[data-skin="brutal"] .drum-pad-key{color:rgba(0,0,0,0.3);background:rgba(0,0
     </div>
   </div>
 
+  <!-- LIVE RADAR — real public radar imagery for the loaded location -->
+  <div class="ctrl-panel radar-panel" style="padding:0;border-top:1px solid var(--rule);">
+    <div class="col-header">Live Radar <span class="radar-updated" id="radarUpdated"></span></div>
+    <div class="radar-wrap">
+      <canvas id="radarCanvas"></canvas>
+      <div class="radar-crosshair"></div>
+      <div class="radar-caption">Map: &copy; OpenStreetMap contributors &middot; Radar: RainViewer — live</div>
+    </div>
+  </div>
+
   <!-- FX PANEL — full width -->
   <div class="ctrl-panel fx-panel" style="border-right:none;border-top:1px solid var(--rule);">
     <div class="ctrl-label">FX + Composition</div>
@@ -867,6 +894,7 @@ body[data-skin="brutal"] .drum-pad-key{color:rgba(0,0,0,0.3);background:rgba(0,0
 </div>
 
 </div><!-- end chassis -->
+</div><!-- end chassisStage -->
 <script>
 'use strict';
 
@@ -1066,6 +1094,7 @@ async function loadWeatherForZip(zip){
     updateWeatherDisplay(currentWeather,currentState);
     syncSlidersToState(currentState);
     updateVisualizer(currentState);
+    updateRadar(lat,lon);
     setStatus(`${placeName} — ready. Press ▶ Play`);
     // sync both zip inputs
     $('zipInput').value=zip;$('zipInput2').value=zip;
@@ -1083,6 +1112,108 @@ function updateWeatherDisplay(w,s){
   $('sunriseValue').textContent=formatTime(w.sunrise);
   $('sunsetValue').textContent=formatTime(w.sunset);
   $('hudCoords').textContent=`${w.lat.toFixed(3)}, ${w.lon.toFixed(3)}`;
+}
+
+// ─── LIVE RADAR ──────────────────────────────────────────────
+// Real public radar imagery (RainViewer) over a dark basemap (CARTO/OSM),
+// centered on the loaded location and animated through the last few frames.
+const RADAR_TILE_SIZE=256,RADAR_ZOOM=7,RADAR_FRAME_MS=500,RADAR_REFRESH_MS=10*60*1000;
+let radarFrames={host:'',frames:[]},radarFrameIdx=0,radarAnimTimer=null,radarRefreshTimer=null;
+let radarLat=40.7,radarLon=-74.0;
+const radarTileCache=new Map();
+
+function lonToTileX(lon,z){return (lon+180)/360*Math.pow(2,z);}
+function latToTileY(lat,z){
+  const rad=lat*Math.PI/180;
+  return (1-Math.log(Math.tan(rad)+1/Math.cos(rad))/Math.PI)/2*Math.pow(2,z);
+}
+function loadTileImg(url){
+  if(radarTileCache.has(url))return radarTileCache.get(url);
+  const p=new Promise(resolve=>{
+    const img=new Image();
+    img.onload=()=>resolve(img);
+    img.onerror=()=>resolve(null);
+    img.src=url;
+  });
+  radarTileCache.set(url,p);
+  return p;
+}
+async function composeRadarFrame(radarPath,radarHost){
+  const canvas=$('radarCanvas');
+  if(!canvas)return;
+  canvas.width=900;canvas.height=230;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height,z=RADAR_ZOOM,ts=RADAR_TILE_SIZE;
+  const worldX=lonToTileX(radarLon,z)*ts,worldY=latToTileY(radarLat,z)*ts;
+  const originX=worldX-W/2,originY=worldY-H/2;
+  const tileMinX=Math.floor(originX/ts),tileMaxX=Math.floor((originX+W)/ts);
+  const tileMinY=Math.floor(originY/ts),tileMaxY=Math.floor((originY+H)/ts);
+  const nTiles=Math.pow(2,z);
+  ctx.fillStyle='#0A0F0A';ctx.fillRect(0,0,W,H);
+  const baseJobs=[];
+  for(let ty=tileMinY;ty<=tileMaxY;ty++){
+    if(ty<0||ty>=nTiles)continue;
+    for(let tx=tileMinX;tx<=tileMaxX;tx++){
+      const wx=((tx%nTiles)+nTiles)%nTiles;
+      const dx=tx*ts-originX,dy=ty*ts-originY;
+      const sub='abc'[(tx+ty)%3];
+      baseJobs.push(loadTileImg(`https://${sub}.tile.openstreetmap.org/${z}/${wx}/${ty}.png`).then(img=>{
+        if(img){
+          ctx.save();
+          ctx.filter='invert(1) hue-rotate(180deg) brightness(0.9) saturate(1.4) contrast(0.95)';
+          ctx.drawImage(img,dx,dy,ts,ts);
+          ctx.restore();
+        }
+      }));
+    }
+  }
+  await Promise.all(baseJobs);
+  if(radarPath){
+    const radarJobs=[];
+    for(let ty=tileMinY;ty<=tileMaxY;ty++){
+      if(ty<0||ty>=nTiles)continue;
+      for(let tx=tileMinX;tx<=tileMaxX;tx++){
+        const wx=((tx%nTiles)+nTiles)%nTiles;
+        const dx=tx*ts-originX,dy=ty*ts-originY;
+        radarJobs.push(loadTileImg(`${radarHost}${radarPath}/${ts}/${z}/${wx}/${ty}/2/1_1.png`).then(img=>{
+          if(img){ctx.globalAlpha=0.75;ctx.drawImage(img,dx,dy,ts,ts);ctx.globalAlpha=1;}
+        }));
+      }
+    }
+    await Promise.all(radarJobs);
+  }
+}
+function startRadarAnim(){
+  if(radarAnimTimer)clearInterval(radarAnimTimer);
+  const f=radarFrames.frames;
+  if(!f||!f.length)return;
+  const step=()=>{
+    composeRadarFrame(f[radarFrameIdx].path,radarFrames.host);
+    radarFrameIdx=(radarFrameIdx+1)%f.length;
+  };
+  step();
+  radarAnimTimer=setInterval(step,RADAR_FRAME_MS);
+}
+async function refreshRadarFrames(){
+  try{
+    const r=await fetch('https://api.rainviewer.com/public/weather-maps.json');
+    if(!r.ok)throw new Error('radar meta failed');
+    const d=await r.json();
+    const past=d.radar?.past||[];
+    radarFrames={host:d.host,frames:past.slice(-6)};
+    radarFrameIdx=0;
+    startRadarAnim();
+    const last=past[past.length-1];
+    if(last)$('radarUpdated').textContent=new Date(last.time*1000).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+  }catch(e){/* keep showing the last frame we already have */}
+}
+function updateRadar(lat,lon){
+  radarLat=lat;radarLon=lon;
+  if(radarFrames.frames.length)composeRadarFrame(radarFrames.frames[radarFrameIdx]?.path,radarFrames.host);
+  else composeRadarFrame(null,null);
+  refreshRadarFrames();
+  if(radarRefreshTimer)clearInterval(radarRefreshTimer);
+  radarRefreshTimer=setInterval(refreshRadarFrames,RADAR_REFRESH_MS);
 }
 
 // ─── TRANSPORT ───────────────────────────────────────────────
@@ -2936,6 +3067,33 @@ document.querySelectorAll('.fx-grid input[type="range"]').forEach(el=>{
   el.addEventListener('wheel',e=>{e.preventDefault();},{passive:false});
 });
 loadWeatherForZip('10033');
+
+// ─── FIXED-SCALE CHASSIS ───────────────────────────────────────
+// Above tablet width, the instrument keeps a fixed native layout and
+// scales as one rigid unit to fit the window, rather than reflowing its
+// grid at arbitrary widths. Below that width the normal stacked mobile
+// layout (set in CSS) takes over untouched.
+(function(){
+  const NATIVE_W=1440,MAX_SCALE=1.25,BREAKPOINT=901;
+  const stage=document.getElementById('chassisStage');
+  const chassis=document.querySelector('.chassis');
+  if(!stage||!chassis)return;
+  function fit(){
+    if(window.innerWidth<BREAKPOINT){
+      chassis.style.transform='';
+      chassis.style.transformOrigin='';
+      stage.style.height='';
+      return;
+    }
+    const scale=Math.min(MAX_SCALE,window.innerWidth/NATIVE_W);
+    chassis.style.transformOrigin='top center';
+    chassis.style.transform=`scale(${scale})`;
+    stage.style.height=(chassis.offsetHeight*scale)+'px';
+  }
+  window.addEventListener('resize',fit);
+  new ResizeObserver(fit).observe(chassis);
+  fit();
+})();
 // ─── VISUALIZER ──────────────────────────────────────────────
 let hvAnimFrame=null;
 let hvState=null;
