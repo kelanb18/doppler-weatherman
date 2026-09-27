@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weather Sounds</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#07090b;--surface:#0f1318;--border:#1a2030;
+  --text:#bcc8d8;--muted:#4a5568;--rain:#4a90d9;--wind:#8ec2a0;
+  --thunder:#c89040;--snow:#a0c0e0;--accent:#5588cc;
+}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Mono','Fira Code',monospace;
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 16px 40px;}
+h1{font-size:0.78rem;letter-spacing:0.22em;color:var(--muted);text-transform:uppercase;margin-bottom:28px;font-weight:400;}
+.input-row{display:flex;gap:8px;margin-bottom:20px;width:100%;max-width:420px;}
+.input-row input{flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);
+  padding:10px 14px;border-radius:6px;font-size:0.85rem;font-family:inherit;outline:none;letter-spacing:0.05em;}
+.input-row input:focus{border-color:var(--accent);}
+.input-row button{background:var(--surface);border:1px solid var(--border);color:var(--text);
+  padding:10px 18px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-family:inherit;
+  letter-spacing:0.08em;transition:border-color .2s,color .2s;}
+.input-row button:hover{border-color:var(--accent);color:var(--accent);}
+#status{font-size:0.78rem;color:var(--muted);margin-bottom:20px;height:1.1em;letter-spacing:0.05em;}
+.location-bar{font-size:0.82rem;color:var(--text);margin-bottom:6px;letter-spacing:0.06em;min-height:1.2em;}
+.condition-bar{font-size:1.1rem;font-weight:300;color:var(--accent);margin-bottom:24px;min-height:1.4em;letter-spacing:0.08em;}
+canvas#viz{display:block;border-radius:12px;background:var(--surface);border:1px solid var(--border);margin-bottom:24px;}
+.play-row{display:flex;align-items:center;gap:16px;margin-bottom:28px;}
+#playBtn{background:transparent;border:1px solid var(--accent);color:var(--accent);
+  width:54px;height:54px;border-radius:50%;cursor:pointer;font-size:1.4rem;
+  display:flex;align-items:center;justify-content:center;transition:background .2s,color .2s;}
+#playBtn:hover,#playBtn.playing{background:var(--accent);color:var(--bg);}
+.vol-row{display:flex;align-items:center;gap:10px;}
+.vol-row label{font-size:0.72rem;color:var(--muted);letter-spacing:0.08em;}
+input[type=range]{-webkit-appearance:none;appearance:none;width:90px;height:3px;
+  background:var(--border);border-radius:2px;outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;
+  border-radius:50%;background:var(--accent);}
+.levels{display:grid;grid-template-columns:1fr 1fr;gap:12px 28px;width:100%;max-width:420px;margin-bottom:24px;}
+.level-item{display:flex;flex-direction:column;gap:4px;}
+.level-label{display:flex;justify-content:space-between;align-items:center;}
+.level-name{font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;}
+.level-val{font-size:0.72rem;color:var(--muted);}
+.level-bar-wrap{height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+.level-bar{height:100%;border-radius:2px;transition:width .4s ease;}
+#lbRain .level-bar{background:var(--rain);}
+#lbWind .level-bar{background:var(--wind);}
+#lbThunder .level-bar{background:var(--thunder);}
+#lbSnow .level-bar{background:var(--snow);}
+.data-row{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;width:100%;max-width:420px;}
+.data-item{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.data-item .val{font-size:1.05rem;color:var(--text);}
+.data-item .lbl{font-size:0.65rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;}
+a.back{font-size:0.72rem;color:var(--muted);text-decoration:none;margin-top:28px;letter-spacing:0.08em;}
+a.back:hover{color:var(--text);}
+</style>
+</head>
+<body>
+<h1>Weather Sounds</h1>
+<div class="input-row">
+  <input id="zipIn" type="text" placeholder="ZIP code" maxlength="10" value="10001">
+  <button id="fetchBtn">FETCH</button>
+</div>
+<div id="status">Enter a ZIP code to load weather conditions.</div>
+<div id="locationBar" class="location-bar"></div>
+<div id="conditionBar" class="condition-bar"></div>
+<canvas id="viz" width="420" height="180"></canvas>
+<div class="play-row">
+  <button id="playBtn" title="Play / Stop">▶</button>
+  <div class="vol-row">
+    <label>VOL</label>
+    <input type="range" id="volSlider" min="0" max="1" step="0.01" value="0.8">
+  </div>
+</div>
+<div class="levels">
+  <div class="level-item" id="lbRain">
+    <div class="level-label"><span class="level-name" style="color:var(--rain)">Rain</span><span class="level-val" id="lvRain">—</span></div>
+    <div class="level-bar-wrap"><div class="level-bar" id="barRain" style="width:0%"></div></div>
+  </div>
+  <div class="level-item" id="lbWind">
+    <div class="level-label"><span class="level-name" style="color:var(--wind)">Wind</span><span class="level-val" id="lvWind">—</span></div>
+    <div class="level-bar-wrap"><div class="level-bar" id="barWind" style="width:0%"></div></div>
+  </div>
+  <div class="level-item" id="lbThunder">
+    <div class="level-label"><span class="level-name" style="color:var(--thunder)">Thunder</span><span class="level-val" id="lvThunder">—</span></div>
+    <div class="level-bar-wrap"><div class="level-bar" id="barThunder" style="width:0%"></div></div>
+  </div>
+  <div class="level-item" id="lbSnow">
+    <div class="level-label"><span class="level-name" style="color:var(--snow)">Snow/Fog</span><span class="level-val" id="lvSnow">—</span></div>
+    <div class="level-bar-wrap"><div class="level-bar" id="barSnow" style="width:0%"></div></div>
+  </div>
+</div>
+<div class="data-row" id="dataRow"></div>
+<a class="back" href="index.html">← back to music mode</a>
+
+<script>
+// ── WEATHER API ─────────────────────────────────────────────────
+const WC={0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',
+  45:'Fog',48:'Rime fog',51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',
+  61:'Light rain',63:'Rain',65:'Heavy rain',71:'Light snow',73:'Snow',75:'Heavy snow',
+  77:'Snow grains',80:'Rain showers',81:'Heavy showers',82:'Violent showers',
+  95:'Thunderstorm',96:'Thunderstorm + hail',99:'Severe thunderstorm'};
+
+let currentWeatherData = null;
+let soundParams = { rain:0, wind:0, storm:0, snow:0, fog:0, temp:0.5, humidity:0.5, precip:0 };
+
+async function fetchWeather(zip){
+  setStatus('Looking up ZIP…');
+  try{
+    const zr = await fetch(`https://api.zippopotam.us/us/${zip}`);
+    if(!zr.ok) throw new Error('ZIP not found');
+    const zd = await zr.json(), pl = zd.places[0];
+    const lat = parseFloat(pl.latitude), lon = parseFloat(pl.longitude);
+    const place = `${pl['place name']}, ${pl['state abbreviation']}`;
+    setStatus('Fetching weather…');
+    const wr = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,relative_humidity_2m,precipitation,weather_code&timezone=auto`);
+    if(!wr.ok) throw new Error('Weather fetch failed');
+    const wd = await wr.json();
+    const w = wd.current;
+    currentWeatherData = {
+      place, lat, lon,
+      temp: w.temperature_2m,
+      windKmh: w.wind_speed_10m,
+      humidity: w.relative_humidity_2m,
+      precip: w.precipitation,
+      code: w.weather_code,
+      condition: WC[w.weather_code] || 'Unknown'
+    };
+    updateDisplay();
+    setStatus('Ready — press ▶ to listen');
+    if(isPlaying) { stopSounds(); startSounds(); } // reload if already playing
+  } catch(e) { setStatus('Error: ' + e.message); }
+}
+
+function setStatus(msg){ document.getElementById('status').textContent = msg; }
+
+function updateDisplay(){
+  const w = currentWeatherData; if(!w) return;
+  document.getElementById('locationBar').textContent = w.place;
+  document.getElementById('conditionBar').textContent = w.condition;
+  computeSoundParams(w);
+  renderDataRow(w);
+  updateLevelBars();
+}
+
+function computeSoundParams(w){
+  const code = w.code;
+  const isRaining = [51,53,55,61,63,65,80,81,82,95,96,99].includes(code);
+  const isStormy  = [95,96,99].includes(code);
+  const isSnowing = [71,73,75,77].includes(code);
+  const isFoggy   = [45,48].includes(code);
+  const heavyRain = [65,82,99].includes(code);
+  const precip    = Math.min(w.precip, 25); // mm/h cap
+
+  soundParams.rain     = isRaining ? Math.min(0.3 + precip/22, 1) : isStormy ? 0.7 : 0;
+  soundParams.wind     = Math.min(w.windKmh / 80, 1);
+  soundParams.storm    = isStormy ? 0.8 + Math.random()*0.2 : 0;
+  soundParams.snow     = isSnowing ? Math.min(0.4 + precip/10, 1) : 0;
+  soundParams.fog      = isFoggy ? 0.9 : 0;
+  soundParams.temp     = Math.max(0, Math.min((w.temp + 30) / 75, 1)); // -30→+45
+  soundParams.humidity = w.humidity / 100;
+  soundParams.precip   = precip;
+}
+
+function renderDataRow(w){
+  const row = document.getElementById('dataRow');
+  row.innerHTML = [
+    [`${Math.round(w.temp)}°C`, 'Temp'],
+    [`${Math.round(w.windKmh)} km/h`, 'Wind'],
+    [`${w.precip} mm/h`, 'Precip'],
+    [`${Math.round(w.humidity)}%`, 'Humidity'],
+  ].map(([v,l]) => `<div class="data-item"><span class="val">${v}</span><span class="lbl">${l}</span></div>`).join('');
+}
+
+function updateLevelBars(){
+  const p = soundParams;
+  const rain = Math.round(p.rain * 100);
+  const wind = Math.round(p.wind * 100);
+  const storm = Math.round(p.storm * 100);
+  const snow = Math.round(Math.max(p.snow, p.fog) * 100);
+  document.getElementById('barRain').style.width   = rain + '%';
+  document.getElementById('barWind').style.width   = wind + '%';
+  document.getElementById('barThunder').style.width = storm + '%';
+  document.getElementById('barSnow').style.width   = snow + '%';
+  document.getElementById('lvRain').textContent    = rain ? rain + '%' : '—';
+  document.getElementById('lvWind').textContent    = wind ? wind + '%' : '—';
+  document.getElementById('lvThunder').textContent = storm ? storm + '%' : '—';
+  document.getElementById('lvSnow').textContent    = snow ? snow + '%' : '—';
+}
+
+// ── AUDIO ENGINE ────────────────────────────────────────────────
+let audioCtx = null, audioNodes = {}, dropTimer = null, snowTimer = null, thunderTimer = null;
+let isPlaying = false, animRaf = null;
+
+function makePinkNoise(ctx, seconds){
+  const n = ctx.sampleRate * seconds;
+  const buf = ctx.createBuffer(1, n, ctx.sampleRate);
+  const d = buf.getChannelData(0);
+  let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+  for(let i=0;i<n;i++){
+    const w=Math.random()*2-1;
+    b0=0.99886*b0+w*0.0555179;b1=0.99332*b1+w*0.0750759;
+    b2=0.96900*b2+w*0.1538520;b3=0.86650*b3+w*0.3104856;
+    b4=0.55000*b4+w*0.5329522;b5=-0.7616*b5-w*0.0168980;
+    d[i]=(b0+b1+b2+b3+b4+b5+b6+w*0.5362)/10;b6=w*0.115926;
+  }
+  return buf;
+}
+
+function makeWhiteNoise(ctx, seconds){
+  const n = ctx.sampleRate * seconds;
+  const buf = ctx.createBuffer(1, n, ctx.sampleRate);
+  const d = buf.getChannelData(0);
+  for(let i=0; i<n; i++) d[i] = Math.random()*2-1;
+  return buf;
+}
+
+function makeReverb(ctx){
+  // Synthesized IR for outdoor space: exponential noise decay
+  const len = ctx.sampleRate * 3.5;
+  const buf = ctx.createBuffer(2, len, ctx.sampleRate);
+  for(let ch=0; ch<2; ch++){
+    const d = buf.getChannelData(ch);
+    for(let i=0; i<len; i++)
+      d[i] = (Math.random()*2-1) * Math.pow(1 - i/len, 2.2) * (ch===0 ? 1 : (Math.random()*2-1));
+  }
+  const conv = ctx.createConvolver();
+  conv.buffer = buf;
+  return conv;
+}
+
+function startSounds(){
+  if(isPlaying) return;
+  isPlaying = true;
+  document.getElementById('playBtn').textContent = '■';
+  document.getElementById('playBtn').classList.add('playing');
+
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  audioCtx = ctx;
+  const vol = parseFloat(document.getElementById('volSlider').value);
+
+  // ── MASTER CHAIN ─────────────────────────────────────────
+  const master = ctx.createGain(); master.gain.value = vol;
+  const lim = ctx.createDynamicsCompressor();
+  lim.threshold.value = -6; lim.knee.value = 3; lim.ratio.value = 16;
+  lim.attack.value = 0.001; lim.release.value = 0.08;
+  master.connect(lim); lim.connect(ctx.destination);
+
+  // Analyser for visualization
+  const analyser = ctx.createAnalyser();
+  analyser.fftSize = 1024; analyser.smoothingTimeConstant = 0.82;
+  lim.connect(analyser);
+
+  // Global "fog/snow" LP — muffles everything when foggy or snowy
+  const envLP = ctx.createBiquadFilter();
+  envLP.type = 'lowpass'; envLP.frequency.value = 18000;
+  envLP.connect(master);
+
+  // ── REVERB (outdoor space) ───────────────────────────────
+  const reverb = makeReverb(ctx);
+  const rvGain = ctx.createGain(); rvGain.gain.value = 0.32;
+  reverb.connect(rvGain); rvGain.connect(master);
+
+  // Pink and white noise buffers (shared)
+  const pink = makePinkNoise(ctx, 5);
+  const white = makeWhiteNoise(ctx, 3);
+
+  // ── RAIN MODULE ──────────────────────────────────────────
+  // Three continuous layers: air hiss, mid-frequency roar, low-frequency rumble
+  const rainBus = ctx.createGain(); rainBus.gain.value = 0;
+  rainBus.connect(envLP); rainBus.connect(reverb);
+
+  // Layer 1: air / fine mist hiss (3–7 kHz)
+  const rSrc1 = ctx.createBufferSource(); rSrc1.buffer = white; rSrc1.loop = true;
+  const rLP1 = ctx.createBiquadFilter(); rLP1.type='lowpass';  rLP1.frequency.value = 7000;
+  const rHP1 = ctx.createBiquadFilter(); rHP1.type='highpass'; rHP1.frequency.value = 3000;
+  const rG1  = ctx.createGain(); rG1.gain.value = 0.55;
+  rSrc1.connect(rLP1); rLP1.connect(rHP1); rHP1.connect(rG1); rG1.connect(rainBus); rSrc1.start();
+
+  // Layer 2: mid roar / surface impact (400–3000 Hz)
+  const rSrc2 = ctx.createBufferSource(); rSrc2.buffer = pink; rSrc2.loop = true;
+  const rLP2 = ctx.createBiquadFilter(); rLP2.type='lowpass';  rLP2.frequency.value = 3500;
+  const rHP2 = ctx.createBiquadFilter(); rHP2.type='highpass'; rHP2.frequency.value = 350;
+  const rG2  = ctx.createGain(); rG2.gain.value = 0.7;
+  rSrc2.connect(rLP2); rLP2.connect(rHP2); rHP2.connect(rG2); rG2.connect(rainBus); rSrc2.start();
+
+  // Layer 3: low rumble for heavy rain / thunder-accompaniment
+  const rSrc3 = ctx.createBufferSource(); rSrc3.buffer = pink; rSrc3.loop = true;
+  const rLP3 = ctx.createBiquadFilter(); rLP3.type='lowpass'; rLP3.frequency.value = 180;
+  const rG3  = ctx.createGain(); rG3.gain.value = 0.35;
+  rSrc3.connect(rLP3); rLP3.connect(rG3); rG3.connect(rainBus); rSrc3.start();
+
+  // Layer 4: surface runoff / streaming (resonant bandpass, intensity-dependent)
+  const rSrc4 = ctx.createBufferSource(); rSrc4.buffer = pink; rSrc4.loop = true;
+  const rBP4 = ctx.createBiquadFilter(); rBP4.type='bandpass'; rBP4.frequency.value=700; rBP4.Q.value=1.8;
+  const rG4  = ctx.createGain(); rG4.gain.value = 0;
+  // LFO creates gurgling effect on the stream
+  const rLFO = ctx.createOscillator(); const rLFOG = ctx.createGain();
+  rLFO.type='sine'; rLFO.frequency.value=2.3; rLFOG.gain.value=0.12;
+  rLFO.connect(rLFOG); rLFOG.connect(rG4.gain); rLFO.start();
+  rSrc4.connect(rBP4); rBP4.connect(rG4); rG4.connect(rainBus); rSrc4.start();
+
+  audioNodes.rainBus = rainBus;
+  audioNodes.rG4 = rG4;
+
+  // Individual drops — Poisson-process scheduler
+  function scheduleRainDrop(){
+    const intensity = soundParams.rain;
+    if(!isPlaying){ return; }
+    if(intensity < 0.025){
+      dropTimer = setTimeout(scheduleRainDrop, 300);
+      return;
+    }
+    // At intensity=1 → ~80 drops/sec max; sparse at low intensity
+    const rate = Math.pow(intensity, 0.5) * 80;
+    const delay = Math.max(4, -Math.log(1 - Math.random()) / rate * 1000);
+    dropTimer = setTimeout(() => { playRainDrop(intensity); scheduleRainDrop(); }, delay);
+  }
+
+  function playRainDrop(intensity){
+    if(!audioCtx) return;
+    const now = ctx.currentTime;
+    // Drop size drives frequency: heavy rain = larger drops = lower pitch
+    const dropSize = 0.1 + Math.random() * (1 - intensity * 0.4); // 0→big, 1→small
+    const freq = 300 + dropSize * 2800;
+    const decay = 0.015 + dropSize * 0.07;
+    const amp = (0.005 + Math.random() * 0.01) * (0.4 + intensity * 0.6);
+
+    // Resonant sine — the "ping" of water impact
+    const osc = ctx.createOscillator();
+    const og = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, now);
+    osc.frequency.exponentialRampToValueAtTime(freq * 0.55, now + decay);
+    og.gain.setValueAtTime(0, now);
+    og.gain.exponentialRampToValueAtTime(amp, now + 0.0008);
+    og.gain.exponentialRampToValueAtTime(0.00001, now + decay + 0.01);
+    osc.connect(og); og.connect(envLP); og.connect(reverb);
+    osc.start(now); osc.stop(now + decay + 0.05);
+
+    // Impact click (noise transient)
+    const clen = Math.floor(ctx.sampleRate * 0.0025);
+    const cbuf = ctx.createBuffer(1, clen, ctx.sampleRate);
+    const cd = cbuf.getChannelData(0);
+    for(let i=0; i<clen; i++) cd[i] = (Math.random()*2-1) * Math.pow(1 - i/clen, 3);
+    const csrc = ctx.createBufferSource(); csrc.buffer = cbuf;
+    const chp = ctx.createBiquadFilter(); chp.type='highpass'; chp.frequency.value = 1800 + Math.random()*3000;
+    const cg = ctx.createGain(); cg.gain.value = 0.012 * intensity * (1 + dropSize);
+    csrc.connect(chp); chp.connect(cg); cg.connect(envLP);
+    csrc.start(now);
+  }
+  scheduleRainDrop();
+
+  // ── WIND MODULE ──────────────────────────────────────────
+  const windBus = ctx.createGain(); windBus.gain.value = 0;
+  windBus.connect(envLP); windBus.connect(reverb);
+
+  // Layer 1: base wind rumble (60–400 Hz) with gust amplitude LFO
+  const wSrc1 = ctx.createBufferSource(); wSrc1.buffer = pink; wSrc1.loop = true;
+  const wBP1 = ctx.createBiquadFilter(); wBP1.type='bandpass'; wBP1.frequency.value=220; wBP1.Q.value=1.0;
+  const wG1 = ctx.createGain(); wG1.gain.value = 0.9;
+  wSrc1.connect(wBP1); wBP1.connect(wG1); wG1.connect(windBus); wSrc1.start();
+
+  // Gust LFO — irregular amplitude surges (0.06–0.2 Hz)
+  const gustLFO = ctx.createOscillator(); const gustG = ctx.createGain();
+  gustLFO.type = 'sine'; gustLFO.frequency.value = 0.06 + Math.random()*0.14;
+  gustG.gain.value = 0.28;
+  gustLFO.connect(gustG); gustG.connect(wG1.gain); gustLFO.start();
+
+  // Layer 2: howl / whistle (narrow bandpass, center frequency modulated)
+  // This creates the "oooooh" howling sound of wind around objects
+  const wSrc2 = ctx.createBufferSource(); wSrc2.buffer = pink; wSrc2.loop = true;
+  const wBP2 = ctx.createBiquadFilter(); wBP2.type='bandpass'; wBP2.frequency.value=480; wBP2.Q.value=14;
+  const howlLFO = ctx.createOscillator(); const howlG = ctx.createGain();
+  howlLFO.type = 'sine'; howlLFO.frequency.value = 0.25 + Math.random()*0.7;
+  howlG.gain.value = 180; // Hz sweep ±180
+  howlLFO.connect(howlG); howlG.connect(wBP2.frequency); howlLFO.start();
+  const wG2 = ctx.createGain(); wG2.gain.value = 0.35;
+  wSrc2.connect(wBP2); wBP2.connect(wG2); wG2.connect(windBus); wSrc2.start();
+
+  // Second harmonic howl — slightly higher, out of phase
+  const wSrc2b = ctx.createBufferSource(); wSrc2b.buffer = pink; wSrc2b.loop = true;
+  const wBP2b = ctx.createBiquadFilter(); wBP2b.type='bandpass'; wBP2b.frequency.value=760; wBP2b.Q.value=10;
+  const howlLFO2 = ctx.createOscillator(); const howlG2 = ctx.createGain();
+  howlLFO2.type = 'sine'; howlLFO2.frequency.value = 0.18 + Math.random()*0.5;
+  howlG2.gain.value = 130;
+  howlLFO2.connect(howlG2); howlG2.connect(wBP2b.frequency); howlLFO2.start();
+  const wG2b = ctx.createGain(); wG2b.gain.value = 0.18;
+  wSrc2b.connect(wBP2b); wBP2b.connect(wG2b); wG2b.connect(windBus); wSrc2b.start();
+
+  // Layer 3: high-frequency rush (above 2.5 kHz) — wind in your ears
+  const wSrc3 = ctx.createBufferSource(); wSrc3.buffer = white; wSrc3.loop = true;
+  const wHP3 = ctx.createBiquadFilter(); wHP3.type='highpass'; wHP3.frequency.value=2500;
+  const wLP3 = ctx.createBiquadFilter(); wLP3.type='lowpass';  wLP3.frequency.value=9000;
+  const wG3 = ctx.createGain(); wG3.gain.value = 0.22;
+  wSrc3.connect(wHP3); wHP3.connect(wLP3); wLP3.connect(wG3); wG3.connect(windBus); wSrc3.start();
+
+  audioNodes.windBus = windBus;
+
+  // ── THUNDER MODULE ───────────────────────────────────────
+  function playThunder(){
+    if(!audioCtx) return;
+    const now = ctx.currentTime;
+    const dist = 0.3 + Math.random() * 2.5; // distance delay (seconds)
+
+    // Crack: sharp HP noise burst — the initial lightning discharge sound
+    const csrc = ctx.createBufferSource(); csrc.buffer = white;
+    const chp = ctx.createBiquadFilter(); chp.type='highpass'; chp.frequency.value=900;
+    const cg = ctx.createGain();
+    cg.gain.setValueAtTime(0, now + dist);
+    cg.gain.exponentialRampToValueAtTime(0.35, now + dist + 0.006);
+    cg.gain.exponentialRampToValueAtTime(0.0001, now + dist + 0.12);
+    csrc.connect(chp); chp.connect(cg); cg.connect(envLP); cg.connect(reverb);
+    csrc.start(now + dist); csrc.stop(now + dist + 0.25);
+
+    // Body: medium noise (200–1200 Hz) — thunder body
+    const bsrc = ctx.createBufferSource(); bsrc.buffer = pink; bsrc.loop = true;
+    const bLP = ctx.createBiquadFilter(); bLP.type='lowpass';  bLP.frequency.value=1200;
+    const bHP = ctx.createBiquadFilter(); bHP.type='highpass'; bHP.frequency.value=200;
+    const bg = ctx.createGain();
+    bg.gain.setValueAtTime(0, now + dist + 0.04);
+    bg.gain.exponentialRampToValueAtTime(0.22, now + dist + 0.25);
+    bg.gain.exponentialRampToValueAtTime(0.0001, now + dist + 1.8 + Math.random()*1.2);
+    bsrc.connect(bLP); bLP.connect(bHP); bHP.connect(bg); bg.connect(envLP); bg.connect(reverb);
+    bsrc.start(now + dist); bsrc.stop(now + dist + 5);
+
+    // Deep rumble: LP at 100 Hz — the chest-resonating infrasound
+    const rsrc = ctx.createBufferSource(); rsrc.buffer = pink; rsrc.loop = true;
+    const rlp = ctx.createBiquadFilter(); rlp.type='lowpass'; rlp.frequency.value=100;
+    const rg = ctx.createGain();
+    rg.gain.setValueAtTime(0, now + dist + 0.1);
+    rg.gain.exponentialRampToValueAtTime(0.3, now + dist + 0.6);
+    rg.gain.exponentialRampToValueAtTime(0.0001, now + dist + 4 + Math.random()*3);
+    rsrc.connect(rlp); rlp.connect(rg); rg.connect(envLP); rg.connect(reverb);
+    rsrc.start(now + dist); rsrc.stop(now + dist + 12);
+
+    // Echo rolls: multiple delayed attenuated copies simulating distant reflections
+    for(let i=1; i<=4; i++){
+      const edist = dist + i * (0.4 + Math.random()*0.7);
+      const esrc = ctx.createBufferSource(); esrc.buffer = pink; esrc.loop = true;
+      const elp = ctx.createBiquadFilter(); elp.type='lowpass'; elp.frequency.value = 80 - i*10;
+      const eg = ctx.createGain();
+      const eAmp = 0.12 / (i * 0.8);
+      eg.gain.setValueAtTime(0, now + edist);
+      eg.gain.exponentialRampToValueAtTime(eAmp, now + edist + 0.2);
+      eg.gain.exponentialRampToValueAtTime(0.0001, now + edist + 1.5 + Math.random());
+      esrc.connect(elp); elp.connect(eg); eg.connect(reverb);
+      esrc.start(now + edist); esrc.stop(now + edist + 5);
+    }
+  }
+
+  function scheduleThunder(){
+    if(!isPlaying) return;
+    const storm = soundParams.storm;
+    if(storm < 0.05){ thunderTimer = setTimeout(scheduleThunder, 4000); return; }
+    // Poisson rate: 0–0.12 events/sec at max storm
+    const rate = storm * 0.12;
+    const delay = Math.max(3000, -Math.log(1 - Math.random()) / rate * 1000);
+    thunderTimer = setTimeout(() => { playThunder(); scheduleThunder(); }, delay);
+  }
+  scheduleThunder();
+
+  // ── SNOW MODULE ───────────────────────────────────────────
+  // Snow primarily creates a "muffled world" — it absorbs high frequencies
+  // and adds rare crystalline ice sounds
+  const snowBus = ctx.createGain(); snowBus.gain.value = 0;
+  const sSnow = ctx.createBufferSource(); sSnow.buffer = pink; sSnow.loop = true;
+  const sLP = ctx.createBiquadFilter(); sLP.type='lowpass'; sLP.frequency.value=250;
+  const sG = ctx.createGain(); sG.gain.value = 0.5;
+  sSnow.connect(sLP); sLP.connect(sG); sG.connect(snowBus);
+  snowBus.connect(envLP); sSnow.start();
+  audioNodes.snowBus = snowBus;
+
+  // Rare snow crystal sounds — high-pitched tings (footsteps, branch drops)
+  function playSnowCrystal(){
+    if(!audioCtx) return;
+    const now = ctx.currentTime;
+    const freq = 3500 + Math.random() * 5000;
+    const dur = 0.8 + Math.random() * 2.0;
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.value = freq;
+    g.gain.setValueAtTime(0, now);
+    g.gain.exponentialRampToValueAtTime(0.007 + Math.random()*0.006, now + 0.05 + Math.random()*0.12);
+    g.gain.exponentialRampToValueAtTime(0.00001, now + dur);
+    osc.connect(g); g.connect(envLP); g.connect(reverb);
+    osc.start(now); osc.stop(now + dur + 0.05);
+  }
+
+  function scheduleSnow(){
+    if(!isPlaying) return;
+    const snow = soundParams.snow;
+    if(snow < 0.08){ snowTimer = setTimeout(scheduleSnow, 600); return; }
+    const rate = snow * 1.5;
+    const delay = Math.max(300, -Math.log(1 - Math.random()) / rate * 1000);
+    snowTimer = setTimeout(() => { playSnowCrystal(); scheduleSnow(); }, delay);
+  }
+  scheduleSnow();
+
+  // ── OUTDOOR ATMOSPHERE ────────────────────────────────────
+  // The nearly-silent base layer that makes silence feel like "outdoors"
+  // (very low-level pink noise, slight LFO, always present)
+  const atmSrc = ctx.createBufferSource(); atmSrc.buffer = pink; atmSrc.loop = true;
+  const atmHP = ctx.createBiquadFilter(); atmHP.type='highpass'; atmHP.frequency.value=60;
+  const atmLP = ctx.createBiquadFilter(); atmLP.type='lowpass'; atmLP.frequency.value=900;
+  const atmGain = ctx.createGain(); atmGain.gain.value = 0.012;
+  const atmLFO = ctx.createOscillator(); const atmLFOG = ctx.createGain();
+  atmLFO.type='sine'; atmLFO.frequency.value=0.04; atmLFOG.gain.value=0.003;
+  atmLFO.connect(atmLFOG); atmLFOG.connect(atmGain.gain); atmLFO.start();
+  atmSrc.connect(atmHP); atmHP.connect(atmLP); atmLP.connect(atmGain);
+  atmGain.connect(envLP); atmGain.connect(reverb); atmSrc.start();
+
+  // ── PARAMETER UPDATE LOOP ────────────────────────────────
+  const updateInterval = setInterval(() => {
+    if(!audioCtx) return;
+    const p = soundParams;
+    const now = ctx.currentTime;
+    const tc = 1.8; // time constant for smooth transitions
+
+    // Rain bus amplitude
+    rainBus.gain.setTargetAtTime(
+      Math.pow(p.rain, 0.55) * 0.22 + p.storm * 0.08,
+      now, tc
+    );
+    // Streaming/gurgle layer — only at high rain intensity
+    rG4.gain.setTargetAtTime(Math.max(0, p.rain - 0.5) * 0.18, now, 2.5);
+
+    // Wind bus amplitude
+    windBus.gain.setTargetAtTime(
+      Math.pow(p.wind, 0.65) * 0.26 + p.storm * 0.12,
+      now, tc * 1.5
+    );
+
+    // Snow bus
+    snowBus.gain.setTargetAtTime(p.snow * 0.06, now, tc);
+
+    // Reverb: longer/wetter in fog and heavy rain
+    rvGain.gain.setTargetAtTime(
+      0.15 + p.fog * 0.35 + p.rain * 0.12 + p.storm * 0.18,
+      now, tc
+    );
+
+    // Fog/snow muffling: progressively close the global LP
+    const fogSnow = Math.max(p.fog, p.snow * 0.7);
+    envLP.frequency.setTargetAtTime(
+      Math.max(800, 18000 - fogSnow * 15000),
+      now, tc
+    );
+
+    // Atmosphere base: quieter under heavy rain/wind
+    atmGain.gain.setTargetAtTime(
+      Math.max(0.002, 0.015 - p.rain * 0.01 - p.wind * 0.008),
+      now, tc
+    );
+  }, 250);
+
+  audioNodes = {ctx, master, analyser, rainBus, windBus, snowBus, envLP, rvGain,
+    rSrc1,rSrc2,rSrc3,rSrc4,rLFO,wSrc1,wSrc2,wSrc2b,wSrc3,sSnow,atmSrc,
+    gustLFO,howlLFO,howlLFO2,atmLFO,updateInterval};
+
+  startViz(analyser);
+  document.getElementById('volSlider').addEventListener('input', e => {
+    if(audioCtx) master.gain.setTargetAtTime(parseFloat(e.target.value), audioCtx.currentTime, 0.1);
+  });
+}
+
+function stopSounds(){
+  if(!isPlaying) return;
+  isPlaying = false;
+  document.getElementById('playBtn').textContent = '▶';
+  document.getElementById('playBtn').classList.remove('playing');
+
+  clearTimeout(dropTimer); clearTimeout(snowTimer); clearTimeout(thunderTimer);
+  dropTimer = snowTimer = thunderTimer = null;
+
+  if(animRaf){ cancelAnimationFrame(animRaf); animRaf = null; }
+
+  const an = audioNodes;
+  if(an.updateInterval) clearInterval(an.updateInterval);
+
+  // Fade out gracefully
+  if(an.master && audioCtx) an.master.gain.setTargetAtTime(0, audioCtx.currentTime, 0.3);
+
+  setTimeout(() => {
+    [an.rSrc1,an.rSrc2,an.rSrc3,an.rSrc4,an.wSrc1,an.wSrc2,an.wSrc2b,
+     an.wSrc3,an.sSnow,an.atmSrc].forEach(s => { try{ s.stop(); }catch(e){} });
+    [an.rLFO,an.gustLFO,an.howlLFO,an.howlLFO2,an.atmLFO].forEach(l => { try{ l.stop(); }catch(e){} });
+    try{ audioCtx.close(); }catch(e){}
+    audioCtx = null; audioNodes = {};
+  }, 500);
+}
+
+// ── VISUALIZATION ────────────────────────────────────────────────
+function startViz(analyser){
+  const canvas = document.getElementById('viz');
+  const W = canvas.width, H = canvas.height;
+  const ctx2 = canvas.getContext('2d');
+  const bufLen = analyser.frequencyBinCount;
+  const freqData = new Uint8Array(bufLen);
+  const waveData = new Float32Array(analyser.fftSize);
+
+  function draw(){
+    animRaf = requestAnimationFrame(draw);
+    analyser.getByteFrequencyData(freqData);
+    analyser.getFloatTimeDomainData(waveData);
+
+    // Background fade
+    ctx2.fillStyle = 'rgba(7,9,11,0.55)';
+    ctx2.fillRect(0, 0, W, H);
+
+    // Frequency spectrum (bottom 2/3 of canvas)
+    const barW = (W / bufLen) * 2.2;
+    const visLen = Math.floor(bufLen * 0.5); // show up to ~Nyquist/2
+    for(let i=0; i<visLen; i++){
+      const val = freqData[i] / 255;
+      const x = (i / visLen) * W;
+      const bH = val * (H * 0.65);
+      // Color by frequency band
+      const hue = 180 + val * 80; // blue→teal→green
+      const sat = 40 + val * 50;
+      const lit = 20 + val * 40;
+      ctx2.fillStyle = `hsla(${hue},${sat}%,${lit}%,0.7)`;
+      ctx2.fillRect(x, H - bH, barW, bH);
+    }
+
+    // Waveform overlay (top 1/3)
+    ctx2.beginPath();
+    ctx2.strokeStyle = 'rgba(100,160,220,0.55)';
+    ctx2.lineWidth = 1.2;
+    const wSlice = W / waveData.length;
+    for(let i=0; i<waveData.length; i++){
+      const y = (0.18 + waveData[i] * 0.12) * H;
+      if(i===0) ctx2.moveTo(0, y);
+      else ctx2.lineTo(i * wSlice, y);
+    }
+    ctx2.stroke();
+  }
+  draw();
+}
+
+// ── WIRING ───────────────────────────────────────────────────────
+document.getElementById('fetchBtn').addEventListener('click', () =>
+  fetchWeather(document.getElementById('zipIn').value.trim()));
+document.getElementById('zipIn').addEventListener('keydown', e =>
+  e.key==='Enter' && fetchWeather(document.getElementById('zipIn').value.trim()));
+document.getElementById('playBtn').addEventListener('click', () =>
+  isPlaying ? stopSounds() : startSounds());
+
+// Resize canvas to fit screen
+(function(){
+  const c = document.getElementById('viz');
+  const w = Math.min(420, window.innerWidth - 32);
+  c.width = w; c.style.width = w+'px';
+  c.height = Math.round(w * 0.43); c.style.height = c.height+'px';
+})();
+</script>
+</body>
+</html>
