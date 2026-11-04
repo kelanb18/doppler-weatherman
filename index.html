@@ -3160,32 +3160,15 @@ document.querySelectorAll('.fx-grid input[type="range"]').forEach(el=>{
   el.addEventListener('wheel',e=>{e.preventDefault();},{passive:false});
 });
 loadWeatherForZip('10033');
+updateHvViz(null); // start idle radar animation immediately on load
 
-// ─── FIXED-SCALE CHASSIS ───────────────────────────────────────
-// Above tablet width, the instrument keeps a fixed native layout and
-// scales as one rigid unit to fit the window, rather than reflowing its
-// grid at arbitrary widths. Below that width the normal stacked mobile
-// layout (set in CSS) takes over untouched.
+// ─── FLUID CHASSIS ─────────────────────────────────────────────
+// CSS handles all sizing via clamp/flex/fr — no JS transform needed.
 (function(){
-  const NATIVE_W=1440,MAX_SCALE=1.25,BREAKPOINT=901;
-  const stage=document.getElementById('chassisStage');
   const chassis=document.querySelector('.chassis');
-  if(!stage||!chassis)return;
-  function fit(){
-    if(window.innerWidth<BREAKPOINT){
-      chassis.style.transform='';
-      chassis.style.transformOrigin='';
-      stage.style.height='';
-      return;
-    }
-    const scale=Math.min(MAX_SCALE,window.innerWidth/NATIVE_W);
-    chassis.style.transformOrigin='top center';
-    chassis.style.transform=`scale(${scale})`;
-    stage.style.height=(chassis.offsetHeight*scale)+'px';
-  }
-  window.addEventListener('resize',fit);
-  new ResizeObserver(fit).observe(chassis);
-  fit();
+  if(!chassis)return;
+  chassis.style.transform='';
+  chassis.style.transformOrigin='';
 })();
 // ─── VISUALIZER ──────────────────────────────────────────────
 let hvAnimFrame=null;
