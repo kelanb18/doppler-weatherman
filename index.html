@@ -1096,6 +1096,7 @@ async function loadWeatherForZip(zip){
     updateVisualizer(currentState);
     updateRadar(lat,lon);
     setStatus(`${placeName} — ready. Press ▶ Play`);
+    if(_pendingAutoPlay){_pendingAutoPlay=false;setTimeout(play,100);}
     // sync both zip inputs
     $('zipInput').value=zip;$('zipInput2').value=zip;
   }catch(e){setStatus(`Error: ${e.message}`);}
@@ -3496,13 +3497,24 @@ document.addEventListener('keydown',e=>{
 });
 
 // ─── ONBOARDING ──────────────────────────────────────────────
+let _pendingAutoPlay=false;
 (function(){
   const overlay=$('obOverlay');
   const closeBtn=$('obClose');
   if(!overlay)return;
-  function dismiss(){overlay.style.opacity='0';overlay.style.pointerEvents='none';setTimeout(()=>{overlay.style.display='none';},300);}
-  if(closeBtn)closeBtn.addEventListener('click',dismiss);
-  overlay.addEventListener('click',(e)=>{if(e.target===overlay)dismiss();});
+  function dismiss(andPlay){
+    overlay.style.opacity='0';
+    overlay.style.pointerEvents='none';
+    setTimeout(()=>{
+      overlay.style.display='none';
+      if(andPlay){
+        if(currentWeather){play();}
+        else{_pendingAutoPlay=true;}
+      }
+    },300);
+  }
+  if(closeBtn)closeBtn.addEventListener('click',()=>dismiss(true));
+  overlay.addEventListener('click',(e)=>{if(e.target===overlay)dismiss(false);});
   overlay.style.transition='opacity 0.3s';
 })();
 
