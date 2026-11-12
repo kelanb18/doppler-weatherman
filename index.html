@@ -2981,7 +2981,6 @@ function startHvAnim(){
   if(!canvas)return;
   const c=canvas.getContext('2d');
   let W,H;
-  let peaks=[],peakTimers=[],radarBlips=[],radarLastAngle=null;
 
   function resize(){
     const r=canvas.parentElement.getBoundingClientRect();
@@ -2989,13 +2988,14 @@ function startHvAnim(){
     canvas.height=Math.round(r.height*devicePixelRatio);
     c.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
     W=r.width; H=r.height;
-    peaks=[];peakTimers=[];radarBlips=[];radarLastAngle=null;
   }
   resize();
   new ResizeObserver(resize).observe(canvas.parentElement);
 
-  const SR=44100,FFT=512,BIN_HZ=SR/FFT;
-  const MIN_HZ=60,MAX_HZ=8000;
+  // ── DOT GRID VISUALIZER ──────────────────────────────────────
+  // Grid configuration
+  const DOT_SZ=4, GAP=9; // dot size px, cell stride px
+  let beatFlash=0;        // 0-1, decays each frame
 
   function draw(){
     const s=hvState;
@@ -3003,262 +3003,167 @@ function startHvAnim(){
     const analyser=liveNodes?liveNodes.analyser:null;
     const wallT=performance.now()/1000;
 
-    c.clearRect(0,0,W,H);
-    const cx=W/2,cy=H/2,maxR=Math.min(W,H)*0.43;
+    // ── BACKGROUND ───────────────────────────────────────────────
+    c.fillStyle='#030008';c.fillRect(0,0,W,H);
 
-    // ── IDLE ──────────────────────────────────────────────────────
-    if(!s||!liveNodes){
-      c.fillStyle='#030008';c.fillRect(0,0,W,H);
-      c.strokeStyle='rgba(172,110,219,0.14)';c.lineWidth=1;
-      for(let i=1;i<=4;i++){c.beginPath();c.arc(cx,cy,maxR*i/4,0,Math.PI*2);c.stroke();}
-      c.strokeStyle='rgba(172,110,219,0.07)';c.setLineDash([3,5]);
-      c.beginPath();c.moveTo(cx-maxR,cy);c.lineTo(cx+maxR,cy);c.moveTo(cx,cy-maxR);c.lineTo(cx,cy+maxR);c.stroke();
-      c.setLineDash([]);
-      c.fillStyle='rgba(196,138,248,0.4)';c.beginPath();c.arc(cx,cy,3,0,Math.PI*2);c.fill();
-      if(s){
-        c.font=`600 ${Math.round(H*0.042)}px 'IBM Plex Mono',monospace`;
-        c.fillStyle='rgba(172,110,219,0.22)';c.textAlign='center';c.textBaseline='middle';
-        c.fillText('▶  PRESS PLAY',cx,cy+H*0.11);
-      }
-      hvAnimFrame=requestAnimationFrame(draw);return;
+    const isActive=!!(s&&liveNodes);
+    const STRIDE=DOT_SZ+GAP;
+
+    // ── THEME COLORS ─────────────────────────────────────────────
+    let pR=172,pG=110,pB=219; // default purple
+    if(isActive){
+      const tempF=(s.temp||20)*9/5+32;
+      if(s.isStormy){pR=255;pG=40;pB=70;}
+      else if(s.isRaining){pR=50;pG=150;pB=255;}
+      else if(s.isSnowing){pR=180;pG=210;pB=255;}
+      else if(s.isFoggy){pR=200;pG=170;pB=90;}
+      else if(!s.isDaytime){pR=140;pG=70;pB=255;}
+      else if(s.isSunny&&tempF>=83){pR=255;pG=160;pB=0;}
+      else{pR=90;pG=230;pB=130;}
     }
 
-    const bpm=clk?clk.bpm:(s.tempo||70);
-    const sixMs=clk?clk.sixMs:(60000/bpm/4);
-    const beatMs=sixMs*4;
-    const elapsed=clk?performance.now()-clk.lastBeatTime:0;
-    const beatPhase=Math.min(1,elapsed/beatMs);
-    const tempC=s.temp||20,tempF=tempC*9/5+32;
-
-    // Sweep: 1 revolution per bar, tempo-synced so every quarter-turn = 1 beat
-    const revSec=(sixMs/1000)*16;
-    const sweepAngle=((wallT%revSec)/revSec)*Math.PI*2-Math.PI/2;
-
-    // ── THEME ────────────────────────────────────────────────────
-    let pR,pG,pB,useNexrad=false;
-    if(s.isStormy){pR=255;pG=30;pB=60;useNexrad=true;}
-    else if(s.isRaining){pR=40;pG=140;pB=255;useNexrad=true;}
-    else if(s.isSnowing){pR=180;pG=200;pB=255;}
-    else if(s.isFoggy){pR=200;pG=160;pB=60;}
-    else if(!s.isDaytime){pR=160;pG=80;pB=255;}
-    else if(s.isSunny&&tempF>=83){pR=255;pG=140;pB=0;}
-    else{pR=0;pG=220;pB=100;}
-
-    function pCol(a){return`rgba(${pR},${pG},${pB},${a})`;}
-    function nexradCol(t){
-      if(t<0.15)return[0,200,60];if(t<0.3)return[0,230,0];if(t<0.45)return[200,230,0];
-      if(t<0.55)return[255,200,0];if(t<0.65)return[255,120,0];if(t<0.75)return[255,30,0];
-      if(t<0.87)return[200,0,200];return[255,80,255];
-    }
-    function blipFill(t,a){
-      if(useNexrad){const[r,g,b]=nexradCol(t);return`rgba(${r},${g},${b},${a})`;}
-      return`rgba(${Math.round(pR*Math.min(1.4,t+0.4))},${Math.round(pG*Math.min(1.4,t+0.4))},${Math.round(pB*Math.min(1.4,t+0.4))},${a})`;
+    // ── BPM / BEAT PHASE ─────────────────────────────────────────
+    let beatPhase=1,bpm=70;
+    if(isActive&&clk){
+      bpm=clk.bpm;
+      const beatMs=(clk.sixMs||214)*4;
+      const elapsed=performance.now()-clk.lastBeatTime;
+      beatPhase=Math.min(1,elapsed/beatMs);
     }
 
-    // ── FFT ──────────────────────────────────────────────────────
+    // On new beat, latch a flash
+    if(beatPhase<0.08) beatFlash=1;
+    beatFlash=Math.max(0,beatFlash-0.055);
+
+    // ── FFT DATA ─────────────────────────────────────────────────
+    const FFT_BINS=512;
     let freqDB=null;
-    if(analyser){freqDB=new Float32Array(analyser.frequencyBinCount);analyser.getFloatFrequencyData(freqDB);}
+    if(isActive&&analyser){
+      freqDB=new Float32Array(analyser.frequencyBinCount);
+      analyser.getFloatFrequencyData(freqDB);
+    }
+    // Map FFT bins into COLS frequency bands (log scale 60Hz–8kHz)
+    const COLS=Math.floor(W/STRIDE);
+    const ROWS=Math.floor(H/STRIDE);
+    const SR=44100,BIN_HZ=SR/FFT_BINS,MIN_HZ=60,MAX_HZ=9000;
+    const bandEnergy=new Float32Array(COLS);
+    if(freqDB){
+      for(let col=0;col<COLS;col++){
+        const loHz=MIN_HZ*Math.pow(MAX_HZ/MIN_HZ,col/COLS);
+        const hiHz=MIN_HZ*Math.pow(MAX_HZ/MIN_HZ,(col+1)/COLS);
+        const lo=Math.max(0,Math.round(loHz/BIN_HZ));
+        const hi=Math.min(freqDB.length-1,Math.round(hiHz/BIN_HZ));
+        let sum=0,cnt=0;
+        for(let b=lo;b<=hi;b++){const db=freqDB[b];if(isFinite(db)&&db>-144){sum+=Math.max(0,db+80);cnt++;}}
+        bandEnergy[col]=cnt?Math.min(1,(sum/cnt)/70):0;
+      }
+    }
 
-    // ── SAMPLE AUDIO → BLIPS at sweep position ───────────────────
-    const NUM_R=12;
-    if(freqDB&&radarLastAngle!==null){
-      let dA=sweepAngle-radarLastAngle;
-      if(dA<-Math.PI)dA+=Math.PI*2;if(dA>Math.PI)dA-=Math.PI*2;
-      const STEP_RAD=4.5*Math.PI/180;
-      if(Math.abs(dA)>=STEP_RAD){
-        const steps=Math.max(1,Math.round(Math.abs(dA)/STEP_RAD));
-        for(let si=0;si<steps;si++){
-          const sA=radarLastAngle+(si/steps)*dA;
-          for(let ri=0;ri<NUM_R;ri++){
-            const t=(ri+0.5)/NUM_R;
-            const loHz=MIN_HZ*Math.pow(MAX_HZ/MIN_HZ,ri/NUM_R);
-            const hiHz=MIN_HZ*Math.pow(MAX_HZ/MIN_HZ,(ri+1)/NUM_R);
-            const loBin=Math.max(0,Math.round(loHz/BIN_HZ));
-            const hiBin=Math.min(FFT/2-1,Math.round(hiHz/BIN_HZ));
-            let sum=0,cnt=0;
-            for(let b=loBin;b<=hiBin;b++){const db=freqDB[b];if(isFinite(db)&&db>-Infinity){sum+=db;cnt++;}}
-            if(!cnt)continue;
-            const intensity=Math.max(0,Math.min(1,(sum/cnt-(-80))/((-10)-(-80))));
-            if(intensity<0.07)continue;
-            const count=1+Math.floor(intensity*3);
-            for(let b2=0;b2<count;b2++){
-              if(radarBlips.length>=600)break;
-              const jA=(Math.random()-0.5)*0.20*(1-t*0.3);
-              const jR=(Math.random()-0.5)*maxR*0.09;
-              radarBlips.push({angle:sA+jA,r:Math.max(maxR*0.07,Math.min(maxR*0.97,t*maxR+jR)),intensity,life:1,sz:1.5+intensity*5.5});
-            }
+    const bh=window._bassHit||0;
+    const bassBoost=Math.min(1,bh*2.2);
+
+    // ── DRAW DOT GRID ─────────────────────────────────────────────
+    for(let row=0;row<ROWS;row++){
+      const fy=row/Math.max(1,ROWS-1); // 0=top 1=bottom
+      for(let col=0;col<COLS;col++){
+        const fx=col/Math.max(1,COLS-1); // 0=left 1=right
+        const x=col*STRIDE;
+        const y=row*STRIDE;
+
+        let brightness;
+        if(!isActive){
+          // Idle: slow breathing wave
+          const wave=Math.sin(wallT*0.7+fx*4.0+fy*2.5)*0.5+0.5;
+          brightness=0.04+wave*0.14;
+        } else {
+          // Active: energy from FFT band for this column
+          const energy=bandEnergy[col]||0;
+          // Rows fill from bottom: dot lights if row depth <= energy
+          const fillDepth=energy*(ROWS*0.85+bassBoost*ROWS*0.15);
+          const rowFromBottom=ROWS-1-row;
+          if(rowFromBottom<fillDepth){
+            const t=rowFromBottom/Math.max(1,fillDepth);
+            brightness=0.08+t*0.75;
+          } else {
+            brightness=0.03+energy*0.04;
+          }
+          // Beat flash: wave ripple from center outward
+          if(beatFlash>0){
+            const cx2=COLS/2,cy2=ROWS/2;
+            const dist=Math.sqrt((col-cx2)**2+(row-cy2)**2);
+            const waveFront=(1-beatFlash)*(Math.max(COLS,ROWS)*0.8);
+            const diff=Math.abs(dist-waveFront);
+            if(diff<3) brightness=Math.min(1,brightness+beatFlash*(1-diff/3)*0.6);
+          }
+          // Bass hit: low-freq columns surge
+          if(bassBoost>0&&col<COLS*0.18){
+            brightness=Math.min(1,brightness+bassBoost*(1-col/(COLS*0.18))*0.5);
           }
         }
-        radarLastAngle=sweepAngle;
+
+        const alpha=Math.max(0,Math.min(1,brightness));
+        c.fillStyle=`rgba(${pR},${pG},${pB},${alpha})`;
+        c.fillRect(x,y,DOT_SZ,DOT_SZ);
       }
-    }else{radarLastAngle=sweepAngle;}
-
-    // Age blips
-    for(let i=radarBlips.length-1;i>=0;i--){
-      radarBlips[i].life-=0.007;if(radarBlips[i].life<=0)radarBlips.splice(i,1);
     }
 
-    // ── BACKGROUND ───────────────────────────────────────────────
-    c.fillStyle='#000508';c.fillRect(0,0,W,H);
-
-    // ── CLIP TO RADAR CIRCLE ─────────────────────────────────────
-    c.save();c.beginPath();c.arc(cx,cy,maxR,0,Math.PI*2);c.clip();
-    const bgGrd=c.createRadialGradient(cx,cy,0,cx,cy,maxR);
-    bgGrd.addColorStop(0,pCol(0.05));bgGrd.addColorStop(1,'rgba(0,0,0,0)');
-    c.fillStyle=bgGrd;c.fillRect(cx-maxR,cy-maxR,maxR*2,maxR*2);
-
-    // ── BLIPS ─────────────────────────────────────────────────────
-    for(const bl of radarBlips){
-      const bx=cx+Math.cos(bl.angle)*bl.r,by=cy+Math.sin(bl.angle)*bl.r;
-      const a=Math.pow(bl.life,0.55);
-      const grd=c.createRadialGradient(bx,by,0,bx,by,bl.sz*2.8);
-      grd.addColorStop(0,blipFill(bl.intensity,a*0.72));grd.addColorStop(1,blipFill(bl.intensity,0));
-      c.fillStyle=grd;c.beginPath();c.arc(bx,by,bl.sz*2.8,0,Math.PI*2);c.fill();
-      c.fillStyle=blipFill(Math.min(1,bl.intensity*1.5),a);
-      c.beginPath();c.arc(bx,by,Math.max(1,bl.sz*0.42),0,Math.PI*2);c.fill();
-    }
-
-    // ── SWEEP TRAIL ──────────────────────────────────────────────
-    const trailAngle=Math.PI*0.30;
-    for(let i=0;i<50;i++){
-      const t=1-i/50;
-      const a1=sweepAngle-(i/50)*trailAngle,a2=sweepAngle-((i+1)/50)*trailAngle;
-      c.beginPath();c.moveTo(cx,cy);c.arc(cx,cy,maxR,a1,a2,true);c.closePath();
-      c.fillStyle=pCol(t*t*0.16);c.fill();
-    }
-
-    // ── SWEEP ARM ── beats = quarter-turns so arm pulses every beat ──
-    const ex=cx+Math.cos(sweepAngle)*maxR,ey=cy+Math.sin(sweepAngle)*maxR;
-    // Glow wide beam — brightens on beat
-    const beatBoost=beatPhase<0.12?1-beatPhase/0.12:0;
-    c.strokeStyle=pCol(0.18+beatBoost*0.28);c.lineWidth=7+beatBoost*8;
-    c.beginPath();c.moveTo(cx,cy);c.lineTo(ex,ey);c.stroke();
-    // Sharp leading edge
-    c.strokeStyle=pCol(0.90+beatBoost*0.10);c.lineWidth=1.5;
-    c.beginPath();c.moveTo(cx,cy);c.lineTo(ex,ey);c.stroke();
-    // Beat-tick dot at arm tip
-    if(beatBoost>0){
-      const dotR=4+beatBoost*8;
-      const dg=c.createRadialGradient(ex,ey,0,ex,ey,dotR*3);
-      dg.addColorStop(0,pCol(beatBoost*0.9));dg.addColorStop(1,pCol(0));
-      c.fillStyle=dg;c.beginPath();c.arc(ex,ey,dotR*3,0,Math.PI*2);c.fill();
-      c.fillStyle=pCol(beatBoost);c.beginPath();c.arc(ex,ey,dotR,0,Math.PI*2);c.fill();
-    }
-    c.restore();
-
-    // ── POLAR WAVEFORM RING ──────────────────────────────────────
-    if(analyser){
-      const wDat=new Float32Array(analyser.fftSize);analyser.getFloatTimeDomainData(wDat);
-      const ringR=maxR+14;const ringAmp=11+(s.storm||0)*7;
-      c.beginPath();
-      for(let wi=0;wi<wDat.length;wi++){
-        const wa=(wi/wDat.length)*Math.PI*2-Math.PI/2;
-        const r=ringR+wDat[wi]*ringAmp;
-        const px=cx+Math.cos(wa)*r,py=cy+Math.sin(wa)*r;
-        if(wi===0)c.moveTo(px,py);else c.lineTo(px,py);
+    // ── HUD OVERLAY ───────────────────────────────────────────────
+    if(isActive){
+      const hudFS=Math.round(Math.max(9,H*0.027));
+      const bpmVal=Math.round(bpm);
+      const tempC=s.temp||20,tempF2=tempC*9/5+32;
+      // BPM top-left
+      c.font=`300 ${Math.round(H*0.09)}px 'IBM Plex Mono',monospace`;
+      c.fillStyle=`rgba(${pR},${pG},${pB},0.75)`;
+      c.textAlign='left';c.textBaseline='top';
+      c.fillText(String(bpmVal),10,8);
+      c.font=`700 ${hudFS}px 'IBM Plex Mono',monospace`;
+      c.fillStyle=`rgba(${pR},${pG},${pB},0.40)`;
+      const bpmW=c.measureText(String(bpmVal)).width;
+      c.fillText('BPM',10+bpmW+5,14);
+      // Temp top-right
+      c.font=`600 ${hudFS}px 'IBM Plex Mono',monospace`;
+      c.fillStyle=`rgba(${pR},${pG},${pB},0.40)`;
+      c.textAlign='right';c.textBaseline='top';
+      c.fillText(`${Math.round(tempF2)}°F`,W-10,10);
+      // Label bottom-right
+      c.font=`600 ${hudFS}px 'IBM Plex Mono',monospace`;
+      c.fillStyle=`rgba(${pR},${pG},${pB},0.45)`;
+      c.textAlign='right';c.textBaseline='bottom';
+      c.fillText((s.label||'').toUpperCase(),W-10,H-10);
+      // Chord bottom-left
+      const _cn=(window.liveSheetData?.progression||[])[window.liveSheetData?.chordIdx||0]||'';
+      if(_cn){
+        c.font=`300 ${Math.round(H*0.062)}px 'IBM Plex Mono',monospace`;
+        c.fillStyle=`rgba(${pR},${pG},${pB},0.12)`;
+        c.textAlign='left';c.textBaseline='bottom';
+        c.fillText(_cn,10,H-10);
       }
-      c.closePath();c.strokeStyle=pCol(0.60);c.lineWidth=1.4;c.stroke();
+    } else {
+      // Idle PRESS PLAY hint
+      c.font=`600 ${Math.round(H*0.038)}px 'IBM Plex Mono',monospace`;
+      c.fillStyle='rgba(172,110,219,0.28)';
+      c.textAlign='center';c.textBaseline='middle';
+      c.fillText('▶  PRESS PLAY',W/2,H/2+H*0.07);
     }
 
-    // ── RANGE RINGS ──────────────────────────────────────────────
-    c.strokeStyle=pCol(0.20);c.lineWidth=1;
-    for(let i=1;i<=4;i++){c.beginPath();c.arc(cx,cy,maxR*i/4,0,Math.PI*2);c.stroke();}
-    c.strokeStyle=pCol(0.09);c.lineWidth=1;c.setLineDash([3,7]);
-    c.beginPath();c.moveTo(cx-maxR,cy);c.lineTo(cx+maxR,cy);c.moveTo(cx,cy-maxR);c.lineTo(cx,cy+maxR);c.stroke();
-    c.setLineDash([]);
-
-    // ── DEGREE TICKS ─────────────────────────────────────────────
-    for(let deg=0;deg<360;deg+=10){
-      const rad=deg*Math.PI/180-Math.PI/2;
-      const isMaj=deg%90===0,isMed=deg%30===0;
-      c.strokeStyle=pCol(isMaj?0.38:isMed?0.22:0.12);c.lineWidth=1;
-      c.beginPath();
-      c.moveTo(cx+Math.cos(rad)*maxR*(isMaj?0.92:isMed?0.95:0.97),cy+Math.sin(rad)*maxR*(isMaj?0.92:isMed?0.95:0.97));
-      c.lineTo(cx+Math.cos(rad)*maxR,cy+Math.sin(rad)*maxR);c.stroke();
-    }
-
-    // ── COMPASS LABELS ───────────────────────────────────────────
-    const cFS=Math.round(Math.max(9,H*0.028));
-    c.font=`700 ${cFS}px 'Space Grotesk',sans-serif`;c.textAlign='center';c.textBaseline='middle';
-    [{l:'N',d:0},{l:'E',d:90},{l:'S',d:180},{l:'W',d:270}].forEach(({l,d})=>{
-      const rad=d*Math.PI/180-Math.PI/2;
-      c.fillStyle=pCol(0.52);c.fillText(l,cx+Math.cos(rad)*maxR*0.84,cy+Math.sin(rad)*maxR*0.84);
-    });
-
-    // ── OUTER BORDER + CENTER ─────────────────────────────────────
-    c.strokeStyle=pCol(0.55);c.lineWidth=2;c.beginPath();c.arc(cx,cy,maxR,0,Math.PI*2);c.stroke();
-    // second thin outer ring for 80s feel
-    c.strokeStyle=pCol(0.18);c.lineWidth=1;c.beginPath();c.arc(cx,cy,maxR+6,0,Math.PI*2);c.stroke();
-    const cBeat=beatPhase<0.1?1-beatPhase/0.1:0;
-    c.fillStyle=pCol(0.88+cBeat*0.12);c.beginPath();c.arc(cx,cy,3.5+cBeat*3,0,Math.PI*2);c.fill();
-    c.fillStyle=pCol(0.18+cBeat*0.35);c.beginPath();c.arc(cx,cy,11+cBeat*12,0,Math.PI*2);c.fill();
-
-    // ── BASS PULSE RINGS ─────────────────────────────────────────
-    const bh=window._bassHit||0;
-    if(bh>0.01){
-      for(let i=0;i<4;i++){
-        const rph=bh-i*0.22;if(rph<=0)continue;
-        const frac=Math.max(0.04,Math.min(0.98,1-rph*0.6));
-        const ringR=maxR*frac;
-        const alpha=rph*0.85*Math.pow(1-frac,0.3);
-        c.strokeStyle=pCol(Math.min(1,alpha));
-        c.lineWidth=1+rph*5;
-        c.beginPath();c.arc(cx,cy,ringR,0,Math.PI*2);c.stroke();
-      }
-      window._bassHit=Math.max(0,bh-0.07);
-    }
-
-    // ── CRT VIGNETTE ─────────────────────────────────────────────
-    const vig=c.createRadialGradient(cx,cy,maxR*0.55,cx,cy,maxR*1.3);
-    vig.addColorStop(0,'rgba(0,0,0,0)');vig.addColorStop(1,'rgba(0,0,0,0.72)');
-    c.fillStyle=vig;c.fillRect(0,0,W,H);
-
-    // ── HUD — 80s NEXRAD style ───────────────────────────────────
-    const hudFS=Math.round(Math.max(8,H*0.025));
-    const bpmFS=Math.round(H*0.1);
-    // "DOPPLER" watermark
-    c.font=`900 ${Math.round(H*0.055)}px 'Space Grotesk',sans-serif`;
-    c.fillStyle=pCol(0.06);c.textAlign='center';c.textBaseline='middle';
-    c.fillText('WSR-88D NEXRAD',cx,cy+maxR*0.60);
-    // BPM readout
-    c.font=`300 ${bpmFS}px 'Inter',sans-serif`;c.fillStyle=pCol(0.82);
-    c.textAlign='left';c.textBaseline='top';c.fillText(String(Math.round(bpm)),8,5);
-    c.font=`800 ${hudFS}px 'Space Grotesk',sans-serif`;c.fillStyle=pCol(0.45);
-    c.fillText('BPM',8+c.measureText(String(Math.round(bpm))).width+4,10);
-    c.textAlign='right';c.fillStyle=pCol(0.35);c.fillText(`${Math.round(tempF)}°F`,W-8,10);
-    c.textBaseline='bottom';c.fillStyle=pCol(0.50);c.fillText((s.label||'').toUpperCase(),W-8,H-8);
-    // range labels — more 80s: right-aligned with unit
-    c.font=`600 ${Math.round(Math.max(7,H*0.021))}px 'Space Grotesk',sans-serif`;
-    c.fillStyle=pCol(0.28);c.textAlign='left';c.textBaseline='bottom';
-    for(let i=1;i<=4;i++){c.fillText(`${i*25}KM`,cx+5,cy-maxR*(i/4)+2);}
-    // TILT/ELEV readout — fake but authentic
-    c.textAlign='left';c.textBaseline='top';
-    c.font=`700 ${Math.round(H*0.019)}px 'Space Grotesk',sans-serif`;
-    c.fillStyle=pCol(0.20);
-    c.fillText(`TILT 0.5°  VCP-212  ${new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'})}Z`,8,H-22);
-    // Soundscape name
-    const _sn=window._soundscapeName||'';
-    if(_sn){c.fillStyle=pCol(0.38);c.font=`600 ${Math.round(H*0.022)}px 'Space Grotesk',sans-serif`;c.fillText(_sn,8,H-22-Math.round(H*0.028));}
-    // Current chord name overlay (faint, centered)
-    const _cn=(window.liveSheetData?.progression||[])[window.liveSheetData?.chordIdx||0]||'';
-    if(_cn){c.font=`300 ${Math.round(H*0.068)}px 'Space Grotesk','Inter',sans-serif`;c.textAlign='center';c.textBaseline='middle';c.fillStyle=pCol(0.13);c.fillText(_cn,cx,cy+maxR*0.30);}
-
-    // ── STEP SEQUENCER DOTS ──────────────────────────────────────
-    {
+    // ── STEP DOTS bottom bar ──────────────────────────────────────
+    if(isActive){
       const ref=window._beatRef;const totalS=ref?.steps||16;const curS=ref?.stepInBar||0;
-      const nD=Math.min(16,totalS);const dSz=Math.max(3,Math.round(Math.min(W,H)*0.012));
-      const dGap=Math.round(dSz*0.6);const totW=nD*(dSz+dGap)-dGap;
-      const dx0=(W-totW)/2;const dy=H-dSz-7;
+      const nD=Math.min(16,totalS);const dSz=Math.max(3,Math.round(Math.min(W,H)*0.013));
+      const dGap=Math.round(dSz*0.55);const totW=nD*(dSz+dGap)-dGap;
+      const dx0=(W-totW)/2;const dy=H-dSz-6;
       for(let i=0;i<nD;i++){
         const sS=Math.round(i*(totalS/nD)),sE=Math.round((i+1)*(totalS/nD))-1;
         const on=curS>=sS&&curS<=sE,isBt=i%(nD/4)===0;
-        c.fillStyle=on?pCol(0.95):isBt?pCol(0.25):pCol(0.10);
-        c.beginPath();c.arc(dx0+i*(dSz+dGap)+dSz/2,dy+dSz/2,dSz/2,0,Math.PI*2);c.fill();
+        const a=on?0.95:isBt?0.28:0.11;
+        c.fillStyle=`rgba(${pR},${pG},${pB},${a})`;
+        c.fillRect(dx0+i*(dSz+dGap),dy,dSz,dSz);
       }
     }
 
-    // ── BEAT FLASH ───────────────────────────────────────────────
-    if(beatPhase<0.07){c.fillStyle=pCol((0.07-beatPhase)/0.07*0.16);c.fillRect(0,0,W,H);}
+    // Decay bass hit
+    if(bh>0) window._bassHit=Math.max(0,bh-0.06);
 
     hvAnimFrame=requestAnimationFrame(draw);
   }
